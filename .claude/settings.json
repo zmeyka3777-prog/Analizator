@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"c:/Users/MARS/Desktop/Проекты/Analizator/scripts/save-session.sh\" \"Auto-save at end of session\""
+          }
+        ]
+      }
+    ]
+  }
+}

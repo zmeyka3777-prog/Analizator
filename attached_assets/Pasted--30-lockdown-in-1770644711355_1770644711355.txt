@@ -1,0 +1,24 @@
+нет не может 30 минут до последнего обновления за пару минут грузился файл, вот консоль: lockdown-install.js:1 SES Removing unpermitted intrinsics
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Error while parsing the 'sandbox' attribute: 'allow-downloads-without-user-activation' is an invalid sandbox flag.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'ambient-light-sensor'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'battery'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'execution-while-not-rendered'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'execution-while-out-of-viewport'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'layout-animations'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'legacy-image-formats'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'navigation-override'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'oversized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'publickey-credentials'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'speaker-selection'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'unoptimized-images'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Unrecognized feature: 'unsized-media'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Allow attribute will take precedence over 'allowfullscreen'.
+workspace_iframe.html?initialPath=%2F&id=%3Ar43%3A:32 Allow attribute will take precedence over 'allowpaymentrequest'.
+lockdown-install.js:1 SES Removing unpermitted intrinsics
+injected.js:37 combinedData: []
+injected.js:37 combinedData: []
+injected.js:37 loadSavedYearlyDataOnStartup уже выполняется, пропускаем
+injected.js:37 Метаданные загружены, экран готов. hasData: false
+injected.js:37 Загружены вспомогательные данные
+injected.js:37 [Upload] Большой файл (274.15 MB), используем серверную обработку
+injected.js:37 [ChunkUpload] Начало: весь 2024.csv, 55 частей, fileId=file_1770644072076_kjs6uht

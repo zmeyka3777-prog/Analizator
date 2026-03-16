@@ -1,0 +1,34 @@
+2026-02-09 17:06:37.625 MSK [33217] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:06:36.242 MSK [33217] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:06:37.127 MSK [33218] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:06:37.872 MSK [33219] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:06:38.333 MSK [33218] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:06:38.929 MSK [33219] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:14:17.873 MSK [33599] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:14:32.664 MSK [33601] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:14:44.699 MSK [33599] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:14:53.898 MSK [33600] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:14:53.119 MSK [33601] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:15:07.993 MSK [33599] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:15:14.023 MSK [33601] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:15:14.117 MSK [33600] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:15:41.971 MSK [33600] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:17:43.997 MSK [33755] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:17:50.618 MSK [33766] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:17:52.122 MSK [33765] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:18:08.815 MSK [33755] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:18:16.696 MSK [33766] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:18:22.917 MSK [33783] gen_user@analizator LOG:  SSL error: unexpected eof while reading
+2026-02-09 17:18:18.789 MSK [33765] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:18:34.364 MSK [33755] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:18:38.807 MSK [33766] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:18:45.237 MSK [33765] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:18:46.831 MSK [33783] gen_user@analizator LOG:  could not receive data from client: Connection reset by peer
+2026-02-09 17:19:13.266 MSK [33783] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:20:15.998 MSK [34009] [unknown]@[unknown] LOG:  could not accept SSL connection: unexpected eof while reading
+2026-02-09 17:22:43.289 MSK [33972] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:22:51.475 MSK [33980] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:23:10.203 MSK [33967] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:23:30.194 MSK [33979] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:23:29.776 MSK [33974] gen_user@analizator FATAL:  canceling authentication due to timeout
+2026-02-09 17:23:49.731 MSK [33973] gen_user@analizator FATAL:  canceling authentication due to timeout

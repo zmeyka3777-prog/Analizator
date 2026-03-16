@@ -1,0 +1,47 @@
+# Dependencies
+node_modules/
+
+# Environment variables (NEVER commit secrets)
+.env
+.env.local
+.env.*.local
+.env.development
+.env.production
+
+# Build output
+dist/
+build/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Drizzle
+drizzle/meta/
+
+# Replit
+.replit
+replit.nix
+.cache/
+
+# Загруженные файлы пользователей (не коммитить!)
+uploads/
+*.zip
+
+# Локальные инструменты
+.local/
+.mcp.json
+nul

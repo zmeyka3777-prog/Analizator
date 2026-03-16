@@ -1,0 +1,35 @@
+name: Deploy to Timeweb VPS
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Деплой на сервер
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            set -e
+            cd ${{ secrets.SERVER_PATH }}
+
+            echo "=== Получаем последний код ==="
+            git pull origin main
+
+            echo "=== Устанавливаем зависимости ==="
+            npm ci
+
+            echo "=== Собираем frontend ==="
+            npm run build
+
+            echo "=== Перезапускаем сервер ==="
+            pm2 reload analizator --update-env
+
+            echo "=== Деплой завершён ==="
+            pm2 status

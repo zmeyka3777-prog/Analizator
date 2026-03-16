@@ -1,0 +1,795 @@
+Создай профессиональное веб-приложение "Анализатор продаж WM Russia" — специализированную платформу для управления и анализа продаж фармацевтической компании WM Russia с системой разграничения доступа по ролям, детальной аналитикой и визуализацией данных.
+
+🏗️ ТЕХНИЧЕСКАЯ БАЗА
+Стек технологий:
+
+React 18+ с TypeScript
+Tailwind CSS v4 для стилизации
+Recharts для графиков и визуализации
+Lucide React для иконок
+Shadcn/ui для UI-компонентов
+React Router для навигации (если необходимо)
+Основной файл: /App.tsx с дефолтным экспортом
+
+🎨 ДИЗАЙН-СИСТЕМА
+Цветовая палитра:
+
+Основной синий: #6DB7FF (акценты, кнопки)
+Тёмно-синий: #004F9F (заголовки, важные элементы)
+Циановый: #20C6DA (дополнительные акценты, графики)
+Фон: чистый белый #FFFFFF и светло-голубые градиенты from-white to-blue-50/30
+Границы: border-blue-100/50
+Текст: text-slate-900 для основного, text-slate-600 для вторичного
+Дизайн-принципы:
+
+Минималистичный медицинский стиль
+Чистый профессиональный интерфейс
+Максимум "воздуха" между элементами
+Адаптивность для desktop, tablet, mobile
+Карточная структура с тенями и закруглёнными углами
+Анимации при наведении и переходах
+👥 СИСТЕМА РОЛЕЙ И ДОСТУПА
+1. Медицинский представитель (medrep)
+Доступ:
+
+✅ Личная статистика продаж (только свои данные)
+✅ План/факт по своим показателям (упаковки и деньги)
+✅ Графики по своим продажам за период
+✅ Сравнение своих результатов с прошлыми месяцами
+✅ Личный рейтинг в команде округа (позиция среди коллег)
+✅ Детализация продаж по каждому из 12 препаратов
+❌ НЕ видит данные других медпредов
+❌ НЕ видит общую статистику округа
+❌ НЕ видит аналитику других регионов
+Интерфейс для медпреда:
+
+Дашборд с персональными KPI (план/факт по упаковкам и деньгам)
+Круговая диаграмма распределения продаж по 12 препаратам
+Линейный график динамики продаж за последние 6 месяцев
+Таблица с детализацией: препарат, план, факт, % выполнения
+Badge с позицией в рейтинге команды
+Прогресс-бары выполнения плана по каждому продукту
+2. Территориальный менеджер (territory_manager)
+Доступ:
+
+✅ Данные всех медпредов своей территории (город/район)
+✅ Сравнительная таблица медпредов территории
+✅ План/факт территории в агрегированном виде
+✅ Рейтинг медпредов по выполнению плана
+✅ Детализация по каждому медпреду (все 12 препаратов)
+✅ Графики динамики продаж территории
+❌ НЕ видит другие территории своего округа
+❌ НЕ видит данные других округов
+❌ НЕ имеет доступа к загрузке данных
+Интерфейс для территориального менеджера:
+
+Дашборд с общими показателями территории
+Сравнительная таблица медпредов с сортировкой и фильтрами
+Визуализация топ-3 и аутсайдеров по выполнению плана
+Детальная карточка каждого медпреда (расширяемая)
+Графики сравнения план/факт для территории
+Возможность переключения между представлениями: карточки / таблица
+3. Региональный менеджер (manager)
+Доступ:
+
+✅ Полная аналитика своего федерального округа (например, ПФО)
+✅ Данные всех территорий округа
+✅ Данные всех медпредов округа
+✅ Сравнение территорий внутри округа
+✅ План/факт округа по упаковкам и деньгам
+✅ Детализация по всем 12 препаратам на уровне округа
+✅ Рейтинг медпредов и территорий
+✅ Графики динамики, тренды, прогнозы
+❌ НЕ видит другие федеральные округа
+❌ НЕ имеет доступа к загрузке данных
+❌ НЕ видит админ-панель
+Интерфейс для регионального менеджера:
+
+Полноценная аналитическая панель округа
+Сводная статистика: план/факт по деньгам и упаковкам
+Круговая диаграмма распределения продаж по 12 препаратам
+Сравнительная таблица всех медпредов округа
+Группировка по территориям с возможностью разворачивания
+Визуализация трендов и динамики
+Фильтры по периодам, препаратам, территориям
+Экспорт отчётов (PDF, Excel)
+4. Директор компании (admin)
+Полный доступ ко всему:
+
+✅ Аналитика по всем 8 федеральным округам России
+✅ Сравнение округов между собой
+✅ Общая статистика компании
+✅ Данные всех территорий и медпредов всех округов
+✅ Загрузка новых отчётов по продажам (Excel/CSV)
+✅ Управление данными: добавление, редактирование, удаление
+✅ Настройка планов продаж
+✅ Полная админ-панель с расширенной аналитикой
+✅ Журнал загрузок и изменений данных
+✅ Экспорт любых отчётов и аналитики
+Интерфейс для директора (ПОЛНАЯ АДМИН-ПАНЕЛЬ):
+
+Главный дашборд:
+Общая сводка компании: план/факт по всей России
+Карта России с федеральными округами и цветовой индикацией выполнения плана
+Топ-5 лучших и худших регионов
+Общий прогресс по 12 препаратам
+Графики динамики продаж всей компании
+Аналитика по округам:
+Сравнительная таблица всех 8 федеральных округов:
+ЦФО (Центральный)
+СЗФО (Северо-Западный)
+ЮФО (Южный)
+СКФО (Северо-Кавказский)
+ПФО (Приволжский)
+УФО (Уральский)
+СФО (Сибирский)
+ДФО (Дальневосточный)
+План/факт каждого округа по деньгам и упаковкам
+% выполнения плана с цветовой индикацией:
+≥95% — зелёный (success)
+85-94% — жёлтый (warning)
+<85% — красный (danger)
+Drill-down: клик по округу открывает детализацию
+Детализация округа (доступ к любому):
+Полная копия интерфейса регионального менеджера
+Таблица всех медпредов округа
+Аналитика по территориям
+Графики и диаграммы
+Возможность редактирования данных
+Управление данными:
+Загрузка отчётов:
+Drag-and-drop зона для Excel/CSV файлов
+Выбор федерального округа для загрузки
+Выбор периода (месяц, год)
+Предпросмотр данных перед загрузкой
+Валидация данных (проверка структуры таблицы)
+История загрузок с метаданными (кто, когда, что загрузил)
+Редактирование планов:
+Таблица с возможностью inline-редактирования
+Массовое изменение планов по выбранным критериям
+Копирование планов из прошлых периодов
+Управление медпредами:
+Добавление нового медпреда
+Назначение на территорию
+Изменение данных
+Деактивация сотрудника
+Отчёты и экспорт:
+Конструктор отчётов:
+Выбор округа/территории/медпреда
+Выбор периода
+Выбор препаратов
+Выбор метрик (план, факт, %, деньги, упаковки)
+Форматы экспорта: PDF, Excel, CSV
+Шаблоны отчётов для быстрого доступа
+Журнал активности:
+Лог всех действий в системе:
+Загрузка данных
+Изменение планов
+Добавление/удаление медпредов
+Фильтры по пользователю, дате, типу действия
+📊 СТРУКТУРА ДАННЫХ
+12 препаратов WM Russia:
+Каждый препарат имеет уникальный цвет для визуализации:
+
+Кокарнит — #10b981 (изумрудный)
+Артоксан (лиофилизат) — #3b82f6 (синий)
+Артоксан таблетки — #06b6d4 (циан)
+Артоксан гель — #14b8a6 (бирюзовый)
+Секнидокс — #8b5cf6 (фиолетовый)
+Клодифен Нейро — #a855f7 (пурпурный)
+Драстоп Адванс — #f59e0b (янтарный)
+Орцепол ВМ — #f97316 (оранжевый)
+Лименда — #ec4899 (розовый)
+Роноцит — #ef4444 (красный)
+Дорамитцин — #eab308 (жёлтый)
+Апфекто — #64748b (графитовый)
+Федеральные округа РФ:
+type FederalDistrict = 'ЦФО' | 'СЗФО' | 'ЮФО' | 'СКФО' | 'ПФО' | 'УФО' | 'СФО' | 'ДФО';
+Структура данных медпреда:
+interface MedRepData {
+  id: string;
+  name: string;
+  territory: string; // территория (город/район)
+  district: FederalDistrict; // федеральный округ
+  
+  // По каждому препарату: план и факт (упаковки)
+  kokarnitPlan: number;
+  kokarnitFact: number;
+  artoksanPlan: number;
+  artoksanFact: number;
+  artoksanTablPlan: number;
+  artoksanTablFact: number;
+  artoksanGelPlan: number;
+  artoksanGelFact: number;
+  seknidoxPlan: number;
+  seknidoxFact: number;
+  klodifenPlan: number;
+  klodifenFact: number;
+  drastopPlan: number;
+  drastopFact: number;
+  ortsepolPlan: number;
+  ortsepolFact: number;
+  limendaPlan: number;
+  limendaFact: number;
+  ronocitPlan: number;
+  ronocitFact: number;
+  doramitcinPlan: number;
+  doramitcinFact: number;
+  alfectoPlan: number;
+  alfectoFact: number;
+  
+  // Итого
+  totalPackagesPlan: number;
+  totalPackagesFact: number;
+  totalMoneyPlan: number; // в рублях
+  totalMoneyFact: number; // в рублях
+}
+Пример РЕАЛЬНЫХ данных ПФО (Октябрь 2025):
+Используй эти точные данные для демонстрации:
+
+const pfoSalesData: MedRepData[] = [
+  {
+    id: '1',
+    name: 'Шестакова Марина',
+    territory: 'Самара',
+    district: 'ПФО',
+    kokarnitPlan: 1120, kokarnitFact: 781,
+    artoksanPlan: 2285, artoksanFact: 897,
+    seknidoxPlan: 290, seknidoxFact: 170,
+    klodifenPlan: 115, klodifenFact: 96,
+    drastopPlan: 63, drastopFact: 24,
+    ortsepolPlan: 500, ortsepolFact: 458,
+    limendaPlan: 445, limendaFact: 576,
+    artoksanTablPlan: 640, artoksanTablFact: 751,
+    artoksanGelPlan: 380, artoksanGelFact: 448,
+    ronocitPlan: 250, ronocitFact: 349,
+    doramitcinPlan: 240, doramitcinFact: 54,
+    alfectoPlan: 35, alfectoFact: 34,
+    totalPackagesPlan: 6363,
+    totalPackagesFact: 4638,
+    totalMoneyPlan: 4247288,
+    totalMoneyFact: 2983974
+  },
+  {
+    id: '2',
+    name: 'Жмылева Валерия',
+    territory: 'Самара',
+    district: 'ПФО',
+    kokarnitPlan: 1120, kokarnitFact: 1218,
+    artoksanPlan: 2285, artoksanFact: 2215,
+    seknidoxPlan: 290, seknidoxFact: 419,
+    klodifenPlan: 115, klodifenFact: 204,
+    drastopPlan: 63, drastopFact: 24,
+    ortsepolPlan: 500, ortsepolFact: 986,
+    limendaPlan: 445, limendaFact: 563,
+    artoksanTablPlan: 640, artoksanTablFact: 946,
+    artoksanGelPlan: 380, artoksanGelFact: 606,
+    ronocitPlan: 250, ronocitFact: 352,
+    doramitcinPlan: 240, doramitcinFact: 170,
+    alfectoPlan: 35, alfectoFact: 10,
+    totalPackagesPlan: 6363,
+    totalPackagesFact: 7713,
+    totalMoneyPlan: 4247288,
+    totalMoneyFact: 5025474
+  },
+  // ... остальные 8 медпредов из таблицы ПФО Октябрь 2025
+];
+🎨 КОМПОНЕНТЫ И ИНТЕРФЕЙСЫ
+1. LoginPage — Страница авторизации
+Email-вход (только @orney.ru)
+Автоматическое определение роли пользователя
+Минималистичный дизайн с логотипом WM Russia
+Валидация email перед входом
+2. Header — Шапка приложения
+Логотип WM Russia слева
+Название приложения "Анализатор продаж"
+Справа: роль пользователя, имя, аватар
+Кнопка выхода
+Для admin: переключатель роли (демо-режим для тестирования разных представлений)
+3. Sidebar — Боковая навигация
+Для медпреда:
+
+📊 Мои продажи
+📈 Динамика
+🎯 Мои KPI
+Для территориального менеджера:
+
+📊 Моя территория
+👥 Команда
+📈 Сравнительная аналитика
+🎯 KPI территории
+Для регионального менеджера:
+
+📊 Дашборд округа
+🗺️ Территории
+👥 Все медпреды
+📈 Аналитика
+🎯 KPI округа
+📑 Отчёты
+Для директора:
+
+🏢 Общая панель
+🗺️ Карта России
+📊 Федеральные округа
+📈 Сравнительная аналитика
+👥 Все сотрудники
+⬆️ Загрузка данных
+⚙️ Управление
+📑 Отчёты
+📋 Журнал активности
+4. Dashboard — Главный дашборд
+Адаптируется под роль пользователя.
+
+Для медпреда:
+
+Карточки с личным план/факт по упаковкам и деньгам
+% выполнения плана
+Позиция в рейтинге команды
+Круговая диаграмма по препаратам
+График динамики за 6 месяцев
+Для менеджеров и директора:
+
+Сводные карточки с агрегированной статистикой
+Графики сравнения план/факт
+Таблицы с drill-down возможностью
+Визуализация трендов
+5. SalesTable — Таблица продаж
+Адаптивная таблица с сортировкой и фильтрацией
+Колонки: Сотрудник, Территория, План (упак), Факт (упак), %, План (₽), Факт (₽), %
+Цветовая индикация выполнения:
+Зелёный: ≥95%
+Жёлтый: 85-94%
+Красный: <85%
+Возможность раскрытия строки для детализации по препаратам
+Экспорт в Excel/PDF
+6. ChartsPanel — Панель графиков
+Типы графиков:
+
+Круговая диаграмма (Pie Chart): распределение продаж по препаратам
+Столбчатая диаграмма (Bar Chart): сравнение план/факт
+Линейный график (Line Chart): динамика продаж по месяцам
+Grouped Bar Chart: сравнение медпредов/территорий
+Stacked Area Chart: тренды по категориям препаратов
+7. ProductDetailsCard — Карточка препарата
+Название препарата с цветовым маркером
+План и факт (упаковки)
+% выполнения с прогресс-баром
+Сумма в рублях (план/факт)
+Мини-график динамики
+8. RegionCard — Карточка региона (для директора)
+Название федерального округа
+Общий план/факт
+% выполнения
+Индикатор статуса
+Кнопка "Подробнее" для drill-down
+9. FileUploader — Загрузчик данных (только admin)
+Drag-and-drop зона
+Выбор файла (Excel/CSV)
+Селекторы: округ, период
+Предпросмотр данных
+Валидация перед загрузкой
+Подтверждение загрузки
+История загрузок
+10. ReportGenerator — Генератор отчётов
+Фильтры: округ, территория, медпред, период, препараты
+Выбор метрик для включения в отчёт
+Кнопки экспорта: PDF, Excel, CSV
+Сохранённые шаблоны
+🔧 ФУНКЦИОНАЛ
+Базовый функционал:
+Авторизация:
+
+Вход по email @orney.ru
+Роль определяется автоматически (мок-данные)
+Сохранение сессии (localStorage)
+Роль-зависимая навигация:
+
+Динамическое меню в зависимости от роли
+Ограничение доступа к разделам
+Дашборды:
+
+Персонализированные для каждой роли
+Отображение релевантных KPI
+Интерактивные графики
+Таблицы:
+
+Сортировка по любой колонке
+Фильтрация по множественным критериям
+Поиск по имени сотрудника
+Пагинация для больших данных
+Графики и визуализация:
+
+Интерактивные графики Recharts
+Tooltips с детальной информацией
+Легенды с возможностью скрытия элементов
+Адаптивность под размер экрана
+Детализация (Drill-down):
+
+Клик по округу → детали округа
+Клик по территории → медпреды территории
+Клик по медпреду → детали по препаратам
+Расширенный функционал (для admin):
+Загрузка данных:
+
+Парсинг Excel/CSV файлов
+Маппинг колонок
+Валидация данных
+Добавление в существующую БД (в localStorage/мок-данные)
+Редактирование:
+
+Inline-редактирование планов
+Изменение данных медпредов
+Массовые операции
+Журнал:
+
+Лог всех изменений
+Фильтры и поиск
+Экспорт журнала
+Дополнительные фичи:
+Экспорт:
+
+Генерация PDF с charts
+Экспорт таблиц в Excel
+CSV для дальнейшей обработки
+Уведомления:
+
+Toast-сообщения об успешных действиях
+Предупреждения при низком выполнении плана
+Напоминания о необходимости загрузки данных
+Адаптивность:
+
+Полная поддержка mobile
+Tablet-оптимизированные таблицы
+Touch-friendly интерфейс
+📁 СТРУКТУРА ФАЙЛОВ
+/
+├── App.tsx (главный компонент с роутингом и state management)
+├── styles/
+│   └── globals.css (Tailwind CSS v4, custom tokens)
+│
+├── components/
+│   ├── auth/
+│   │   └── LoginPage.tsx
+│   │
+│   ├── layout/
+│   │   ├── Header.tsx
+│   │   ├── Sidebar.tsx
+│   │   └── Layout.tsx
+│   │
+│   ├── dashboards/
+│   │   ├── MedRepDashboard.tsx
+│   │   ├── TerritoryManagerDashboard.tsx
+│   │   ├── RegionalManagerDashboard.tsx
+│   │   └── AdminDashboard.tsx
+│   │
+│   ├── sales/
+│   │   ├── SalesTable.tsx
+│   │   ├── SalesCard.tsx
+│   │   ├── ProductDetails.tsx
+│   │   └── RegionComparison.tsx
+│   │
+│   ├── charts/
+│   │   ├── ProductPieChart.tsx
+│   │   ├── PlanFactBarChart.tsx
+│   │   ├── DynamicsLineChart.tsx
+│   │   └── ComparisonGroupedChart.tsx
+│   │
+│   ├── admin/
+│   │   ├── FileUploader.tsx
+│   │   ├── DataManagement.tsx
+│   │   ├── ActivityLog.tsx
+│   │   └── ReportGenerator.tsx
+│   │
+│   └── ui/ (shadcn/ui компоненты)
+│       ├── card.tsx
+│       ├── button.tsx
+│       ├── table.tsx
+│       ├── badge.tsx
+│       ├── progress.tsx
+│       ├── select.tsx
+│       ├── input.tsx
+│       ├── dialog.tsx
+│       ├── tabs.tsx
+│       └── ...
+│
+├── data/
+│   ├── mockSalesData.ts (мок-данные продаж по округам)
+│   ├── mockUsers.ts (пользователи с ролями)
+│   └── productsConfig.ts (конфигурация 12 препаратов)
+│
+├── types/
+│   └── index.ts (TypeScript типы и интерфейсы)
+│
+└── utils/
+    ├── calculations.ts (расчёты %, агрегация данных)
+    ├── formatters.ts (форматирование чисел, дат, валюты)
+    └── exportHelpers.ts (функции экспорта в Excel/PDF)
+📝 ДЕТАЛИ РЕАЛИЗАЦИИ
+1. Авторизация и роли:
+// types/index.ts
+export type UserRole = 'medrep' | 'territory_manager' | 'manager' | 'admin';
+
+export interface User {
+  id: string;
+  email: string;
+  name: string;
+  role: UserRole;
+  district?: FederalDistrict; // для manager
+  territory?: string; // для territory_manager
+  medrepId?: string; // для medrep
+}
+
+// data/mockUsers.ts
+export const mockUsers: User[] = [
+  {
+    id: '1',
+    email: 'marina.shestakova@orney.ru',
+    name: 'Шестакова Марина',
+    role: 'medrep',
+    district: 'ПФО',
+    territory: 'Самара',
+    medrepId: '1'
+  },
+  {
+    id: 'tm1',
+    email: 'ivan.petrov@orney.ru',
+    name: 'Петров Иван',
+    role: 'territory_manager',
+    district: 'ПФО',
+    territory: 'Самара'
+  },
+  {
+    id: 'm1',
+    email: 'anna.smirnova@orney.ru',
+    name: 'Смирнова Анна',
+    role: 'manager',
+    district: 'ПФО'
+  },
+  {
+    id: 'admin1',
+    email: 'director@orney.ru',
+    name: 'Директор компании',
+    role: 'admin'
+  }
+];
+2. Расчёты и метрики:
+// utils/calculations.ts
+
+export function calculatePerformance(plan: number, fact: number): number {
+  if (plan === 0) return 0;
+  return Math.round((fact / plan) * 100 * 10) / 10;
+}
+
+export function getStatusByPerformance(performance: number): 'success' | 'warning' | 'danger' {
+  if (performance >= 95) return 'success';
+  if (performance >= 85) return 'warning';
+  return 'danger';
+}
+
+export function aggregateMedRepsData(medReps: MedRepData[]): {
+  totalPackagesPlan: number;
+  totalPackagesFact: number;
+  totalMoneyPlan: number;
+  totalMoneyFact: number;
+} {
+  return medReps.reduce((acc, rep) => ({
+    totalPackagesPlan: acc.totalPackagesPlan + rep.totalPackagesPlan,
+    totalPackagesFact: acc.totalPackagesFact + rep.totalPackagesFact,
+    totalMoneyPlan: acc.totalMoneyPlan + rep.totalMoneyPlan,
+    totalMoneyFact: acc.totalMoneyFact + rep.totalMoneyFact
+  }), {
+    totalPackagesPlan: 0,
+    totalPackagesFact: 0,
+    totalMoneyPlan: 0,
+    totalMoneyFact: 0
+  });
+}
+
+export function sortMedRepsByPerformance(medReps: MedRepData[], order: 'asc' | 'desc' = 'desc'): MedRepData[] {
+  const sorted = [...medReps].sort((a, b) => {
+    const perfA = calculatePerformance(a.totalMoneyPlan, a.totalMoneyFact);
+    const perfB = calculatePerformance(b.totalMoneyPlan, b.totalMoneyFact);
+    return perfB - perfA;
+  });
+  return order === 'asc' ? sorted.reverse() : sorted;
+}
+3. Форматирование:
+// utils/formatters.ts
+
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('ru-RU', {
+    style: 'currency',
+    currency: 'RUB',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).format(amount);
+}
+
+export function formatNumber(num: number): string {
+  return new Intl.NumberFormat('ru-RU').format(num);
+}
+
+export function formatPercentage(value: number): string {
+  return `${value.toFixed(1)}%`;
+}
+4. Компонент дашборда медпреда (пример):
+// components/dashboards/MedRepDashboard.tsx
+
+export function MedRepDashboard({ user }: { user: User }) {
+  const medrepData = getMedRepDataById(user.medrepId!);
+  const teamData = getMedRepsByDistrict(user.district!);
+  const myRank = calculateRank(medrepData, teamData);
+  
+  return (
+    <div className="space-y-6">
+      {/* Карточки KPI */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>План (упаковки)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{formatNumber(medrepData.totalPackagesPlan)}</div>
+          </CardContent>
+        </Card>
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Факт (упаковки)</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold text-primary">{formatNumber(medrepData.totalPackagesFact)}</div>
+            <Progress value={calculatePerformance(medrepData.totalPackagesPlan, medrepData.totalPackagesFact)} />
+          </CardContent>
+        </Card>
+        
+        {/* Аналогично для денег */}
+        
+        <Card>
+          <CardHeader>
+            <CardTitle>Моя позиция</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Badge variant="outline" className="text-2xl">
+              #{myRank} из {teamData.length}
+            </Badge>
+          </CardContent>
+        </Card>
+      </div>
+      
+      {/* Круговая диаграмма по препаратам */}
+      <ProductPieChart data={medrepData} />
+      
+      {/* График динамики */}
+      <DynamicsLineChart medrepId={user.medrepId!} />
+      
+      {/* Таблица детализации */}
+      <ProductDetailsTable data={medrepData} />
+    </div>
+  );
+}
+🎯 КЛЮЧЕВЫЕ ТРЕБОВАНИЯ
+Строгое соблюдение данных:
+
+Все расчёты план/факт должны соответствовать исходной таблице
+Никаких усреднений или изменений данных
+Точность до копейки в денежных суммах
+Разграничение доступа:
+
+Медпред видит ТОЛЬКО свои данные
+Территориальный менеджер — только свою территорию
+Региональный менеджер — только свой округ
+Директор — все данные
+Профессиональный дизайн:
+
+Минимализм, чистота, "воздух"
+Медицинский стиль с холодной палитрой
+Адаптивность под все устройства
+Производительность:
+
+Быстрая загрузка дашбордов
+Плавные анимации и переходы
+Оптимизация больших таблиц (виртуализация)
+Usability:
+
+Интуитивная навигация
+Понятные метки и подсказки
+Быстрый доступ к важной информации
+Экспорт одним кликом
+🚀 ДОПОЛНИТЕЛЬНЫЕ ФИЧИ (ОПЦИОНАЛЬНО)
+Прогнозирование:
+
+На основе текущих данных показать прогноз выполнения плана до конца года
+ML-модель для предсказания трендов
+Сравнение периодов:
+
+Сравнение текущего месяца с предыдущим
+Year-over-year сравнение
+Уведомления:
+
+Push-уведомления о критических показателях
+Email-рассылка отчётов
+Геолокация:
+
+Интерактивная карта России с метками регионов
+Визуализация плотности продаж на карте
+Gamification:
+
+Значки и достижения за выполнение планов
+Лидерборды лучших медпредов
+✅ ЧЕКЛИСТ РЕАЛИЗАЦИИ
+Этап 1: Базовая структура
+ Создать структуру проекта
+ Настроить Tailwind CSS v4
+ Добавить UI-компоненты (shadcn/ui)
+ Создать типы TypeScript
+Этап 2: Авторизация
+ LoginPage с валидацией email
+ Мок-данные пользователей
+ Определение роли
+ Сохранение сессии
+Этап 3: Layout
+ Header с логотипом и профилем
+ Sidebar с роль-зависимым меню
+ Главный Layout-компонент
+Этап 4: Дашборды
+ MedRepDashboard
+ TerritoryManagerDashboard
+ RegionalManagerDashboard
+ AdminDashboard
+Этап 5: Таблицы и данные
+ SalesTable с сортировкой и фильтрами
+ Загрузка мок-данных ПФО
+ Расчёт метрик и агрегация
+Этап 6: Графики
+ ProductPieChart
+ PlanFactBarChart
+ DynamicsLineChart
+ ComparisonGroupedChart
+Этап 7: Админ-панель
+ FileUploader
+ DataManagement
+ ActivityLog
+ ReportGenerator
+Этап 8: Экспорт
+ Экспорт в Excel
+ Генерация PDF
+ CSV-экспорт
+Этап 9: Полировка
+ Адаптивность
+ Анимации и transitions
+ Toast-уведомления
+ Оптимизация
+📖 ПРИМЕРЫ ИСПОЛЬЗОВАНИЯ
+Сценарий 1: Медпред проверяет свои продажи
+Логин: marina.shestakova@orney.ru
+Попадает на дашборд с личными KPI
+Видит круговую диаграмму продаж по препаратам
+Проверяет детализацию в таблице
+Смотрит свою позицию в рейтинге команды
+Сценарий 2: Территориальный менеджер анализирует команду
+Логин: ivan.petrov@orney.ru
+Видит сводку по территории "Самара"
+Открывает таблицу медпредов
+Сортирует по % выполнения плана
+Раскрывает карточку лучшего медпреда для изучения
+Сценарий 3: Региональный менеджер смотрит округ
+Логин: anna.smirnova@orney.ru
+Дашборд ПФО с общей статистикой
+Группировка по территориям
+Drill-down в территорию Самара
+Экспорт отчёта в Excel
+Сценарий 4: Директор загружает новые данные
+Логин: director@orney.ru
+Переход в "Загрузка данных"
+Выбор ЦФО, Ноябрь 2025
+Загрузка Excel-файла
+Предпросмотр и подтверждение
+Данные добавлены, журнал обновлён
+🎨 ФИНАЛЬНЫЕ ШТРИХИ
+Логотип WM Russia: использовать текстовый логотип или placeholder
+Анимации: subtle hover effects, smooth transitions
+Иконки: Lucide React для всех иконок
+Шрифты: системные шрифты (sans-serif) для читаемости
+Адаптивность: mobile-first подход
+Доступность: ARIA-атрибуты, keyboard navigation
