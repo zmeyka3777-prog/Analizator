@@ -1,9 +1,15 @@
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.AI_INTEGRATIONS_OPENAI_API_KEY,
-  baseURL: process.env.AI_INTEGRATIONS_OPENAI_BASE_URL,
-});
+let _openai: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!_openai) {
+    const apiKey = process.env.OPENAI_API_KEY || process.env.AI_INTEGRATIONS_OPENAI_API_KEY;
+    if (!apiKey) throw new Error("OPENAI_API_KEY не задан в .env");
+    _openai = new OpenAI({ apiKey });
+  }
+  return _openai;
+}
+const openai = { chat: { completions: { create: (...args: any[]) => getOpenAI().chat.completions.create(...args) } } };
 
 export interface SalesAnalyticsData {
   monthlySales: Array<{ month: string; sales: number; name: string }>;
