@@ -507,6 +507,89 @@ app.post("/api/auth/register", (_req, res) => {
   res.status(403).json({ error: "Самостоятельная регистрация отключена. Обратитесь к администратору." });
 });
 
+// ==================== Управление пользователями (только администратор) ====================
+
+app.get("/api/users", authMiddleware, requireAdmin, async (_req: AuthRequest, res) => {
+  try {
+    const allUsers = await storage.getAllUsers();
+    // Не отдаём passwordHash
+    const safe = allUsers.map(({ passwordHash: _ph, ...u }) => u);
+    res.json(safe);
+  } catch (error) {
+    console.error("Get users error:", error);
+    res.status(500).json({ error: "Ошибка получения пользователей" });
+  }
+});
+
+app.post("/api/users", authMiddleware, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const { email, password, name, role, avatar } = req.body;
+    if (!email || !password || !name || !role) {
+      return res.status(400).json({ error: "Обязательные поля: email, password, name, role" });
+    }
+    if (!email.includes('@')) {
+      return res.status(400).json({ error: "Некорректный email" });
+    }
+    if (password.length < 8) {
+      return res.status(400).json({ error: "Пароль должен быть не менее 8 символов" });
+    }
+    const existing = await storage.getUserByEmail(email);
+    if (existing) {
+      return res.status(409).json({ error: "Пользователь с таким email уже существует" });
+    }
+    const passwordHash = await bcrypt.hash(password, 12);
+    const user = await storage.createUser({ email, passwordHash, name, role, avatar });
+    const { passwordHash: _ph, ...safe } = user;
+    res.status(201).json(safe);
+  } catch (error) {
+    console.error("Create user error:", error);
+    res.status(500).json({ error: "Ошибка создания пользователя" });
+  }
+});
+
+app.put("/api/users/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { name, email, role, avatar, password } = req.body;
+    if (email) {
+      const existing = await storage.getUserByEmail(email);
+      if (existing && existing.id !== id) {
+        return res.status(409).json({ error: "Email уже используется другим пользователем" });
+      }
+    }
+    if (password) {
+      if (password.length < 8) {
+        return res.status(400).json({ error: "Пароль должен быть не менее 8 символов" });
+      }
+      const passwordHash = await bcrypt.hash(password, 12);
+      await storage.updateUserPassword(id, passwordHash);
+    }
+    const updated = await storage.updateUser(id, { name, email, role, avatar });
+    if (!updated) {
+      return res.status(404).json({ error: "Пользователь не найден" });
+    }
+    const { passwordHash: _ph, ...safe } = updated;
+    res.json(safe);
+  } catch (error) {
+    console.error("Update user error:", error);
+    res.status(500).json({ error: "Ошибка обновления пользователя" });
+  }
+});
+
+app.delete("/api/users/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (req.userId === id) {
+      return res.status(400).json({ error: "Нельзя удалить собственный аккаунт" });
+    }
+    await storage.deleteUser(id);
+    res.json({ success: true });
+  } catch (error) {
+    console.error("Delete user error:", error);
+    res.status(500).json({ error: "Ошибка удаления пользователя" });
+  }
+});
+
 app.post("/api/auth/password-reset/request", authLimiter, async (req, res) => {
   try {
     const validation = passwordResetRequestSchema.safeParse(req.body);

@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/ca
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
-import { LogIn, Mail, ArrowLeft } from 'lucide-react';
+import { LogIn, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
 import { NoDataBanner } from '@/app/components/common/EmptyState';
 
 function getDefaultSectionStatic(role: WMUserRole): string {
@@ -47,7 +47,9 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
   const [currentUser, setCurrentUser] = useState<WMUser | null>(initialUser || null);
   const [activeSection, setActiveSection] = useState<string>(initialUser ? getDefaultSectionStatic(initialUser.role) : '');
   const [loginEmail, setLoginEmail] = useState('');
+  const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
 
   // Get shared data from context (synced from MDLP uploads)
   const { wmRussiaData, wmRussiaSummary, dataLoaded: sharedDataLoaded } = useSharedData();
@@ -75,33 +77,60 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
   const getDefaultSection = getDefaultSectionStatic;
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     setLoginError('');
-    
+
     if (!loginEmail.includes('@')) {
       setLoginError('Введите корректный email');
       return;
     }
-
-    const user = wmMockUsers.find(u => u.email === loginEmail);
-    if (!user) {
-      setLoginError('Пользователь не найден');
+    if (!loginPassword) {
+      setLoginError('Введите пароль');
       return;
     }
 
-    setCurrentUser(user);
-    localStorage.setItem('wm_russia_user', JSON.stringify(user));
-    setActiveSection(getDefaultSection(user.role));
+    setLoginLoading(true);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: loginEmail, password: loginPassword }),
+      });
+      const data = await res.json();
 
-    // Синхронизируем с figma_auth_user чтобы AppLayout показывал правильное имя
-    localStorage.setItem('figma_auth_user', JSON.stringify({
-      id: user.id,
-      email: user.email,
-      fullName: user.name,
-      role: user.role,
-      isActive: true,
-      createdAt: new Date().toISOString(),
-    }));
+      if (!res.ok) {
+        setLoginError(data.error || 'Ошибка входа');
+        return;
+      }
+
+      localStorage.setItem('wm_auth_token', data.token);
+
+      const user: WMUser = {
+        id: data.id,
+        email: data.email,
+        name: data.name,
+        role: data.role as WMUserRole,
+        avatar: data.avatar,
+      };
+
+      setCurrentUser(user);
+      localStorage.setItem('wm_russia_user', JSON.stringify(user));
+      setActiveSection(getDefaultSection(user.role));
+
+      // Синхронизируем с figma_auth_user чтобы AppLayout показывал правильное имя
+      localStorage.setItem('figma_auth_user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        fullName: user.name,
+        role: user.role,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+      }));
+    } catch {
+      setLoginError('Ошибка соединения с сервером');
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
   const handleLogout = () => {
@@ -159,7 +188,20 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                   value={loginEmail}
                   onChange={(e) => setLoginEmail(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
-                  className="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all"
+                  disabled={loginLoading}
+                  className="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all disabled:opacity-50"
+                />
+              </div>
+              <div className="relative">
+                <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <input
+                  type="password"
+                  placeholder="Пароль"
+                  value={loginPassword}
+                  onChange={(e) => setLoginPassword(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleLogin()}
+                  disabled={loginLoading}
+                  className="w-full pl-11 pr-4 py-3 bg-white/10 backdrop-blur border border-white/20 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:border-cyan-400 transition-all disabled:opacity-50"
                 />
               </div>
               {loginError && (
@@ -167,14 +209,15 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
               )}
               <button
                 onClick={handleLogin}
-                className="w-full py-3 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white rounded-xl font-bold hover:from-cyan-400 hover:to-purple-400 transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2"
+                disabled={loginLoading}
+                className="w-full py-3 bg-gradient-to-r from-cyan-500 via-blue-500 to-purple-500 text-white rounded-xl font-bold hover:from-cyan-400 hover:to-purple-400 transition-all shadow-lg shadow-cyan-500/30 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <LogIn className="h-4 w-4" />
-                Войти
+                {loginLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+                {loginLoading ? 'Входим...' : 'Войти'}
               </button>
             </div>
             <div className="mt-6 pt-6 border-t border-white/10">
-              <p className="text-xs text-gray-500 mb-3">Демо-аккаунты:</p>
+              <p className="text-xs text-gray-500 mb-3">Демо-аккаунты (пароль: password123):</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[
                   { label: 'Директор', email: 'director@orney.ru', cls: 'bg-amber-500/20 border-amber-500/30 text-amber-300' },
@@ -185,7 +228,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 ].map(acc => (
                   <button
                     key={acc.email}
-                    onClick={() => setLoginEmail(acc.email)}
+                    onClick={() => { setLoginEmail(acc.email); setLoginPassword('password123'); }}
                     className={`text-left p-2.5 rounded-lg border transition-all hover:scale-[1.02] ${acc.cls}`}
                   >
                     <span className="font-semibold block">{acc.label}</span>
