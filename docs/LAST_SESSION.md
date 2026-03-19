@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-03-19 12:28
+**Дата:** 2026-03-19 12:55
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+d8318f1 Feat: real API auth + user management for admin
+0f6d8e5 Auto-save at end of session
 afa8bd7 Auto-save at end of session
 5625e5a Auto-save at end of session
 205b9de Add deploy-vps.sh script
-d9fd9a9 Кабинет директора: светлая тема, вкладка Отчёты с реальной генерацией
-f0fcb55 Fix: lazy OpenAI init to prevent crash when OPENAI_API_KEY not set at startup
 ```
 
 ## Для нового Claude (инструкции)
