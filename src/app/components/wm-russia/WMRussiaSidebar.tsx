@@ -71,11 +71,11 @@ const roleLabels: Record<WMUserRole, string> = {
 };
 
 const roleBadgeColors: Record<WMUserRole, string> = {
-  medrep: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  territory_manager: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  manager: 'bg-purple-500/20 text-purple-300 border-purple-500/30',
-  director: 'bg-amber-500/20 text-amber-300 border-amber-500/30',
-  admin: 'bg-red-500/20 text-red-300 border-red-500/30',
+  medrep: 'bg-blue-100 text-blue-700 border-blue-200',
+  territory_manager: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+  manager: 'bg-purple-100 text-purple-700 border-purple-200',
+  director: 'bg-amber-100 text-amber-700 border-amber-200',
+  admin: 'bg-red-100 text-red-700 border-red-200',
 };
 
 export function WMRussiaSidebar({
@@ -92,14 +92,14 @@ export function WMRussiaSidebar({
   const sidebarContent = (
     <>
       {/* Logo */}
-      <div className="wm-sidebar-logo p-5 border-b border-white/10">
+      <div className="wm-sidebar-logo p-5 border-b border-slate-200">
         <div className="flex items-center gap-3">
           <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
-            <span className="text-white font-black text-sm" style={{ color: '#fff' }}>WM</span>
+            <span className="text-white font-black text-sm">WM</span>
           </div>
           <div>
-            <h1 className="font-bold text-white text-sm">WM Russia</h1>
-            <p className="text-xs text-gray-500">Аналитика продаж</p>
+            <h1 className="font-bold text-slate-800 text-sm">WM Russia</h1>
+            <p className="text-xs text-slate-400">Аналитика продаж</p>
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@ export function WMRussiaSidebar({
         <div className="px-3 pt-3">
           <button
             onClick={onBackToMDLP}
-            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-gray-400 hover:text-cyan-300 hover:bg-white/5 border border-white/10 hover:border-cyan-500/30 transition-all"
+            className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-slate-600 hover:text-cyan-700 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 transition-all"
           >
             <BarChart3 className="w-4 h-4 flex-shrink-0" />
             <span className="truncate">← Анализатор МДЛП</span>
@@ -130,14 +130,14 @@ export function WMRussiaSidebar({
                 className={cn(
                   'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all',
                   activeSection === item.id
-                    ? 'wm-active bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-300 border border-cyan-500/30 font-medium shadow-sm'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5'
+                    ? 'wm-active bg-gradient-to-r from-cyan-500/20 to-blue-500/10 text-cyan-700 border border-cyan-500/30 font-medium shadow-sm'
+                    : 'text-slate-500 hover:text-slate-900 hover:bg-slate-100'
                 )}
               >
                 <span className="text-base">{item.icon}</span>
                 <span className="truncate">{item.label}</span>
                 {activeSection === item.id && (
-                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-400" />
+                  <span className="ml-auto w-1.5 h-1.5 rounded-full bg-cyan-600" />
                 )}
               </button>
             </li>
@@ -146,15 +146,15 @@ export function WMRussiaSidebar({
       </nav>
 
       {/* User profile */}
-      <div className="wm-user-section p-4 border-t border-white/10">
+      <div className="wm-user-section p-4 border-t border-slate-200">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-cyan-500/30 to-blue-600/30 border border-white/20 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center flex-shrink-0 shadow-md">
             <span className="text-white font-bold text-xs">
               {userName.slice(0, 2).toUpperCase()}
             </span>
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm text-white truncate">{userName}</p>
+            <p className="font-medium text-sm text-slate-800 truncate">{userName}</p>
             <span className={cn('text-xs px-2 py-0.5 rounded-full border', roleBadgeColors[userRole])}>
               {roleLabels[userRole]}
             </span>
@@ -162,7 +162,7 @@ export function WMRussiaSidebar({
         </div>
         <button
           onClick={onLogout}
-          className="w-full flex items-center justify-center gap-2 py-2 text-sm text-gray-400 hover:text-red-400 border border-white/10 hover:border-red-500/30 rounded-xl transition-all hover:bg-red-500/5"
+          className="w-full flex items-center justify-center gap-2 py-2 text-sm text-slate-500 hover:text-red-600 border border-slate-200 hover:border-red-300 rounded-xl transition-all hover:bg-red-50"
         >
           <LogOut className="w-4 h-4" />
           Выйти
@@ -175,17 +175,17 @@ export function WMRussiaSidebar({
     <>
       {/* Mobile burger */}
       <button
-        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-slate-900/90 backdrop-blur border border-white/10 rounded-xl shadow-lg"
+        className="md:hidden fixed top-4 left-4 z-50 p-2 bg-white/90 backdrop-blur border border-slate-200 rounded-xl shadow-md"
         onClick={() => setIsOpen(!isOpen)}
         aria-label="Toggle menu"
       >
-        {isOpen ? <X className="w-5 h-5 text-white" /> : <Menu className="w-5 h-5 text-white" />}
+        {isOpen ? <X className="w-5 h-5 text-slate-700" /> : <Menu className="w-5 h-5 text-slate-700" />}
       </button>
 
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          className="md:hidden fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
           onClick={() => setIsOpen(false)}
         />
       )}
@@ -193,7 +193,7 @@ export function WMRussiaSidebar({
       {/* Mobile drawer */}
       <div
         className={cn(
-          'wm-sidebar md:hidden fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-slate-900/95 backdrop-blur-xl border-r border-white/10 transition-transform duration-300',
+          'wm-sidebar md:hidden fixed inset-y-0 left-0 z-40 w-72 flex flex-col bg-white/98 backdrop-blur-xl border-r border-slate-200 shadow-xl transition-transform duration-300',
           isOpen ? 'translate-x-0' : '-translate-x-full'
         )}
       >
@@ -201,7 +201,7 @@ export function WMRussiaSidebar({
       </div>
 
       {/* Desktop sidebar */}
-      <div className="wm-sidebar hidden md:flex fixed inset-y-0 left-0 z-30 w-64 flex-col bg-slate-900/95 backdrop-blur-xl border-r border-white/10">
+      <div className="wm-sidebar hidden md:flex fixed inset-y-0 left-0 z-30 w-64 flex-col bg-white/98 backdrop-blur-xl border-r border-slate-200 shadow-sm">
         {sidebarContent}
       </div>
     </>

@@ -38,9 +38,10 @@ const Logo = ({ size = 'normal' }: { size?: 'small' | 'normal' }) => {
 interface AppLayoutProps {
   children: React.ReactNode;
   navigation?: React.ReactNode; // Навигация для конкретной роли
+  onLogout?: () => void; // Дополнительный обработчик при выходе
 }
 
-export default function AppLayout({ children, navigation }: AppLayoutProps) {
+export default function AppLayout({ children, navigation, onLogout }: AppLayoutProps) {
   const { currentUser, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -96,6 +97,7 @@ export default function AppLayout({ children, navigation }: AppLayoutProps) {
                       <button
                         onClick={() => {
                           logout();
+                          onLogout?.();
                           setUserMenuOpen(false);
                         }}
                         className="w-full flex items-center gap-2 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"

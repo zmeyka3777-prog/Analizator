@@ -22,8 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/app/components/ui/ca
 import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
-import { LogIn, User, Mail, Lock, ArrowLeft, Sun, Moon } from 'lucide-react';
-import { useTheme } from '@/contexts/ThemeContext';
+import { LogIn, Mail, ArrowLeft } from 'lucide-react';
 import { NoDataBanner } from '@/app/components/common/EmptyState';
 
 function getDefaultSectionStatic(role: WMUserRole): string {
@@ -93,6 +92,16 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     setCurrentUser(user);
     localStorage.setItem('wm_russia_user', JSON.stringify(user));
     setActiveSection(getDefaultSection(user.role));
+
+    // Синхронизируем с figma_auth_user чтобы AppLayout показывал правильное имя
+    localStorage.setItem('figma_auth_user', JSON.stringify({
+      id: user.id,
+      email: user.email,
+      fullName: user.name,
+      role: user.role,
+      isActive: true,
+      createdAt: new Date().toISOString(),
+    }));
   };
 
   const handleLogout = () => {
@@ -283,6 +292,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
             activeSection={activeSection}
             onRoleSwitch={handleRoleSwitch}
             mdlpUserId={mdlpUserId}
+            onLogout={handleLogout}
           />
         );
       }
@@ -298,10 +308,21 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     }
   };
 
-  const { theme, toggleTheme, isDark } = useTheme();
+  // Директор: AppLayout из Figma (без сайдбара — навигация сверху через вкладки)
+  if (currentUser.role === 'director') {
+    return (
+      <DirectorWMDashboard
+        allMedReps={salesData}
+        activeSection={activeSection}
+        onRoleSwitch={handleRoleSwitch}
+        mdlpUserId={mdlpUserId}
+        onLogout={handleLogout}
+      />
+    );
+  }
 
   return (
-    <div className="wm-app min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-cyan-900 text-white flex">
+    <div className="wm-app min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 flex">
       <WMRussiaSidebar
         userRole={currentUser.role}
         userName={currentUser.name}
@@ -316,11 +337,10 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
           <AdminPanel onBack={() => setActiveSection(getDefaultSection(currentUser.role))} />
         ) : (
           <>
-            <header className="wm-header sticky top-0 z-10 bg-slate-900/80 backdrop-blur-sm border-b border-white/10 px-6 py-4">
+            <header className="wm-header sticky top-0 z-10 bg-white/80 backdrop-blur-sm border-b border-slate-200 px-6 py-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-4">
-                  <h1 className="text-xl font-semibold text-white">
-                    {currentUser.role === 'director' && 'Кабинет директора'}
+                  <h1 className="text-xl font-semibold text-slate-800">
                     {currentUser.role === 'admin' && 'Панель администратора'}
                     {currentUser.role === 'manager' && `Округ: ${currentUser.district}`}
                     {currentUser.role === 'territory_manager' && `Территория: ${currentUser.territory}`}
@@ -329,24 +349,10 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Theme toggle */}
-                  <button
-                    onClick={toggleTheme}
-                    className="flex items-center gap-2 px-3 py-1.5 text-sm border border-white/10 hover:border-cyan-500/40 rounded-lg transition-all hover:bg-white/5"
-                    title={isDark ? 'Светлая тема' : 'Тёмная тема'}
-                  >
-                    {isDark ? (
-                      <Sun className="h-4 w-4 text-amber-400" />
-                    ) : (
-                      <Moon className="h-4 w-4 text-indigo-400" />
-                    )}
-                    <span className="hidden sm:inline text-gray-400">{isDark ? 'Светлая' : 'Тёмная'}</span>
-                  </button>
-
                   {onBackToMDLP && (
                     <button
                       onClick={onBackToMDLP}
-                      className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm text-gray-400 hover:text-cyan-300 border border-white/10 hover:border-cyan-500/40 rounded-lg transition-all"
+                      className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 hover:text-cyan-600 border border-slate-200 hover:border-cyan-300 rounded-lg transition-all"
                     >
                       <ArrowLeft className="h-4 w-4" />
                       MDLP
@@ -355,13 +361,13 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
                   <div className="flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                      <span className="text-white text-sm font-medium" style={{ color: '#fff' }}>
+                      <span className="text-white text-sm font-medium">
                         {currentUser.name.split(' ').map(n => n[0]).join('')}
                       </span>
                     </div>
                     <div className="hidden sm:block">
-                      <p className="text-sm font-medium text-white">{currentUser.name}</p>
-                      <p className="text-xs text-gray-400">{getRoleName(currentUser.role)}</p>
+                      <p className="text-sm font-medium text-slate-800">{currentUser.name}</p>
+                      <p className="text-xs text-slate-500">{getRoleName(currentUser.role)}</p>
                     </div>
                   </div>
                 </div>

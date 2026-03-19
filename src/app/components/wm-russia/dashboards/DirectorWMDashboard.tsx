@@ -30,7 +30,14 @@ import {
   Copy,
   Trash2,
   ArrowLeft,
+  Settings,
+  LayoutDashboard,
+  Calculator,
+  MapPin,
+  Users,
 } from 'lucide-react';
+import { Button } from '@/app/components/ui/button';
+import AppLayout from '@/app/components/common/AppLayout';
 import {
   LineChart,
   Line,
@@ -67,6 +74,7 @@ import ProductManagementModal from '@/app/components/modals/ProductManagementMod
 import TerritoryManagementModal from '@/app/components/modals/TerritoryManagementModal';
 import { hasUnpublishedProductChanges, publishProductsDraft } from '@/data/productsManager';
 import { hasUnpublishedDistrictChanges, publishDistrictsDraft } from '@/data/districtsManager';
+import ReportsTabLight from '@/app/components/director/tabs/ReportsTabLight';
 
 
 // ==================== PROPS ====================
@@ -75,7 +83,45 @@ interface DirectorWMDashboardProps {
   activeSection: string;
   onRoleSwitch?: (role: string, userId?: string) => void;
   mdlpUserId?: number;
+  onLogout?: () => void;
 }
+
+// ==================== НАВИГАЦИЯ ДИРЕКТОРА ====================
+const DirectorNavigation = ({
+  activeTab,
+  setActiveTab,
+}: {
+  activeTab: string;
+  setActiveTab: (tab: string) => void;
+}) => {
+  const tabs = [
+    { id: 'dashboard', label: 'Дашборд', icon: LayoutDashboard },
+    { id: 'budget', label: 'Калькулятор бюджета', icon: Calculator },
+    { id: 'products', label: 'По препаратам', icon: Package },
+    { id: 'territories', label: 'По территориям', icon: MapPin },
+    { id: 'employees', label: 'Сотрудники', icon: Users },
+    { id: 'reports', label: 'Отчёты', icon: FileText },
+  ];
+  return (
+    <nav className="flex gap-2 overflow-x-auto pb-2">
+      {tabs.map((tab) => (
+        <Button
+          key={tab.id}
+          onClick={() => setActiveTab(tab.id)}
+          variant={activeTab === tab.id ? 'default' : 'ghost'}
+          className={`flex items-center gap-2 whitespace-nowrap transition-all duration-300 ${
+            activeTab === tab.id
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg shadow-cyan-500/30 scale-105'
+              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+          }`}
+        >
+          <tab.icon className="w-4 h-4" />
+          {tab.label}
+        </Button>
+      ))}
+    </nav>
+  );
+};
 
 // ==================== УТИЛИТЫ ====================
 const formatNumber = (num: number): string => {
@@ -422,7 +468,7 @@ const DIRECTOR_SECTION_MAP: Record<string, string> = {
   'upload': 'dashboard',
 };
 
-export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, mdlpUserId }: DirectorWMDashboardProps) {
+export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, mdlpUserId, onLogout }: DirectorWMDashboardProps) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProductModal, setShowProductModal] = useState(false);
   const [showTerritoryModal, setShowTerritoryModal] = useState(false);
@@ -441,24 +487,65 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
   };
 
   return (
-    <div className="min-h-screen p-6 space-y-6">
-      {/* Content */}
-      {activeTab === 'dashboard' && <DashboardView />}
-      {activeTab === 'budget' && <BudgetCalculatorEnhanced />}
-      {activeTab === 'products' && <ProductsAnalyticsWithEdit />}
-      {activeTab === 'territories' && <TerritoriesAnalytics />}
-      {activeTab === 'employees' && <EmployeesAnalytics />}
-      {activeTab === 'reports' && (
-        <div className="text-center py-12">
-          <FileText className="w-16 h-16 text-gray-500 mx-auto mb-4" />
-          <h3 className="text-xl font-bold text-white mb-2">Отчёты и экспорт</h3>
-          <p className="text-gray-400">Готовые отчёты и экспорт данных</p>
-          <p className="text-sm text-gray-500 mt-4">Раздел в разработке</p>
+    <AppLayout
+      navigation={<DirectorNavigation activeTab={activeTab} setActiveTab={setActiveTab} />}
+      onLogout={onLogout}
+    >
+      <div className="space-y-6">
+        {/* Кнопка назад */}
+        <button
+          onClick={() => {
+            onLogout?.();
+            navigate('analyzer');
+          }}
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 hover:from-slate-200 hover:to-slate-100 rounded-xl text-slate-700 transition-all border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md group font-medium"
+        >
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+          Вернуться в анализатор МДЛП
+        </button>
+
+        {/* Заголовок страницы */}
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 flex items-center justify-center text-white shadow-lg shadow-emerald-500/30">
+              <TrendingUp className="w-8 h-8" />
+            </div>
+            <div>
+              <h1 className="text-3xl font-bold text-slate-800">Панель директора</h1>
+              <p className="text-slate-500">Аналитика и планирование продаж</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <Button
+              onClick={() => setShowProductModal(true)}
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 shadow-lg"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Управление препаратами
+            </Button>
+            <Button
+              onClick={() => setShowTerritoryModal(true)}
+              className="bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg"
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Управление территориями
+            </Button>
+          </div>
         </div>
-      )}
+
+        {/* Контент */}
+        <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 p-8">
+          {activeTab === 'dashboard' && <DashboardView />}
+          {activeTab === 'budget' && <BudgetCalculatorEnhanced />}
+          {activeTab === 'products' && <ProductsAnalyticsWithEdit />}
+          {activeTab === 'territories' && <TerritoriesAnalytics />}
+          {activeTab === 'employees' && <EmployeesAnalytics />}
+          {activeTab === 'reports' && <ReportsTabLight />}
+        </div>
+      </div>
 
       <ProductManagementModal isOpen={showProductModal} onClose={() => setShowProductModal(false)} onSuccess={handleDataUpdate} />
       <TerritoryManagementModal isOpen={showTerritoryModal} onClose={() => setShowTerritoryModal(false)} onSuccess={handleDataUpdate} />
-    </div>
+    </AppLayout>
   );
 }

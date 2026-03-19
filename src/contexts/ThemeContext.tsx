@@ -9,15 +9,18 @@ interface ThemeContextType {
 }
 
 const ThemeContext = createContext<ThemeContextType>({
-  theme: 'dark',
+  theme: 'light',
   toggleTheme: () => {},
-  isDark: true,
+  isDark: false,
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>(() => {
+    // Принудительно возвращаем светлую тему — дизайн по умолчанию светлый
     const saved = localStorage.getItem('wm_theme');
-    return (saved === 'light' || saved === 'dark') ? saved : 'dark';
+    if (saved === 'light') return 'light';
+    // Сбрасываем старую тёмную тему до светлой
+    return 'light';
   });
 
   useEffect(() => {
