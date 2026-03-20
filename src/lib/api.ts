@@ -13,7 +13,8 @@ export function setAuthToken(token: string | null): void {
 
 export function getAuthToken(): string | null {
   if (!authToken) {
-    authToken = localStorage.getItem('mdlp_auth_token');
+    // Проверяем оба ключа: WM Russia и MDLP
+    authToken = localStorage.getItem('wm_auth_token') || localStorage.getItem('mdlp_auth_token');
   }
   return authToken;
 }
