@@ -6,7 +6,6 @@ import {
 } from 'recharts';
 import { MedRepData } from '@/types';
 import { getMedRepProductSales, calcCompletionPercent } from '@/data/wmRussiaData';
-import { WMDataUploadPanel } from '../WMDataUploadPanel';
 
 type MedRepTab = 'sales' | 'dynamics' | 'kpi';
 
@@ -547,12 +546,15 @@ export function MedRepDashboard({ medRepData, ranking, activeSection }: MedRepDa
           </h2>
           <p className="text-gray-400 text-sm mt-0.5">Данные не загружены</p>
         </div>
-        <div className="max-w-md">
-          <WMDataUploadPanel />
+        <div className="wm-card bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 max-w-md flex flex-col items-center text-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
+            <svg className="w-7 h-7 text-cyan-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+            </svg>
+          </div>
+          <p className="text-white font-semibold">Нет данных для отображения</p>
+          <p className="text-gray-400 text-sm">Перейдите в раздел <span className="text-cyan-400 font-medium">«Загрузка»</span> в боковом меню и загрузите файл выгрузки МДЛП</p>
         </div>
-        <p className="text-sm text-gray-500">
-          Загрузите файл МДЛП (CSV или Excel), чтобы увидеть аналитику продаж.
-        </p>
       </div>
     );
   }

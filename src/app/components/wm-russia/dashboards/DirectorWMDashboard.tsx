@@ -72,7 +72,6 @@ import { getSalesData } from '@/data/salesData';
 import { AIAnalyst } from '@/app/components/ai/AIAnalyst';
 import ProductManagementModal from '@/app/components/modals/ProductManagementModal';
 import TerritoryManagementModal from '@/app/components/modals/TerritoryManagementModal';
-import { WMDataUploadPanel } from '../WMDataUploadPanel';
 import { hasUnpublishedProductChanges, publishProductsDraft } from '@/data/productsManager';
 import { hasUnpublishedDistrictChanges, publishDistrictsDraft } from '@/data/districtsManager';
 import ReportsTabLight from '@/app/components/director/tabs/ReportsTabLight';
@@ -517,7 +516,6 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <WMDataUploadPanel compact lightTheme />
             <Button
               onClick={() => setShowProductModal(true)}
               className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white hover:from-cyan-600 hover:to-blue-700 shadow-lg"

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { WMUser, WMUserRole, WMFederalDistrict, MedRepData } from '@/types';
 import { wmMockUsers } from '@/data/wmRussiaData';
 import { useSharedData } from '@/context/SharedDataContext';
-import { WMDataUploadPanel } from './WMDataUploadPanel';
 import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
 import { TerritoryManagerDashboard } from './dashboards/TerritoryManagerDashboard';
@@ -377,8 +376,6 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 </div>
 
                 <div className="flex items-center gap-4">
-                  {/* Загрузка данных прямо из шапки */}
-                  <WMDataUploadPanel compact lightTheme />
                   {onBackToMDLP && (
                     <button
                       onClick={onBackToMDLP}
