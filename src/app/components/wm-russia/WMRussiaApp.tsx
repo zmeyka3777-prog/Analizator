@@ -217,7 +217,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
               </button>
             </div>
             <div className="mt-6 pt-6 border-t border-white/10">
-              <p className="text-xs text-gray-500 mb-3">Демо-аккаунты (пароль: password123):</p>
+              <p className="text-xs text-gray-500 mb-3">Быстрый вход:</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 {[
                   { label: 'Директор', email: 'director@orney.ru', cls: 'bg-amber-500/20 border-amber-500/30 text-amber-300' },
@@ -228,7 +228,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 ].map(acc => (
                   <button
                     key={acc.email}
-                    onClick={() => { setLoginEmail(acc.email); setLoginPassword('password123'); }}
+                    onClick={() => setLoginEmail(acc.email)}
                     className={`text-left p-2.5 rounded-lg border transition-all hover:scale-[1.02] ${acc.cls}`}
                   >
                     <span className="font-semibold block">{acc.label}</span>
