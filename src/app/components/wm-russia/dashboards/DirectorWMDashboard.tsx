@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from '@/contexts/NavigationContext';
+import { DateProvider } from '@/contexts/DateContext';
 import {
   Package,
   FileText,
@@ -488,6 +489,7 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
   };
 
   return (
+    <DateProvider>
     <AppLayout
       navigation={<DirectorNavigation activeTab={activeTab} setActiveTab={setActiveTab} />}
       onLogout={onLogout}
@@ -547,5 +549,6 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
       <ProductManagementModal isOpen={showProductModal} onClose={() => setShowProductModal(false)} onSuccess={handleDataUpdate} />
       <TerritoryManagementModal isOpen={showTerritoryModal} onClose={() => setShowTerritoryModal(false)} onSuccess={handleDataUpdate} />
     </AppLayout>
+    </DateProvider>
   );
 }
