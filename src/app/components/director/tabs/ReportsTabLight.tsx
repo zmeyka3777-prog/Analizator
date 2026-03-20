@@ -32,6 +32,7 @@ interface ReportConfig {
   periodStart: string;
   periodEnd: string;
   selectedProducts: string[]; // product.id (string)
+  selectedTerritories: string[]; // territory name
   includeCharts: boolean;
   includeSummary: boolean;
   includeDetails: boolean;
@@ -87,6 +88,7 @@ interface SavedReport {
   date: string;
   size: string;
   status: 'ready' | 'expired';
+  reportData?: GeneratedReport;
 }
 
 // ==================== КОНСТАНТЫ ====================
@@ -148,6 +150,9 @@ function computeReportData(config: ReportConfig): GeneratedReport {
 
   const activeProductIds = config.selectedProducts;
   const activeProducts = PRODUCTS.filter(p => activeProductIds.includes(p.id));
+  const activeTerritories = config.selectedTerritories.length > 0
+    ? config.selectedTerritories
+    : TERRITORIES;
 
   // ---- Строки по препаратам ----
   const productRows: ProductRow[] = activeProducts.map(product => {
@@ -180,7 +185,7 @@ function computeReportData(config: ReportConfig): GeneratedReport {
 
   // ---- Строки по территориям ----
   const totalForShare = productRows.reduce((sum, r) => sum + r.revenue, 0);
-  const territoryRows: TerritoryRow[] = TERRITORIES.map(territory => {
+  const territoryRows: TerritoryRow[] = activeTerritories.map(territory => {
     const currentSales = getSalesData({ territory, year })
       .filter(d => d.month >= startMonth && d.month <= endMonth)
       .filter(d => activeProductIds.includes(d.productId));
@@ -483,6 +488,19 @@ const BuilderView = ({
   const deselectAllProducts = () =>
     setConfig(prev => ({ ...prev, selectedProducts: [] }));
 
+  const toggleTerritory = (t: string) =>
+    setConfig(prev => ({
+      ...prev,
+      selectedTerritories: prev.selectedTerritories.includes(t)
+        ? prev.selectedTerritories.filter(x => x !== t)
+        : [...prev.selectedTerritories, t],
+    }));
+
+  const selectAllTerritories = () =>
+    setConfig(prev => ({ ...prev, selectedTerritories: TERRITORIES }));
+  const deselectAllTerritories = () =>
+    setConfig(prev => ({ ...prev, selectedTerritories: [] }));
+
   const previewSummary = useMemo(() => {
     const selected = PRODUCTS.filter(p => config.selectedProducts.includes(p.id));
     return {
@@ -607,35 +625,69 @@ const BuilderView = ({
           </div>
         </div>
 
-        {/* Препараты */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-6">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
-              <Pill className="w-4 h-4 text-blue-500" />
-              Препараты ({config.selectedProducts.length}/{PRODUCTS.length})
-            </h3>
-            <div className="flex gap-2">
-              <button onClick={selectAllProducts} className="text-xs text-blue-500 hover:underline">Все</button>
-              <span className="text-slate-300">|</span>
-              <button onClick={deselectAllProducts} className="text-xs text-slate-400 hover:underline">Снять</button>
+        {/* Препараты + Территории */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Препараты */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                <Pill className="w-4 h-4 text-blue-500" />
+                Препараты ({config.selectedProducts.length}/{PRODUCTS.length})
+              </h3>
+              <div className="flex gap-2">
+                <button onClick={selectAllProducts} className="text-xs text-blue-500 hover:underline">Все</button>
+                <span className="text-slate-300">|</span>
+                <button onClick={deselectAllProducts} className="text-xs text-slate-400 hover:underline">Снять</button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-1 max-h-52 overflow-y-auto pr-1">
+              {PRODUCTS.map(product => (
+                <label
+                  key={product.id}
+                  className="flex items-center gap-2 py-1.5 px-2 cursor-pointer hover:bg-slate-50 rounded-lg transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={config.selectedProducts.includes(product.id)}
+                    onChange={() => toggleProduct(product.id)}
+                    className="rounded accent-blue-500 flex-shrink-0"
+                  />
+                  <span className="text-slate-700 text-sm truncate">{product.shortName || product.name}</span>
+                  <span className="text-slate-400 text-xs ml-auto flex-shrink-0">{product.category}</span>
+                </label>
+              ))}
             </div>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 max-h-52 overflow-y-auto pr-1">
-            {PRODUCTS.map(product => (
-              <label
-                key={product.id}
-                className="flex items-center gap-2 py-1.5 px-2 cursor-pointer hover:bg-slate-50 rounded-lg transition-colors"
-              >
-                <input
-                  type="checkbox"
-                  checked={config.selectedProducts.includes(product.id)}
-                  onChange={() => toggleProduct(product.id)}
-                  className="rounded accent-blue-500 flex-shrink-0"
-                />
-                <span className="text-slate-700 text-sm truncate">{product.shortName || product.name}</span>
-                <span className="text-slate-400 text-xs ml-auto flex-shrink-0">{product.category}</span>
-              </label>
-            ))}
+
+          {/* Территории (округа) */}
+          <div className="bg-white border border-slate-200 rounded-2xl p-6">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-semibold text-slate-800 flex items-center gap-2">
+                <MapPin className="w-4 h-4 text-cyan-500" />
+                Территории ({config.selectedTerritories.length}/{TERRITORIES.length})
+              </h3>
+              <div className="flex gap-2">
+                <button onClick={selectAllTerritories} className="text-xs text-cyan-500 hover:underline">Все</button>
+                <span className="text-slate-300">|</span>
+                <button onClick={deselectAllTerritories} className="text-xs text-slate-400 hover:underline">Снять</button>
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-1 max-h-52 overflow-y-auto pr-1">
+              {TERRITORIES.map(territory => (
+                <label
+                  key={territory}
+                  className="flex items-center gap-2 py-1.5 px-2 cursor-pointer hover:bg-slate-50 rounded-lg transition-colors"
+                >
+                  <input
+                    type="checkbox"
+                    checked={config.selectedTerritories.includes(territory)}
+                    onChange={() => toggleTerritory(territory)}
+                    className="rounded accent-cyan-500 flex-shrink-0"
+                  />
+                  <span className="text-slate-700 text-sm truncate">{territory}</span>
+                </label>
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -931,9 +983,11 @@ const PreviewView = ({
 const ArchiveView = ({
   savedReports,
   onDelete,
+  onOpen,
 }: {
   savedReports: SavedReport[];
   onDelete: (id: string) => void;
+  onOpen: (report: GeneratedReport) => void;
 }) => {
   const [filter, setFilter] = useState<'all' | ReportTemplate>('all');
 
@@ -998,9 +1052,13 @@ const ArchiveView = ({
                 </div>
               </div>
               <div className="flex gap-1 flex-shrink-0">
-                {report.status === 'ready' && (
-                  <button className="p-2 rounded-lg hover:bg-slate-100 text-blue-500 transition-colors" title="Скачать">
-                    <Download className="w-4 h-4" />
+                {report.status === 'ready' && report.reportData && (
+                  <button
+                    onClick={() => onOpen(report.reportData!)}
+                    className="p-2 rounded-lg hover:bg-blue-50 text-blue-500 transition-colors"
+                    title="Открыть"
+                  >
+                    <Eye className="w-4 h-4" />
                   </button>
                 )}
                 <button
@@ -1029,6 +1087,7 @@ export default function ReportsTabLight() {
     periodStart: '2026-01-01',
     periodEnd: '2026-01-31',
     selectedProducts: PRODUCTS.map(p => p.id),
+    selectedTerritories: TERRITORIES,
     includeCharts: true,
     includeSummary: true,
     includeDetails: true,
@@ -1074,11 +1133,17 @@ export default function ReportsTabLight() {
       date: new Date().toLocaleDateString('ru-RU'),
       size: `${(Math.random() * 8 + 1).toFixed(1)} МБ`,
       status: 'ready',
+      reportData: generatedReport,
     };
     setSavedReports(prev => [newReport, ...prev]);
     setSavedNotice(true);
     setTimeout(() => setSavedNotice(false), 2500);
   }, [generatedReport]);
+
+  const handleOpenFromArchive = useCallback((report: GeneratedReport) => {
+    setGeneratedReport(report);
+    setView('preview');
+  }, []);
 
   const handleDeleteReport = useCallback((id: string) => {
     setSavedReports(prev => prev.filter(r => r.id !== id));
@@ -1162,6 +1227,7 @@ export default function ReportsTabLight() {
         <ArchiveView
           savedReports={savedReports}
           onDelete={handleDeleteReport}
+          onOpen={handleOpenFromArchive}
         />
       )}
     </div>
