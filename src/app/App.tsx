@@ -3599,33 +3599,6 @@ export default function MDLPAnalyzerPro() {
             </>
           )}
 
-          {/* Director Dashboard Section - only for directors and admins */}
-          {(currentUser?.role === 'admin' || currentUser?.role === 'director' || currentUser?.role === 'manager') && (
-            <>
-              <div className="my-3 border-t border-slate-700/50" />
-              
-              {!sidebarCollapsed && (
-                <div className="px-3 py-2 text-xs font-semibold text-purple-400 uppercase tracking-wider flex items-center gap-2">
-                  <span className="w-2 h-2 rounded-full bg-purple-400" />
-                  Управление
-                </div>
-              )}
-              <button
-                onClick={() => setAppMode('director')}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm relative overflow-hidden group ${
-                  appMode === 'director'
-                    ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/20 text-purple-400 shadow-lg shadow-purple-500/20 border border-purple-500/30'
-                    : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-[1.02]'
-                }`}
-              >
-                {appMode === 'director' && <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 animate-pulse pointer-events-none" />}
-                <Award size={18} className="flex-shrink-0 relative z-10" />
-                {!sidebarCollapsed && (
-                  <span className="flex-1 text-left relative z-10 font-medium">Панель директора</span>
-                )}
-              </button>
-            </>
-          )}
         </nav>
         
         {/* Logout Button */}

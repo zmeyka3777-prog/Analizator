@@ -84,6 +84,7 @@ interface DirectorWMDashboardProps {
   onRoleSwitch?: (role: string, userId?: string) => void;
   mdlpUserId?: number;
   onLogout?: () => void;
+  onBackToMDLP?: () => void;
 }
 
 // ==================== НАВИГАЦИЯ ДИРЕКТОРА ====================
@@ -468,7 +469,7 @@ const DIRECTOR_SECTION_MAP: Record<string, string> = {
   'upload': 'dashboard',
 };
 
-export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, mdlpUserId, onLogout }: DirectorWMDashboardProps) {
+export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, mdlpUserId, onLogout, onBackToMDLP }: DirectorWMDashboardProps) {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [showProductModal, setShowProductModal] = useState(false);
   const [showTerritoryModal, setShowTerritoryModal] = useState(false);
@@ -493,16 +494,15 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
     >
       <div className="space-y-6">
         {/* Кнопка назад */}
-        <button
-          onClick={() => {
-            onLogout?.();
-            navigate('analyzer');
-          }}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 hover:from-slate-200 hover:to-slate-100 rounded-xl text-slate-700 transition-all border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md group font-medium"
-        >
-          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
-          Вернуться в анализатор МДЛП
-        </button>
+        {onBackToMDLP && (
+          <button
+            onClick={onBackToMDLP}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 hover:from-slate-200 hover:to-slate-100 rounded-xl text-slate-700 transition-all border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md group font-medium"
+          >
+            <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+            Вернуться в анализатор МДЛП
+          </button>
+        )}
 
         {/* Заголовок страницы */}
         <div className="flex items-center justify-between">

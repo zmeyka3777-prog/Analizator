@@ -364,6 +364,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
         onRoleSwitch={handleRoleSwitch}
         mdlpUserId={mdlpUserId}
         onLogout={handleLogout}
+        onBackToMDLP={onBackToMDLP}
       />
     );
   }
