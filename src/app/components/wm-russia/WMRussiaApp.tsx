@@ -1,14 +1,8 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { WMUser, WMUserRole, WMFederalDistrict, MedRepData } from '@/types';
-import { 
-  allSalesData, 
-  wmMockUsers, 
-  getSalesDataByDistrict, 
-  getSalesDataByTerritory,
-  getMedRepDataById,
-  getMedRepRanking
-} from '@/data/wmRussiaData';
+import { wmMockUsers } from '@/data/wmRussiaData';
 import { useSharedData } from '@/context/SharedDataContext';
+import { WMDataUploadPanel } from './WMDataUploadPanel';
 import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
 import { TerritoryManagerDashboard } from './dashboards/TerritoryManagerDashboard';
@@ -23,7 +17,6 @@ import { Button } from '@/app/components/ui/button';
 import { Badge } from '@/app/components/ui/badge';
 import { Input } from '@/app/components/ui/input';
 import { LogIn, Mail, Lock, ArrowLeft, Loader2 } from 'lucide-react';
-import { NoDataBanner } from '@/app/components/common/EmptyState';
 
 function getDefaultSectionStatic(role: WMUserRole): string {
   switch (role) {
@@ -54,16 +47,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
   // Get shared data from context (synced from MDLP uploads)
   const { wmRussiaData, wmRussiaSummary, dataLoaded: sharedDataLoaded } = useSharedData();
 
-  // Merge shared data with mock data - shared data takes priority
-  const salesData = useMemo(() => {
-    if (wmRussiaData.length > 0) {
-      // Combine uploaded data with mock data, avoiding duplicates
-      const uploadedIds = new Set(wmRussiaData.map(d => d.id));
-      const filteredMock = allSalesData.filter(d => !uploadedIds.has(d.id));
-      return [...wmRussiaData, ...filteredMock];
-    }
-    return allSalesData;
-  }, [wmRussiaData]);
+  // Используем только загруженные данные из SharedDataContext (без моков)
+  const salesData = wmRussiaData;
 
   useEffect(() => {
     if (initialUser) return; // Skip localStorage if initialUser provided
@@ -392,6 +377,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 </div>
 
                 <div className="flex items-center gap-4">
+                  {/* Загрузка данных прямо из шапки */}
+                  <WMDataUploadPanel compact lightTheme />
                   {onBackToMDLP && (
                     <button
                       onClick={onBackToMDLP}
@@ -418,9 +405,6 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
             </header>
 
             <div className="wm-content p-6 space-y-4">
-              {salesData.length === 0 && (
-                <NoDataBanner />
-              )}
               {renderDashboard()}
             </div>
           </>

@@ -6,6 +6,7 @@ import {
 } from 'recharts';
 import { MedRepData } from '@/types';
 import { getMedRepProductSales, calcCompletionPercent } from '@/data/wmRussiaData';
+import { WMDataUploadPanel } from '../WMDataUploadPanel';
 
 type MedRepTab = 'sales' | 'dynamics' | 'kpi';
 
@@ -533,6 +534,28 @@ export function MedRepDashboard({ medRepData, ranking, activeSection }: MedRepDa
     { key: 'dynamics', label: 'Динамика' },
     { key: 'kpi', label: 'Мои KPI' },
   ];
+
+  // Пустое состояние — данные не загружены
+  const isEmpty = medRepData.totalPackagesPlan === 0 && medRepData.totalPackagesFact === 0;
+
+  if (isEmpty) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            {medRepData.name || 'Личный кабинет'}
+          </h2>
+          <p className="text-gray-400 text-sm mt-0.5">Данные не загружены</p>
+        </div>
+        <div className="max-w-md">
+          <WMDataUploadPanel />
+        </div>
+        <p className="text-sm text-gray-500">
+          Загрузите файл МДЛП (CSV или Excel), чтобы увидеть аналитику продаж.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

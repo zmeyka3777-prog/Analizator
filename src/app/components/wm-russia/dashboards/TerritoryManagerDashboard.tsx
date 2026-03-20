@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine } from 'recharts';
 import { MedRepData, WMFederalDistrict } from '@/types';
 import { aggregateTerritoryData, calcCompletionPercent, getMedRepProductSales } from '@/data/wmRussiaData';
+import { WMDataUploadPanel } from '../WMDataUploadPanel';
 interface TerritoryManagerDashboardProps {
   territory: string;
   district: WMFederalDistrict;
@@ -99,6 +100,26 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
     { key: 'compare', label: 'Сравнительная аналитика' },
     { key: 'kpi', label: 'KPI территории' },
   ];
+
+  // Пустое состояние — данные не загружены
+  if (medReps.length === 0) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
+            Территория: {territory}
+          </h2>
+          <p className="text-gray-400 text-sm mt-0.5">Данные не загружены</p>
+        </div>
+        <div className="max-w-md">
+          <WMDataUploadPanel />
+        </div>
+        <p className="text-sm text-gray-500">
+          Загрузите файл МДЛП (CSV или Excel), чтобы увидеть данные по команде и территории.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
