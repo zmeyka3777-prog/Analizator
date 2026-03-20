@@ -5,7 +5,35 @@
 
 ---
 
-## Последняя сессия: 2026-03-19
+## Последняя сессия: 2026-03-20
+
+### Что сделано
+- **WMRussiaApp.tsx** — реальная авторизация через API:
+  - Добавлено поле пароля в форму входа
+  - `handleLogin` стал async, делает `fetch('/api/auth/login')`
+  - JWT токен сохраняется в `localStorage('wm_auth_token')`
+  - Демо-кнопки автоматически подставляют `password123`
+  - Индикатор загрузки (Loader2)
+- **server/storage.ts** — добавлены методы управления пользователями:
+  - `getAllUsers()`, `updateUser()`, `deleteUser()`
+- **server/index.ts** — новые API роуты (admin only):
+  - `GET /api/users`, `POST /api/users`, `PUT /api/users/:id`, `DELETE /api/users/:id`
+- **src/lib/api.ts** — `getAuthToken()` теперь проверяет `wm_auth_token` + `mdlp_auth_token`
+  - Это позволяет AdminDashboard использовать токен из WMRussiaApp для вызовов `/api/admin/*`
+- ВПС задеплоен 2 раза ✓
+
+### Состояние проекта
+- ✅ Вход через реальную PostgreSQL БД (не mock)
+- ✅ AdminDashboard → вкладка "Пользователи" загружает реальных юзеров из БД
+- ✅ Создание/удаление/смена роли пользователей работает через UI
+
+### Что осталось сделать
+- Email-уведомления (при создании аккаунта слать пароль)
+- Подключить более детальный CRUD сотрудников в AdminDashboard
+
+---
+
+## Сессия: 2026-03-19
 
 ### Что сделано
 - **ReportsTabLight.tsx** — полная переработка:
