@@ -1,26 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-03-20 18:58
+**Дата:** 2026-03-20 19:29
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-src/app/components/wm-russia/WMDataUploadPanel.tsx
-src/app/components/wm-russia/WMRussiaApp.tsx
-src/app/components/wm-russia/dashboards/DirectorWMDashboard.tsx
-src/app/components/wm-russia/dashboards/MedRepDashboard.tsx
-src/app/components/wm-russia/dashboards/TerritoryManagerDashboard.tsx
+нет изменений
 ```
 
 ## Последние 5 коммитов
 
 ```
+10fa350 Auto-save at end of session
 0b8528b Auto-save at end of session
 981b8af Auto-save at end of session
 3dd0e17 Security: remove auto-fill password from quick login buttons
 7768026 Auto-save at end of session
-d1a942f Fix: getAuthToken checks wm_auth_token for WM Russia JWT
 ```
 
 ## Для нового Claude (инструкции)
