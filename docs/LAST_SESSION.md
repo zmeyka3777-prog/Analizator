@@ -1,22 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-03-20 16:24
+**Дата:** 2026-03-20 18:15
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-docs/SESSION_LOG.md
+нет изменений
 ```
 
 ## Последние 5 коммитов
 
 ```
+3dd0e17 Security: remove auto-fill password from quick login buttons
+7768026 Auto-save at end of session
 d1a942f Fix: getAuthToken checks wm_auth_token for WM Russia JWT
 3b1b968 Auto-save at end of session
 d8318f1 Feat: real API auth + user management for admin
-0f6d8e5 Auto-save at end of session
-afa8bd7 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
