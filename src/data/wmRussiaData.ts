@@ -404,6 +404,65 @@ export function getStatusColor(percent: number): 'success' | 'warning' | 'danger
 }
 
 // Helper to aggregate territory data
+/** Слить массив MedRepData в одну суммарную запись (для режима «Весь файл») */
+export function mergeMedRepData(reps: MedRepData[]): MedRepData {
+  if (reps.length === 0) {
+    return {
+      id: 'merged', name: 'Весь файл', territory: 'Все территории', district: 'ПФО',
+      kokarnitPlan: 0, kokarnitFact: 0, artoxanPlan: 0, artoxanFact: 0,
+      artoxanTablPlan: 0, artoxanTablFact: 0, artoxanGelPlan: 0, artoxanGelFact: 0,
+      seknidoxPlan: 0, seknidoxFact: 0, klodifenPlan: 0, klodifenFact: 0,
+      drastopPlan: 0, drastopFact: 0, ortsepolPlan: 0, ortsepolFact: 0,
+      limendaPlan: 0, limendaFact: 0, ronocitPlan: 0, ronocitFact: 0,
+      doramitcinPlan: 0, doramitcinFact: 0, alfectoPlan: 0, alfectoFact: 0,
+      totalPackagesPlan: 0, totalPackagesFact: 0, totalMoneyPlan: 0, totalMoneyFact: 0,
+    };
+  }
+  return reps.reduce<MedRepData>((acc, rep) => ({
+    ...acc,
+    kokarnitPlan: acc.kokarnitPlan + rep.kokarnitPlan,
+    kokarnitFact: acc.kokarnitFact + rep.kokarnitFact,
+    artoxanPlan: acc.artoxanPlan + rep.artoxanPlan,
+    artoxanFact: acc.artoxanFact + rep.artoxanFact,
+    artoxanTablPlan: acc.artoxanTablPlan + rep.artoxanTablPlan,
+    artoxanTablFact: acc.artoxanTablFact + rep.artoxanTablFact,
+    artoxanGelPlan: acc.artoxanGelPlan + rep.artoxanGelPlan,
+    artoxanGelFact: acc.artoxanGelFact + rep.artoxanGelFact,
+    seknidoxPlan: acc.seknidoxPlan + rep.seknidoxPlan,
+    seknidoxFact: acc.seknidoxFact + rep.seknidoxFact,
+    klodifenPlan: acc.klodifenPlan + rep.klodifenPlan,
+    klodifenFact: acc.klodifenFact + rep.klodifenFact,
+    drastopPlan: acc.drastopPlan + rep.drastopPlan,
+    drastopFact: acc.drastopFact + rep.drastopFact,
+    ortsepolPlan: acc.ortsepolPlan + rep.ortsepolPlan,
+    ortsepolFact: acc.ortsepolFact + rep.ortsepolFact,
+    limendaPlan: acc.limendaPlan + rep.limendaPlan,
+    limendaFact: acc.limendaFact + rep.limendaFact,
+    ronocitPlan: acc.ronocitPlan + rep.ronocitPlan,
+    ronocitFact: acc.ronocitFact + rep.ronocitFact,
+    doramitcinPlan: acc.doramitcinPlan + rep.doramitcinPlan,
+    doramitcinFact: acc.doramitcinFact + rep.doramitcinFact,
+    alfectoPlan: acc.alfectoPlan + rep.alfectoPlan,
+    alfectoFact: acc.alfectoFact + rep.alfectoFact,
+    totalPackagesPlan: acc.totalPackagesPlan + rep.totalPackagesPlan,
+    totalPackagesFact: acc.totalPackagesFact + rep.totalPackagesFact,
+    totalMoneyPlan: acc.totalMoneyPlan + rep.totalMoneyPlan,
+    totalMoneyFact: acc.totalMoneyFact + rep.totalMoneyFact,
+  }), {
+    id: 'merged',
+    name: reps.length === 1 ? reps[0].name : 'Выбранные территории',
+    territory: reps.length === 1 ? reps[0].territory : 'Несколько территорий',
+    district: reps[0].district,
+    kokarnitPlan: 0, kokarnitFact: 0, artoxanPlan: 0, artoxanFact: 0,
+    artoxanTablPlan: 0, artoxanTablFact: 0, artoxanGelPlan: 0, artoxanGelFact: 0,
+    seknidoxPlan: 0, seknidoxFact: 0, klodifenPlan: 0, klodifenFact: 0,
+    drastopPlan: 0, drastopFact: 0, ortsepolPlan: 0, ortsepolFact: 0,
+    limendaPlan: 0, limendaFact: 0, ronocitPlan: 0, ronocitFact: 0,
+    doramitcinPlan: 0, doramitcinFact: 0, alfectoPlan: 0, alfectoFact: 0,
+    totalPackagesPlan: 0, totalPackagesFact: 0, totalMoneyPlan: 0, totalMoneyFact: 0,
+  });
+}
+
 export function aggregateTerritoryData(medReps: MedRepData[]): {
   totalPackagesPlan: number;
   totalPackagesFact: number;

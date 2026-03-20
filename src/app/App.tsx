@@ -6531,36 +6531,170 @@ export default function MDLPAnalyzerPro() {
         )}
 
         {/* PROBLEMS - ВКЛАДКА ПРОБЛЕМНЫЕ ЗОНЫ */}
-        {activeTab === 'problems' && (
-          <div className="p-4">
-            <BackButton />
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-slate-800">Проблемные зоны</h2>
-              {DisplayModeToggle}
+        {activeTab === 'problems' && (() => {
+          const regionSales = filteredData?.regionSales || [];
+          const drugSalesArr = filteredData?.drugSales || [];
 
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2"><XCircle className="text-red-600" size={18} /><span className="font-semibold text-red-800">Критические</span></div>
-                <p className="text-3xl font-bold text-red-600">0</p>
+          // Проблемные зоны по регионам (сравниваем с планами)
+          const regionProblems = regionSales.map(r => {
+            const plan = savedPlans[r.name] || 0;
+            const pct = plan > 0 ? (r.sales / plan) * 100 : null;
+            const level = pct === null ? null : pct < 50 ? 'critical' : pct < 80 ? 'warning' : null;
+            return { ...r, plan, pct, level };
+          }).filter(r => r.level !== null);
+
+          // Проблемные зоны по препаратам (нижние 20% от максимальных продаж)
+          const maxDrugSales = Math.max(...drugSalesArr.map(d => d.sales), 1);
+          const drugProblems = drugSalesArr.filter(d => d.sales < maxDrugSales * 0.2 && d.sales >= 0);
+
+          // Регионы без единой продажи
+          const zeroRegions = regionSales.filter(r => r.sales === 0);
+
+          const critCount = regionProblems.filter(r => r.level === 'critical').length;
+          const warnCount = regionProblems.filter(r => r.level === 'warning').length + drugProblems.length;
+          const infoCount = zeroRegions.length;
+
+          const hasData = regionSales.length > 0 || drugSalesArr.length > 0;
+
+          return (
+            <div className="p-4">
+              <BackButton />
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-xl font-bold text-slate-800">Проблемные зоны</h2>
+                {DisplayModeToggle}
               </div>
-              <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2"><AlertCircle className="text-amber-600" size={18} /><span className="font-semibold text-amber-800">Предупреждения</span></div>
-                <p className="text-3xl font-bold text-amber-600">0</p>
+
+              {/* Счётчики */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2"><XCircle className="text-red-600" size={18} /><span className="font-semibold text-red-800">Критические</span></div>
+                  <p className="text-3xl font-bold text-red-600">{critCount}</p>
+                  <p className="text-xs text-red-500 mt-1">Выполнение плана &lt; 50%</p>
+                </div>
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2"><AlertCircle className="text-amber-600" size={18} /><span className="font-semibold text-amber-800">Предупреждения</span></div>
+                  <p className="text-3xl font-bold text-amber-600">{warnCount}</p>
+                  <p className="text-xs text-amber-500 mt-1">Выполнение плана 50–80% или слабые препараты</p>
+                </div>
+                <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+                  <div className="flex items-center gap-2 mb-2"><Info className="text-blue-600" size={18} /><span className="font-semibold text-blue-800">Информация</span></div>
+                  <p className="text-3xl font-bold text-blue-600">{infoCount}</p>
+                  <p className="text-xs text-blue-500 mt-1">Регионы без продаж</p>
+                </div>
               </div>
-              <div className="bg-blue-50 border border-blue-200 rounded-xl p-4">
-                <div className="flex items-center gap-2 mb-2"><Info className="text-blue-600" size={18} /><span className="font-semibold text-blue-800">Информация</span></div>
-                <p className="text-3xl font-bold text-blue-600">0</p>
-              </div>
+
+              {!hasData ? (
+                <div className="bg-white rounded-xl border p-8">
+                  <NoDataMessage title="Нет данных для анализа" />
+                  <p className="text-center text-sm text-slate-500 mt-2">
+                    Загрузите файл с данными — система автоматически выявит проблемные области
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {/* Проблемные регионы */}
+                  {regionProblems.length > 0 && (
+                    <div className="bg-white rounded-xl border overflow-hidden">
+                      <div className="px-4 py-3 border-b bg-slate-50 flex items-center gap-2">
+                        <AlertCircle size={16} className="text-amber-600" />
+                        <span className="font-semibold text-slate-700">Регионы с отставанием от плана</span>
+                        <span className="ml-auto text-xs text-slate-400">{regionProblems.length} регионов</span>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-slate-50 text-left">
+                              <th className="px-4 py-2 text-slate-500 font-medium">Регион</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">Факт</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">План</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">Выполнение</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">Дефицит</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium">Уровень</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {regionProblems.sort((a, b) => (a.pct ?? 100) - (b.pct ?? 100)).map((r, i) => (
+                              <tr key={i} className="border-b hover:bg-slate-50 transition-colors">
+                                <td className="px-4 py-2 font-medium text-slate-700">{r.name}</td>
+                                <td className="px-4 py-2 text-right">{r.sales.toLocaleString('ru-RU')}</td>
+                                <td className="px-4 py-2 text-right text-slate-500">{r.plan.toLocaleString('ru-RU')}</td>
+                                <td className="px-4 py-2 text-right font-semibold" style={{ color: r.level === 'critical' ? '#dc2626' : '#d97706' }}>
+                                  {r.pct !== null ? r.pct.toFixed(1) + '%' : '—'}
+                                </td>
+                                <td className="px-4 py-2 text-right text-red-600">{r.plan > 0 ? (r.plan - r.sales).toLocaleString('ru-RU') : '—'}</td>
+                                <td className="px-4 py-2">
+                                  <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${r.level === 'critical' ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-700'}`}>
+                                    {r.level === 'critical' ? 'Критический' : 'Предупреждение'}
+                                  </span>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Слабые препараты */}
+                  {drugProblems.length > 0 && (
+                    <div className="bg-white rounded-xl border overflow-hidden">
+                      <div className="px-4 py-3 border-b bg-slate-50 flex items-center gap-2">
+                        <AlertCircle size={16} className="text-amber-600" />
+                        <span className="font-semibold text-slate-700">Препараты с низкими продажами</span>
+                        <span className="ml-auto text-xs text-slate-400">{drugProblems.length} препаратов</span>
+                      </div>
+                      <div className="overflow-x-auto">
+                        <table className="w-full text-sm">
+                          <thead>
+                            <tr className="border-b bg-slate-50 text-left">
+                              <th className="px-4 py-2 text-slate-500 font-medium">Препарат</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">Продажи</th>
+                              <th className="px-4 py-2 text-slate-500 font-medium text-right">% от лидера</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {drugProblems.map((d, i) => (
+                              <tr key={i} className="border-b hover:bg-slate-50">
+                                <td className="px-4 py-2 font-medium text-slate-700">{d.name}</td>
+                                <td className="px-4 py-2 text-right">{d.sales.toLocaleString('ru-RU')}</td>
+                                <td className="px-4 py-2 text-right text-amber-600 font-semibold">{((d.sales / maxDrugSales) * 100).toFixed(1)}%</td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Регионы без продаж */}
+                  {zeroRegions.length > 0 && (
+                    <div className="bg-white rounded-xl border overflow-hidden">
+                      <div className="px-4 py-3 border-b bg-slate-50 flex items-center gap-2">
+                        <Info size={16} className="text-blue-600" />
+                        <span className="font-semibold text-slate-700">Регионы без продаж</span>
+                        <span className="ml-auto text-xs text-slate-400">{zeroRegions.length} регионов</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2 p-4">
+                        {zeroRegions.map((r, i) => (
+                          <span key={i} className="text-xs px-3 py-1 bg-blue-50 border border-blue-200 text-blue-700 rounded-full">{r.name}</span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {regionProblems.length === 0 && drugProblems.length === 0 && zeroRegions.length === 0 && (
+                    <div className="bg-white rounded-xl border p-8 text-center text-slate-500">
+                      ✅ Проблемных зон не обнаружено
+                      {Object.keys(savedPlans).length === 0 && (
+                        <p className="text-xs mt-2 text-slate-400">Чтобы видеть отставание от плана — добавьте планы в разделе «Управление данными»</p>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="bg-white rounded-xl border p-8">
-              <NoDataMessage title="Проблемные зоны не обнаружены" />
-              <p className="text-center text-sm text-slate-500 mt-2">
-                Загрузите файл с данными — система автоматически выявит проблемные области
-              </p>
-            </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* COMPARE - СРАВНЕНИЕ ПЕРИОДОВ */}
         {activeTab === 'compare' && (() => {

@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { WMUser, WMUserRole, WMFederalDistrict, MedRepData } from '@/types';
-import { wmMockUsers } from '@/data/wmRussiaData';
+import React, { useState, useEffect, useMemo } from 'react';
+import { WMUser, WMUserRole } from '@/types';
+import { wmMockUsers, mergeMedRepData } from '@/data/wmRussiaData';
 import { useSharedData } from '@/context/SharedDataContext';
+import { ChevronDown, Globe, Filter } from 'lucide-react';
 import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
 import { TerritoryManagerDashboard } from './dashboards/TerritoryManagerDashboard';
@@ -44,10 +45,73 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
   const [loginLoading, setLoginLoading] = useState(false);
 
   // Get shared data from context (synced from MDLP uploads)
-  const { wmRussiaData, wmRussiaSummary, dataLoaded: sharedDataLoaded } = useSharedData();
+  const { wmRussiaData, dataLoaded: sharedDataLoaded } = useSharedData();
 
   // Используем только загруженные данные из SharedDataContext (без моков)
   const salesData = wmRussiaData;
+
+  // Фильтр территорий: [] = весь файл, иначе выбранные territory
+  const [selectedTerritories, setSelectedTerritories] = useState<string[]>(() => {
+    if (!initialUser) return [];
+    try {
+      const saved = localStorage.getItem(`wm_territories_${initialUser.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch { return []; }
+  });
+  const [showTerritoryDropdown, setShowTerritoryDropdown] = useState(false);
+
+  // Уникальные территории из загруженных данных
+  const availableTerritories = useMemo(() =>
+    Array.from(new Set(salesData.map(d => d.territory))).filter(Boolean).sort(),
+  [salesData]);
+
+  // Данные после фильтра (или весь файл)
+  const filteredSalesData = useMemo(() =>
+    selectedTerritories.length === 0
+      ? salesData
+      : salesData.filter(d => selectedTerritories.includes(d.territory)),
+  [salesData, selectedTerritories]);
+
+  const saveTerritories = (userId: string | number, territories: string[]) => {
+    localStorage.setItem(`wm_territories_${userId}`, JSON.stringify(territories));
+  };
+
+  const toggleTerritory = (t: string) => {
+    if (!currentUser) return;
+    setSelectedTerritories(prev => {
+      const next = prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t];
+      saveTerritories(currentUser.id, next);
+      return next;
+    });
+  };
+
+  const selectAll = () => {
+    if (!currentUser) return;
+    setSelectedTerritories([]);
+    saveTerritories(currentUser.id, []);
+  };
+
+  // При смене пользователя загружаем его сохранённые территории
+  useEffect(() => {
+    if (!currentUser) return;
+    try {
+      const saved = localStorage.getItem(`wm_territories_${currentUser.id}`);
+      setSelectedTerritories(saved ? JSON.parse(saved) : []);
+    } catch { setSelectedTerritories([]); }
+  }, [currentUser?.id]);
+
+  // Закрываем дропдаун по клику вне
+  useEffect(() => {
+    if (!showTerritoryDropdown) return;
+    const handler = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      if (!target.closest('[data-territory-dropdown]')) {
+        setShowTerritoryDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, [showTerritoryDropdown]);
 
   useEffect(() => {
     if (initialUser) return; // Skip localStorage if initialUser provided
@@ -236,71 +300,27 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     );
   }
 
-  // Helper to get sales data from merged salesData instead of hardcoded mock
-  const getDataByDistrict = (district: WMFederalDistrict) => {
-    return salesData.filter(d => d.district === district);
-  };
-  
-  const getDataByTerritory = (territory: string) => {
-    return salesData.filter(d => d.territory === territory);
-  };
-  
-  const getDataById = (id: string) => {
-    return salesData.find(d => d.id === id) || null;
-  };
-  
-  const getRanking = (medRepId: string, district: WMFederalDistrict) => {
-    const districtData = getDataByDistrict(district);
-    const sorted = [...districtData].sort((a, b) => 
-      (b.totalPackagesFact / b.totalPackagesPlan) - (a.totalPackagesFact / a.totalPackagesPlan)
-    );
-    const position = sorted.findIndex(d => d.id === medRepId) + 1;
-    return { position, total: sorted.length };
-  };
 
   const renderDashboard = () => {
     switch (currentUser.role) {
       case 'medrep': {
-        const medRepData = currentUser.medRepId
-          ? getDataById(currentUser.medRepId)
-          : null;
-
-        if (!medRepData) {
-          // Создаём пустую запись для отображения структуры дашборда
-          const emptyData: MedRepData = {
-            id: currentUser.medRepId || '0',
-            name: currentUser.name,
-            territory: currentUser.territory || '',
-            district: currentUser.district || 'ПФО',
-            kokarnitPlan: 0, kokarnitFact: 0,
-            artoxanPlan: 0, artoxanFact: 0,
-            artoxanTablPlan: 0, artoxanTablFact: 0,
-            artoxanGelPlan: 0, artoxanGelFact: 0,
-            seknidoxPlan: 0, seknidoxFact: 0,
-            klodifenPlan: 0, klodifenFact: 0,
-            drastopPlan: 0, drastopFact: 0,
-            ortsepolPlan: 0, ortsepolFact: 0,
-            limendaPlan: 0, limendaFact: 0,
-            ronocitPlan: 0, ronocitFact: 0,
-            doramitcinPlan: 0, doramitcinFact: 0,
-            alfectoPlan: 0, alfectoFact: 0,
-            totalPackagesPlan: 0, totalPackagesFact: 0,
-            totalMoneyPlan: 0, totalMoneyFact: 0,
-          };
-          return <MedRepDashboard medRepData={emptyData} ranking={{ position: 0, total: 0 }} activeSection={activeSection} />;
-        }
-
-        const ranking = getRanking(medRepData.id, currentUser.district!);
+        // Агрегируем отфильтрованные данные в одну запись
+        const medRepData = mergeMedRepData(
+          filteredSalesData.length > 0 ? filteredSalesData : []
+        );
+        medRepData.name = currentUser.name;
+        const ranking = filteredSalesData.length > 0
+          ? { position: 1, total: filteredSalesData.length }
+          : { position: 0, total: 0 };
         return <MedRepDashboard medRepData={medRepData} ranking={ranking} activeSection={activeSection} />;
       }
 
       case 'territory_manager': {
-        const territoryMedReps = getDataByTerritory(currentUser.territory!);
         return (
           <TerritoryManagerDashboard
-            territory={currentUser.territory!}
-            district={currentUser.district!}
-            medReps={territoryMedReps}
+            territory={selectedTerritories.length === 0 ? 'Все территории' : selectedTerritories.join(', ')}
+            district={currentUser.district || 'ПФО'}
+            medReps={filteredSalesData}
             activeSection={activeSection}
           />
         );
@@ -373,6 +393,65 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                     {currentUser.role === 'territory_manager' && `Территория: ${currentUser.territory}`}
                     {currentUser.role === 'medrep' && 'Личный кабинет'}
                   </h1>
+
+                  {/* Фильтр территорий — только для медпредов и территориальных менеджеров */}
+                  {(currentUser.role === 'medrep' || currentUser.role === 'territory_manager') && availableTerritories.length > 0 && (
+                    <div className="relative" data-territory-dropdown>
+                      <button
+                        onClick={() => setShowTerritoryDropdown(v => !v)}
+                        className="flex items-center gap-2 px-3 py-1.5 text-sm border border-slate-200 hover:border-cyan-400 rounded-lg bg-white hover:bg-cyan-50 transition-all shadow-sm"
+                      >
+                        <Filter className="h-3.5 w-3.5 text-slate-500" />
+                        <span className="text-slate-700">
+                          {selectedTerritories.length === 0
+                            ? 'Весь файл'
+                            : selectedTerritories.length === 1
+                              ? selectedTerritories[0]
+                              : `${selectedTerritories.length} территории`}
+                        </span>
+                        {selectedTerritories.length > 0 && (
+                          <span className="bg-cyan-500 text-white text-xs rounded-full px-1.5 py-0.5 min-w-[18px] text-center">
+                            {selectedTerritories.length}
+                          </span>
+                        )}
+                        <ChevronDown className="h-3.5 w-3.5 text-slate-400" />
+                      </button>
+
+                      {showTerritoryDropdown && (
+                        <div className="absolute top-full left-0 mt-1 z-50 bg-white border border-slate-200 rounded-xl shadow-xl min-w-[240px] max-h-72 overflow-y-auto">
+                          <div className="p-2 border-b border-slate-100">
+                            <button
+                              onClick={() => { selectAll(); setShowTerritoryDropdown(false); }}
+                              className={`w-full text-left px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 ${
+                                selectedTerritories.length === 0
+                                  ? 'bg-cyan-50 text-cyan-700'
+                                  : 'hover:bg-slate-50 text-slate-600'
+                              }`}
+                            >
+                              <Globe className="h-3.5 w-3.5" />
+                              Весь файл
+                            </button>
+                          </div>
+                          <div className="p-2 space-y-0.5">
+                            {availableTerritories.map(territory => (
+                              <label
+                                key={territory}
+                                className="flex items-center gap-2 px-3 py-2 rounded-lg text-sm cursor-pointer hover:bg-slate-50 transition-colors"
+                              >
+                                <input
+                                  type="checkbox"
+                                  checked={selectedTerritories.includes(territory)}
+                                  onChange={() => toggleTerritory(territory)}
+                                  className="rounded border-slate-300 text-cyan-600 focus:ring-cyan-500"
+                                />
+                                <span className="text-slate-700">{territory}</span>
+                              </label>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-4">

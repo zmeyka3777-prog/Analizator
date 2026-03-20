@@ -1,22 +1,24 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-03-20 19:58
+**Дата:** 2026-03-20 20:22
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-нет изменений
+src/app/App.tsx
+src/app/components/wm-russia/WMRussiaApp.tsx
+src/data/wmRussiaData.ts
 ```
 
 ## Последние 5 коммитов
 
 ```
+f262eca Auto-save at end of session
 0973e0d Auto-save at end of session
 285a1ad Auto-save at end of session
 2d68e45 Auto-save at end of session
 285ed86 Auto-save at end of session
-10fa350 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
