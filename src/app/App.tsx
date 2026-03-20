@@ -3403,7 +3403,23 @@ export default function MDLPAnalyzerPro() {
         <WMRussiaApp
           initialUser={mappedUser}
           mdlpUserId={Number(currentUser.id)}
-          onBackToMDLP={() => setAppMode('mdlp')}
+          onBackToMDLP={() => {
+            // Если сессия МДЛП не активна — восстановить из WM Russia сессии
+            if (!currentUser) {
+              try {
+                const wmUser = localStorage.getItem('wm_russia_user');
+                const token = localStorage.getItem('wm_auth_token');
+                if (wmUser && token) {
+                  const u = JSON.parse(wmUser);
+                  const mdlpUser = { id: u.id, email: u.email, name: u.name, role: u.role, avatar: u.avatar };
+                  setCurrentUser(mdlpUser as any);
+                  localStorage.setItem('mdlp_user', JSON.stringify(mdlpUser));
+                  setShowUserSelect(false);
+                }
+              } catch {}
+            }
+            setAppMode('mdlp');
+          }}
           onLogoutToMain={() => {
             setCurrentUser(null);
             localStorage.removeItem('mdlp_user');
