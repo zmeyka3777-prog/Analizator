@@ -5,7 +5,42 @@
 
 ---
 
-## Последняя сессия: 2026-03-20
+## Последняя сессия: 2026-03-21
+
+### Что сделано
+- **WMRussiaApp.tsx** — убраны моки, добавлен фильтр территорий:
+  - `salesData = wmRussiaData` (только данные из SharedDataContext, без mock fallback)
+  - Новое состояние: `selectedTerritories`, `showTerritoryDropdown`, `availableTerritories`, `filteredSalesData`
+  - Выбор территорий сохраняется в `localStorage('wm_territories_{userId}')`
+  - При смене аккаунта — загружаются его сохранённые территории
+  - UI фильтра в шапке: кнопка с дропдауном (чекбоксы + «Весь файл»), только для ролей medrep/territory_manager
+  - Клик вне дропдауна — закрывается (mousedown listener)
+  - `renderDashboard` medrep: `mergeMedRepData(filteredSalesData)` вместо `getDataById`
+  - `renderDashboard` territory_manager: `medReps={filteredSalesData}`
+  - Удалены неиспользуемые хелперы: `getDataByDistrict`, `getDataByTerritory`, `getDataById`, `getRanking`
+- **src/data/wmRussiaData.ts** — добавлена `mergeMedRepData(reps)`: агрегирует массив MedRepData в одну запись
+- **App.tsx** — «Проблемные зоны» подключены к реальным данным:
+  - `filteredData.regionSales` → сравнение с `savedPlans` → Critical (<50%) / Warning (<80%)
+  - `filteredData.drugSales` → препараты с продажами < 20% от максимума
+  - `zeroRegions` — регионы без продаж совсем
+  - Empty state если файл не загружен
+- **MedRepDashboard.tsx** — empty state если нет данных
+- **TerritoryManagerDashboard.tsx** — empty state если `medReps.length === 0`
+- Сборка и деплой на VPS 85.193.86.69 ✓
+
+### Состояние проекта
+- ✅ Единая система: загрузка в МДЛП → данные во всех кабинетах
+- ✅ Фильтр территорий в кабинетах медпреда и ТМ (с опцией «Весь файл»)
+- ✅ Каждый сотрудник видит только своё, фильтр сохраняется между сессиями
+- ✅ Проблемные зоны работают на реальных данных
+
+### Что осталось сделать
+- Создать реальные аккаунты сотрудников через кабинет администратора
+- Email-уведомления при создании аккаунта
+
+---
+
+## Сессия: 2026-03-20
 
 ### Что сделано
 - **WMRussiaApp.tsx** — реальная авторизация через API:
