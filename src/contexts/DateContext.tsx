@@ -124,7 +124,14 @@ export const DateProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 export const useDateContext = (): DateContextType => {
   const context = useContext(DateContext);
   if (!context) {
-    throw new Error('useDateContext должен использоваться внутри DateProvider');
+    // Безопасный fallback — не бросаем ошибку, возвращаем значения по умолчанию
+    return {
+      dateSettings: getRealDate(),
+      updateCurrentYear: () => {},
+      updateCurrentMonth: () => {},
+      resetToRealDate: () => {},
+      applyToAllRoles: () => {},
+    };
   }
   return context;
 };

@@ -3596,6 +3596,21 @@ export default function MDLPAnalyzerPro() {
                   </span>
                 )}
               </button>
+              {currentUser.role === 'director' && (
+                <button
+                  onClick={() => setAppMode('director')}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm relative overflow-hidden ${
+                    appMode === 'director'
+                      ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/10 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-500/10'
+                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-[1.02]'
+                  }`}
+                >
+                  <BarChart3 size={18} className="flex-shrink-0" />
+                  {!sidebarCollapsed && (
+                    <span className="flex-1 text-left font-medium">Аналитика директора</span>
+                  )}
+                </button>
+              )}
             </>
           )}
 
