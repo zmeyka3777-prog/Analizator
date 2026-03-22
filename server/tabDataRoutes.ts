@@ -1231,16 +1231,17 @@ export function createTabDataRouter(authMiddleware: any) {
             monthMap.get(yr)!.set(row.drug, (monthMap.get(yr)!.get(row.drug) || 0) + sales);
           }
 
-          if (row.day && row.month) {
-            const week = Math.min(Math.ceil(row.day / 7), 5);
-            const wKey = `${yr}_${row.month}_${week}_${row.drug}`;
+          // compact rows хранят уже вычисленную неделю (week), не day
+          const rowWeek = row.week != null ? row.week : (row.day ? Math.min(Math.ceil(row.day / 7), 5) : null);
+          if (rowWeek != null && row.month) {
+            const wKey = `${yr}_${row.month}_${rowWeek}_${row.drug}`;
             if (!yearWeeklyMap.has(yr)) yearWeeklyMap.set(yr, new Map());
             const existing = yearWeeklyMap.get(yr)!.get(wKey);
             if (existing) {
               existing.quantity += row.quantity || 0;
               existing.amount += row.amount || 0;
             } else {
-              yearWeeklyMap.get(yr)!.set(wKey, { month: row.month, week, drug: row.drug || '', quantity: row.quantity || 0, amount: row.amount || 0 });
+              yearWeeklyMap.get(yr)!.set(wKey, { month: row.month, week: rowWeek, drug: row.drug || '', quantity: row.quantity || 0, amount: row.amount || 0 });
             }
           }
         }
