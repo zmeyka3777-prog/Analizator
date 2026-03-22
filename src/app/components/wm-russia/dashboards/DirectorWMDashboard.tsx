@@ -476,6 +476,27 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
   const [showTerritoryModal, setShowTerritoryModal] = useState(false);
   const navigate = useNavigate();
 
+  // Реальные данные из МДЛП API
+  const [mdlpRealData, setMdlpRealData] = useState<any>(null);
+  const [mdlpLoading, setMdlpLoading] = useState(false);
+
+  useEffect(() => {
+    const token = localStorage.getItem('wm_auth_token');
+    if (!token) return;
+    setMdlpLoading(true);
+    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+    Promise.all([
+      fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/dashboard', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/wm-products', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/metadata', { headers }).then(r => r.json()).catch(() => null),
+    ]).then(([wmDash, dash, wmProd, meta]) => {
+      if (wmDash?.hasData || dash?.monthlySales?.length) {
+        setMdlpRealData({ wmDash, dash, wmProd, meta });
+      }
+    }).finally(() => setMdlpLoading(false));
+  }, []);
+
   // Синхронизация сайдбара с внутренними вкладками
   useEffect(() => {
     const mapped = DIRECTOR_SECTION_MAP[activeSection];
@@ -537,7 +558,137 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
 
         {/* Контент */}
         <div className="bg-white/10 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 p-8">
-          {activeTab === 'dashboard' && <DashboardView />}
+          {activeTab === 'dashboard' && (
+            <>
+              {/* Блок реальных данных МДЛП */}
+              {mdlpLoading && (
+                <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-2xl text-blue-700 text-sm flex items-center gap-2">
+                  <RefreshCw size={16} className="animate-spin" />
+                  Загрузка данных МДЛП...
+                </div>
+              )}
+              {mdlpRealData && (() => {
+                const dash = mdlpRealData.dash;
+                const wmDash = mdlpRealData.wmDash;
+                const wmProd = mdlpRealData.wmProd;
+                const meta = mdlpRealData.meta;
+                const years = meta?.years || [];
+                const totalPkg = wmDash?.totalPackages || 0;
+                const totalRegions = wmDash?.totalRegions || 0;
+                const totalContragents = wmDash?.totalContragents || 0;
+                const byDrug: any[] = wmProd?.byDrug || wmDash?.byDrug || [];
+                const monthlySales: any[] = dash?.monthlySales || [];
+                const monthTotal = monthlySales.reduce((s: number, m: any) => s + (m.sales || 0), 0);
+                return (
+                  <div className="mb-8">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-2 h-8 bg-gradient-to-b from-emerald-400 to-emerald-600 rounded-full" />
+                      <div>
+                        <h3 className="text-lg font-bold text-slate-800">Реальные данные МДЛП</h3>
+                        <p className="text-xs text-slate-500">
+                          {years.length > 0 ? `Годы: ${years.join(', ')}` : 'Загружены данные из файла'}
+                          {' · '}{monthlySales.length > 0 ? `${monthlySales.length} мес.` : ''}
+                        </p>
+                      </div>
+                      <button
+                        onClick={() => {
+                          setMdlpLoading(true);
+                          const token = localStorage.getItem('wm_auth_token');
+                          const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+                          Promise.all([
+                            fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/dashboard', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/wm-products', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/metadata', { headers }).then(r => r.json()).catch(() => null),
+                          ]).then(([w, d, p, m]) => {
+                            if (w?.hasData || d?.monthlySales?.length) setMdlpRealData({ wmDash: w, dash: d, wmProd: p, meta: m });
+                          }).finally(() => setMdlpLoading(false));
+                        }}
+                        className="ml-auto p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                        title="Обновить данные"
+                      >
+                        <RefreshCw size={14} className={`text-slate-500 ${mdlpLoading ? 'animate-spin' : ''}`} />
+                      </button>
+                    </div>
+                    {/* KPI карточки с реальными данными */}
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                      <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 border border-emerald-200 rounded-2xl p-4">
+                        <p className="text-xs text-emerald-700 font-medium mb-1">Упаковок продано</p>
+                        <p className="text-2xl font-bold text-emerald-800">{totalPkg.toLocaleString('ru-RU')}</p>
+                        <p className="text-xs text-emerald-600 mt-1">всего по ПФО</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-2xl p-4">
+                        <p className="text-xs text-blue-700 font-medium mb-1">Регионов</p>
+                        <p className="text-2xl font-bold text-blue-800">{totalRegions}</p>
+                        <p className="text-xs text-blue-600 mt-1">с продажами</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-2xl p-4">
+                        <p className="text-xs text-purple-700 font-medium mb-1">Контрагентов</p>
+                        <p className="text-2xl font-bold text-purple-800">{totalContragents.toLocaleString('ru-RU')}</p>
+                        <p className="text-xs text-purple-600 mt-1">уникальных</p>
+                      </div>
+                      <div className="bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200 rounded-2xl p-4">
+                        <p className="text-xs text-amber-700 font-medium mb-1">Строк данных</p>
+                        <p className="text-2xl font-bold text-amber-800">{monthTotal > 0 ? monthTotal.toLocaleString('ru-RU') : (wmDash?.totalRows || 0).toLocaleString('ru-RU')}</p>
+                        <p className="text-xs text-amber-600 mt-1">упаковок суммарно</p>
+                      </div>
+                    </div>
+                    {/* Таблица по препаратам */}
+                    {byDrug.length > 0 && (
+                      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                          <p className="text-sm font-semibold text-slate-700">По препаратам (реальные данные)</p>
+                        </div>
+                        <div className="divide-y divide-slate-100">
+                          {byDrug.slice(0, 8).map((d: any, i: number) => {
+                            const maxSales = byDrug[0]?.totalPackages || byDrug[0]?.packages || byDrug[0]?.sales || 1;
+                            const sales = d.totalPackages || d.packages || d.sales || 0;
+                            const pct = Math.round((sales / maxSales) * 100);
+                            return (
+                              <div key={i} className="px-4 py-2.5 flex items-center gap-3">
+                                <span className="text-xs text-slate-400 w-5 text-right">{i + 1}</span>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-xs font-medium text-slate-700 truncate">{d.name || d.drug}</p>
+                                  <div className="mt-1 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                    <div className="h-full bg-gradient-to-r from-emerald-400 to-emerald-600 rounded-full" style={{ width: `${pct}%` }} />
+                                  </div>
+                                </div>
+                                <span className="text-xs font-semibold text-slate-700 flex-shrink-0">{sales.toLocaleString('ru-RU')}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                    {/* Помесячная динамика */}
+                    {monthlySales.length > 0 && (
+                      <div className="mt-4 bg-white border border-slate-200 rounded-2xl overflow-hidden">
+                        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200">
+                          <p className="text-sm font-semibold text-slate-700">Помесячная динамика (реальные данные)</p>
+                        </div>
+                        <div className="flex gap-2 p-4 overflow-x-auto">
+                          {monthlySales.map((m: any, i: number) => {
+                            const maxS = Math.max(...monthlySales.map((x: any) => x.sales || 0));
+                            const h = maxS > 0 ? Math.round(((m.sales || 0) / maxS) * 64) : 0;
+                            return (
+                              <div key={i} className="flex flex-col items-center gap-1 flex-shrink-0">
+                                <span className="text-xs text-slate-600 font-medium">{(m.sales || 0).toLocaleString('ru-RU')}</span>
+                                <div className="w-10 bg-slate-100 rounded-lg overflow-hidden flex items-end" style={{ height: 68 }}>
+                                  <div className="w-full bg-gradient-to-t from-emerald-500 to-emerald-300 rounded-lg" style={{ height: h || 4 }} />
+                                </div>
+                                <span className="text-xs text-slate-500">{m.month}</span>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
+              <DashboardView />
+            </>
+          )}
           {activeTab === 'budget' && <BudgetCalculatorEnhanced />}
           {activeTab === 'products' && <ProductsAnalyticsWithEdit />}
           {activeTab === 'territories' && <TerritoriesAnalytics />}
