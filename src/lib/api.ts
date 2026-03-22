@@ -619,6 +619,8 @@ export async function uploadFileToServer(
     if (onProgress) {
       const progress = Math.round(((i + 1) / totalChunks) * 100);
       onProgress(progress);
+      // Yield to browser event loop so React can flush the state update and repaint
+      await new Promise(resolve => setTimeout(resolve, 0));
     }
   }
 
