@@ -560,7 +560,13 @@ export interface ProcessingStatus {
 const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB на чанк
 const MAX_CHUNK_RETRIES = 3;
 
-async function sendChunk(fileId: string, chunkIndex: number, chunkBlob: Blob): Promise<{ success: boolean; received: number; total: number }> {
+// XHR-версия sendChunk с реальным прогрессом загрузки внутри чанка
+async function sendChunkXHR(
+  fileId: string,
+  chunkIndex: number,
+  chunkBlob: Blob,
+  onChunkProgress?: (bytesSent: number, bytesTotal: number) => void
+): Promise<{ success: boolean; received: number; total: number }> {
   const formData = new FormData();
   formData.append('fileId', fileId);
   formData.append('chunkIndex', String(chunkIndex));
@@ -570,18 +576,37 @@ async function sendChunk(fileId: string, chunkIndex: number, chunkBlob: Blob): P
 
   for (let attempt = 1; attempt <= MAX_CHUNK_RETRIES; attempt++) {
     try {
-      const response = await fetch(`${API_BASE}/files/upload-chunk`, {
-        method: 'POST',
-        headers: token ? { 'Authorization': `Bearer ${token}` } : {},
-        body: formData,
+      const result = await new Promise<{ success: boolean; received: number; total: number }>((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', `${API_BASE}/files/upload-chunk`);
+        if (token) xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+
+        // Прогресс внутри чанка (реальная передача байт)
+        xhr.upload.onprogress = (e) => {
+          if (e.lengthComputable && onChunkProgress) {
+            onChunkProgress(e.loaded, e.total);
+          }
+        };
+
+        xhr.onload = () => {
+          if (xhr.status >= 200 && xhr.status < 300) {
+            try {
+              resolve(JSON.parse(xhr.responseText));
+            } catch {
+              resolve({ success: true, received: chunkIndex + 1, total: chunkIndex + 1 });
+            }
+          } else {
+            let errMsg = `HTTP ${xhr.status}`;
+            try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch {}
+            reject(new Error(errMsg));
+          }
+        };
+        xhr.onerror = () => reject(new Error('Ошибка сети при загрузке чанка'));
+        xhr.ontimeout = () => reject(new Error('Таймаут чанка'));
+        xhr.timeout = 5 * 60 * 1000; // 5 минут на чанк
+        xhr.send(formData);
       });
-
-      if (!response.ok) {
-        const errBody = await response.json().catch(() => ({}));
-        throw new Error((errBody as any).error || `HTTP ${response.status}`);
-      }
-
-      return await response.json();
+      return result;
     } catch (err: any) {
       console.warn(`[ChunkUpload] Часть ${chunkIndex} попытка ${attempt}/${MAX_CHUNK_RETRIES}: ${err.message}`);
       if (attempt === MAX_CHUNK_RETRIES) throw err;
@@ -609,19 +634,24 @@ export async function uploadFileToServer(
   const fileId = initRes.fileId;
   console.log(`[ChunkUpload] Начало: ${file.name}, ${totalChunks} частей, fileId=${fileId}`);
 
+  // Байты уже отправленных чанков
+  let bytesSentPrevChunks = 0;
+
   for (let i = 0; i < totalChunks; i++) {
     const start = i * CHUNK_SIZE;
     const end = Math.min(start + CHUNK_SIZE, file.size);
     const chunk = file.slice(start, end);
+    const chunkSize = end - start;
 
-    await sendChunk(fileId, i, chunk);
+    await sendChunkXHR(fileId, i, chunk, onProgress ? (loaded, total) => {
+      // Плавный прогресс: уже отправленные чанки + прогресс текущего
+      const totalSent = bytesSentPrevChunks + loaded;
+      const overallPct = Math.round((totalSent / file.size) * 100);
+      onProgress(Math.min(overallPct, 99)); // до 99%, 100% только после финального статуса
+    } : undefined);
 
-    if (onProgress) {
-      const progress = Math.round(((i + 1) / totalChunks) * 100);
-      onProgress(progress);
-      // Yield to browser event loop so React can flush the state update and repaint
-      await new Promise(resolve => setTimeout(resolve, 0));
-    }
+    bytesSentPrevChunks += chunkSize;
+    if (onProgress) onProgress(Math.round((bytesSentPrevChunks / file.size) * 100));
   }
 
   console.log(`[ChunkUpload] Все ${totalChunks} частей отправлены для ${fileId}`);

@@ -1829,9 +1829,9 @@ export default function MDLPAnalyzerPro() {
           
           try {
             const uploadResult = await uploadFileToServer(fileInfo.rawFile, (progress) => {
-              const uploadPct = Math.round(progress * 0.7);
-              setFiles(prev => prev.map(f => f.id === fileInfo.id 
-                ? { ...f, progress: uploadPct, statusText: `Загрузка на сервер... ${progress}%` } 
+              // progress идёт 0-99% (реальный прогресс через XHR), обработка займёт оставшиеся %
+              setFiles(prev => prev.map(f => f.id === fileInfo.id
+                ? { ...f, progress, statusText: `Загрузка... ${progress}%` }
                 : f
               ));
             });
@@ -1866,7 +1866,7 @@ export default function MDLPAnalyzerPro() {
                     continue;
                   }
                   
-                  const processingProgress = 70 + (status.processedRows / Math.max(status.totalRows, 1)) * 20;
+                  const processingProgress = 99 + (status.processedRows / Math.max(status.totalRows, 1)) * 1; // обработка: 99-100%
                   
                   setFiles(prev => prev.map(f => f.id === fileInfo.id 
                     ? { ...f, progress: Math.min(processingProgress, 90), status: 'uploading' as const, statusText: `Обработка на сервере... ${status.processedRows.toLocaleString('ru-RU')} из ${status.totalRows.toLocaleString('ru-RU')} строк` } 
