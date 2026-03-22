@@ -2592,6 +2592,15 @@ const LISTEN_PORT = process.env.PORT ? parseInt(process.env.PORT) : (isProductio
 
 const server = app.listen(LISTEN_PORT, "0.0.0.0", () => {
   console.log(`API Server running on http://0.0.0.0:${LISTEN_PORT}`);
+  // Сброс зависших загрузок: если сервер перезапустился, все 'processing' записи никогда не завершатся
+  safeQuery(
+    `UPDATE world_medicine.upload_history SET status = 'error', error_message = 'Прервано: сервер был перезапущен' WHERE status = 'processing'`
+  ).then(r => {
+    if (r.rowCount && r.rowCount > 0) {
+      console.log(`[Startup] Сброшено ${r.rowCount} зависших загрузок (processing → error)`);
+    }
+  }).catch(err => console.error('[Startup] Ошибка сброса зависших загрузок:', err.message));
+
   setTimeout(() => {
     loadPopulationData(pool).catch(err => console.error('[Population] Ошибка при запуске:', err.message));
     loadEmployeesData(pool).catch(err => console.error('[Employees] Ошибка при запуске:', err.message));
