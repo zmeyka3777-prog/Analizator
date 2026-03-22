@@ -665,6 +665,10 @@ export async function uploadFileToServer(
   };
 }
 
+export async function resetStuckUploads(): Promise<{ success: boolean; cleared: number }> {
+  return fetchApi<{ success: boolean; cleared: number }>('/files/reset-stuck', { method: 'POST' });
+}
+
 export async function getFileProcessingStatus(fileId: string): Promise<ProcessingStatus> {
   return fetchApi<ProcessingStatus>(`/files/status/${fileId}`);
 }

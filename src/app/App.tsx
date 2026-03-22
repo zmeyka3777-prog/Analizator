@@ -17,7 +17,7 @@ import loginImage from '../../attached_assets/Gemini_Generated_Image_b1t8s2b1t8s
 import { SavedReport, UserProfile } from '../types';
 import { Logo } from '../components/common';
 import { CHART_COLORS, getPerformanceColor } from '../config/chartColors';
-import { api, clearAuth, getAuthToken, uploadFileToServer, getFileProcessingStatus, getDatabaseStats, clearDatabaseData, type DatabaseStats, fetchTabData, fetchTabMetadata, type TabMetadata } from '../lib/api';
+import { api, clearAuth, getAuthToken, uploadFileToServer, getFileProcessingStatus, getDatabaseStats, clearDatabaseData, resetStuckUploads, type DatabaseStats, fetchTabData, fetchTabMetadata, type TabMetadata } from '../lib/api';
 import { useTabData, invalidateTabCache } from '../hooks/useTabData';
 import { parseFile, aggregateData, type ParsedData, type AggregatedData } from '../utils/fileParser';
 import { MultiSelect, type MultiSelectOption } from './components/ui/multi-select';
@@ -3928,15 +3928,31 @@ export default function MDLPAnalyzerPro() {
               <p className="text-slate-500 text-sm md:text-base font-medium">Загрузите файлы выгрузки для анализа</p>
             </div>
             {parseError && (
-              <div className={`mb-4 p-4 ${parseError.includes('перезагружается') ? 'bg-amber-50 border-2 border-amber-200' : 'bg-red-50 border-2 border-red-200'} rounded-xl flex items-center gap-3`}>
-                <AlertCircle className={`${parseError.includes('перезагружается') ? 'text-amber-500' : 'text-red-500'} flex-shrink-0`} size={20} />
-                <div>
+              <div className={`mb-4 p-4 ${parseError.includes('перезагружается') ? 'bg-amber-50 border-2 border-amber-200' : 'bg-red-50 border-2 border-red-200'} rounded-xl flex items-start gap-3`}>
+                <AlertCircle className={`${parseError.includes('перезагружается') ? 'text-amber-500' : 'text-red-500'} flex-shrink-0 mt-0.5`} size={20} />
+                <div className="flex-1">
                   <p className={`text-sm ${parseError.includes('перезагружается') ? 'text-amber-700' : 'text-red-700'} font-medium`}>{parseError}</p>
                   {parseError.includes('перезагружается') && (
                     <p className="text-xs text-amber-600 mt-1">Подождите 1-2 минуты и попробуйте снова.</p>
                   )}
+                  {(parseError.includes('уже загружается') || parseError.includes('уже загружен')) && (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const r = await resetStuckUploads();
+                          setParseError(null);
+                          setFiles([]);
+                          setIsUploading(false);
+                          if (r.cleared > 0) alert(`Сброшено ${r.cleared} зависших загрузок. Теперь можно загрузить файл снова.`);
+                        } catch { setParseError('Не удалось сбросить. Попробуйте обновить страницу.'); }
+                      }}
+                      className="mt-2 px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white text-xs font-semibold rounded-lg transition-colors"
+                    >
+                      Сбросить и попробовать снова
+                    </button>
+                  )}
                 </div>
-                <button onClick={() => setParseError(null)} className={`ml-auto p-1 ${parseError.includes('перезагружается') ? 'hover:bg-amber-100' : 'hover:bg-red-100'} rounded`}>
+                <button onClick={() => setParseError(null)} className={`p-1 ${parseError.includes('перезагружается') ? 'hover:bg-amber-100' : 'hover:bg-red-100'} rounded flex-shrink-0`}>
                   <X size={16} className={parseError.includes('перезагружается') ? 'text-amber-500' : 'text-red-500'} />
                 </button>
               </div>

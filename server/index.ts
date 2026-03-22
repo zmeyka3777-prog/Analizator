@@ -2075,6 +2075,13 @@ app.post("/api/files/upload", authMiddleware, (req: AuthRequest, res) => {
       }
 
       try {
+        // Автоочистка зависших processing-записей старше 15 минут
+        await safeQuery(
+          `UPDATE world_medicine.upload_history SET status='error', error_message='Прервано: превышено время ожидания'
+           WHERE user_id=$1 AND filename=$2 AND status='processing'
+           AND uploaded_at < NOW() - INTERVAL '15 minutes'`,
+          [userId, fileName]
+        );
         const existingUpload = await safeQuery(
           `SELECT id, filename, rows_count, status FROM world_medicine.upload_history WHERE user_id = $1 AND filename = $2 AND status IN ('success', 'processing')`,
           [userId, fileName]
@@ -2086,7 +2093,7 @@ app.post("/api/files/upload", authMiddleware, (req: AuthRequest, res) => {
           if (!responseSent) {
             responseSent = true;
             const statusMsg = existing.status === 'processing'
-              ? 'Этот файл уже загружается. Дождитесь завершения или удалите запись в Истории загрузок.'
+              ? 'Этот файл сейчас загружается (начато менее 15 минут назад). Подождите или повторите через 15 минут.'
               : 'Файл с таким названием уже загружен. Удалите предыдущую версию в Истории загрузок.';
             res.status(409).json({
               error: statusMsg,
@@ -2298,6 +2305,13 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
   }
 
   try {
+    // Автоочистка зависших processing-записей старше 15 минут
+    await safeQuery(
+      `UPDATE world_medicine.upload_history SET status='error', error_message='Прервано: превышено время ожидания'
+       WHERE user_id=$1 AND filename=$2 AND status='processing'
+       AND uploaded_at < NOW() - INTERVAL '15 minutes'`,
+      [userId, fileName]
+    );
     const existingUpload = await safeQuery(
       `SELECT id, filename, rows_count, status FROM world_medicine.upload_history WHERE user_id = $1 AND filename = $2 AND status IN ('success', 'processing')`,
       [userId, fileName]
@@ -2305,7 +2319,7 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
     if (existingUpload.rows.length > 0) {
       const existing = existingUpload.rows[0];
       const statusMsg = existing.status === 'processing'
-        ? 'Этот файл уже загружается. Дождитесь завершения или удалите запись в Истории загрузок.'
+        ? 'Этот файл сейчас загружается (начато менее 15 минут назад). Подождите или повторите через 15 минут.'
         : 'Файл с таким названием уже загружен. Удалите предыдущую версию в Истории загрузок.';
       return res.status(409).json({
         error: statusMsg,
@@ -2376,6 +2390,23 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
 
   console.log(`[ChunkUpload] Инициализация: ${fileName}, ${totalChunks} частей, fileId=${fileId}`);
   res.json({ success: true, fileId });
+});
+
+// Сброс зависших загрузок для текущего пользователя
+app.post("/api/files/reset-stuck", authMiddleware, async (req: AuthRequest, res) => {
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: 'Не авторизован' });
+  try {
+    const result = await safeQuery(
+      `UPDATE world_medicine.upload_history SET status='error', error_message='Сброшено пользователем'
+       WHERE user_id=$1 AND status='processing'`,
+      [userId]
+    );
+    console.log(`[ResetStuck] user_id=${userId}: сброшено ${result.rowCount} зависших загрузок`);
+    res.json({ success: true, cleared: result.rowCount });
+  } catch (err: any) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 async function assembleChunks(fileId: string, session: typeof activeChunkUploads extends Map<string, infer V> ? V : never) {
