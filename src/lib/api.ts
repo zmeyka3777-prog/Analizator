@@ -557,7 +557,7 @@ export interface ProcessingStatus {
   completedAt?: string;
 }
 
-const CHUNK_SIZE = 5 * 1024 * 1024;
+const CHUNK_SIZE = 20 * 1024 * 1024; // 20MB на чанк
 const MAX_CHUNK_RETRIES = 3;
 
 async function sendChunk(fileId: string, chunkIndex: number, chunkBlob: Blob): Promise<{ success: boolean; received: number; total: number }> {

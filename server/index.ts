@@ -2293,8 +2293,8 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
     return res.status(400).json({ error: 'Неподдерживаемый формат файла. Загрузите .csv, .xlsx или .xls' });
   }
 
-  if (req.body.fileSize && req.body.fileSize > 1024 * 1024 * 1024) {
-    return res.status(400).json({ error: 'Файл превышает максимальный размер (1 ГБ).' });
+  if (req.body.fileSize && req.body.fileSize > 5 * 1024 * 1024 * 1024) {
+    return res.status(400).json({ error: 'Файл превышает максимальный размер (5 ГБ).' });
   }
 
   try {
@@ -2446,7 +2446,7 @@ app.post("/api/files/upload-chunk", authMiddleware, (req: AuthRequest, res) => {
 
   const bb = Busboy({
     headers: req.headers,
-    limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+    limits: { fileSize: 25 * 1024 * 1024, files: 1 }, // 25MB на чанк
   });
 
   let fileId = '';
