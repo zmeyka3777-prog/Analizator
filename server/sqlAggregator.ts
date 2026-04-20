@@ -60,13 +60,26 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const monthlyRes = await queryable.query(
-    `SELECT month, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
+    `SELECT month,
+       COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
+       COALESCE(SUM(COALESCE(quantity, 0)), 0) as sales_quantity,
+       COALESCE(SUM(COALESCE(amount, 0)), 0) as sales_amount
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND month IS NOT NULL
      GROUP BY month ORDER BY month`,
     baseParams
   );
   const monthlySales = monthlyRes.rows
-    .map(r => { const m = normMonth(r.month); return { month: m, name: MONTH_FULL_NAMES[m] || m, sales: parseFloat(r.sales), year }; })
+    .map(r => {
+      const m = normMonth(r.month);
+      return {
+        month: m,
+        name: MONTH_FULL_NAMES[m] || m,
+        sales: parseFloat(r.sales),
+        salesQuantity: parseFloat(r.sales_quantity),
+        salesAmount: parseFloat(r.sales_amount),
+        year,
+      };
+    })
     .sort((a, b) => MONTH_ORDER.indexOf(a.month) - MONTH_ORDER.indexOf(b.month));
   console.log(`[AGG] year=${year}: monthlySales=${monthlySales.length} записей, первые 3: ${JSON.stringify(monthlySales.slice(0, 3))}`);
 
@@ -113,31 +126,55 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const contragentRes = await queryable.query(
-    `SELECT contragent as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
-     MAX(region) as region, MAX(city) as city, MAX(receiver_type) as "receiverType",
-     MAX(contractor_group) as "contractorGroup", MAX(federal_district) as "federalDistrict",
-     MAX(district) as district
+    `SELECT contragent as name,
+       COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
+       COALESCE(SUM(COALESCE(quantity, 0)), 0) as sales_quantity,
+       COALESCE(SUM(COALESCE(amount, 0)), 0) as sales_amount,
+       MAX(region) as region, MAX(city) as city, MAX(receiver_type) as "receiverType",
+       MAX(contractor_group) as "contractorGroup", MAX(federal_district) as "federalDistrict",
+       MAX(district) as district
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND contragent IS NOT NULL
      GROUP BY contragent ORDER BY sales DESC`,
     baseParams
   );
-  const contragentSales = contragentRes.rows.map(r => ({ ...r, sales: parseFloat(r.sales) }));
+  const contragentSales = contragentRes.rows.map(r => ({
+    ...r,
+    sales: parseFloat(r.sales),
+    salesQuantity: parseFloat(r.sales_quantity),
+    salesAmount: parseFloat(r.sales_amount),
+  }));
 
   const regionRes = await queryable.query(
-    `SELECT region as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
+    `SELECT region as name,
+       COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
+       COALESCE(SUM(COALESCE(quantity, 0)), 0) as sales_quantity,
+       COALESCE(SUM(COALESCE(amount, 0)), 0) as sales_amount
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND region IS NOT NULL
      GROUP BY region ORDER BY sales DESC`,
     baseParams
   );
-  const regionSales = regionRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales) }));
+  const regionSales = regionRes.rows.map(r => ({
+    name: r.name,
+    sales: parseFloat(r.sales),
+    salesQuantity: parseFloat(r.sales_quantity),
+    salesAmount: parseFloat(r.sales_amount),
+  }));
 
   const drugRes = await queryable.query(
-    `SELECT drug as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
+    `SELECT drug as name,
+       COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
+       COALESCE(SUM(COALESCE(quantity, 0)), 0) as sales_quantity,
+       COALESCE(SUM(COALESCE(amount, 0)), 0) as sales_amount
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND drug IS NOT NULL
      GROUP BY drug ORDER BY sales DESC`,
     baseParams
   );
-  const drugSales = drugRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales) }));
+  const drugSales = drugRes.rows.map(r => ({
+    name: r.name,
+    sales: parseFloat(r.sales),
+    salesQuantity: parseFloat(r.sales_quantity),
+    salesAmount: parseFloat(r.sales_amount),
+  }));
   const drugs = drugSales.map(d => d.name).sort();
 
   const disposalRes = await queryable.query(
@@ -149,12 +186,20 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const disposalTypeSales = disposalRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales), count: parseInt(r.count) }));
 
   const fdRes = await queryable.query(
-    `SELECT federal_district as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
+    `SELECT federal_district as name,
+       COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
+       COALESCE(SUM(COALESCE(quantity, 0)), 0) as sales_quantity,
+       COALESCE(SUM(COALESCE(amount, 0)), 0) as sales_amount
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND federal_district IS NOT NULL
      GROUP BY federal_district ORDER BY sales DESC`,
     baseParams
   );
-  const federalDistrictSales = fdRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales) }));
+  const federalDistrictSales = fdRes.rows.map(r => ({
+    name: r.name,
+    sales: parseFloat(r.sales),
+    salesQuantity: parseFloat(r.sales_quantity),
+    salesAmount: parseFloat(r.sales_amount),
+  }));
 
   const rtRes = await queryable.query(
     `SELECT receiver_type as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales, COUNT(*) as count

@@ -134,7 +134,8 @@ async function writeCompactRows(userId: number, rows: any[], contragentRows: any
 }
 
 const app = express();
-app.set('trust proxy', 1);
+// В prod доверяем 1 hop (nginx reverse proxy). В dev — false, чтобы X-Forwarded-For не подделывался.
+app.set('trust proxy', process.env.NODE_ENV === 'production' ? 1 : false);
 const PORT = 3001;
 const JWT_SECRET = process.env.JWT_SECRET;
 if (!JWT_SECRET) {
@@ -182,19 +183,37 @@ interface AuthRequest extends Request {
   userRole?: string;
 }
 
+// In-memory JWT blacklist: хранит jti → expiresAt (UNIX ms).
+// При logout добавляем текущий jti; authMiddleware отклоняет запросы с этим jti.
+// Перезапуск сервера очищает blacklist — это приемлемо, т.к. JWT TTL = 24h.
+const tokenBlacklist = new Map<string, number>();
+
+function cleanupBlacklist() {
+  const now = Date.now();
+  for (const [jti, exp] of tokenBlacklist.entries()) {
+    if (exp <= now) tokenBlacklist.delete(jti);
+  }
+}
+setInterval(cleanupBlacklist, 60 * 60 * 1000); // раз в час
+
 function authMiddleware(req: AuthRequest, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
-  
+
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     return res.status(401).json({ error: "Требуется авторизация" });
   }
 
   const token = authHeader.substring(7);
-  
+
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; role: string };
+    const decoded = jwt.verify(token, JWT_SECRET) as { userId: number; role: string; jti?: string; exp?: number };
+    if (decoded.jti && tokenBlacklist.has(decoded.jti)) {
+      return res.status(401).json({ error: "Токен отозван" });
+    }
     req.userId = decoded.userId;
     req.userRole = decoded.role;
+    (req as any)._jwtJti = decoded.jti;
+    (req as any)._jwtExp = decoded.exp;
     next();
   } catch (error) {
     return res.status(401).json({ error: "Недействительный токен" });
@@ -349,7 +368,9 @@ function logUploadError(message: string, error?: any) {
       const half = lines.slice(Math.floor(lines.length / 2));
       fs.writeFileSync(UPLOAD_ERROR_LOG, half.join('\n'));
     }
-  } catch {}
+  } catch (err) {
+    console.warn('[UploadLog] Не удалось ротировать лог:', err);
+  }
 }
 
 app.use("/api/tab", createTabDataRouter(authMiddleware));
@@ -488,10 +509,11 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
     await storage.updateUserLastLogin(user.id);
 
+    const jti = crypto.randomBytes(16).toString('hex');
     const token = jwt.sign(
       { userId: user.id, role: user.role },
       JWT_SECRET,
-      { expiresIn: JWT_EXPIRES_IN }
+      { expiresIn: JWT_EXPIRES_IN, jwtid: jti }
     );
 
     res.json({
@@ -511,6 +533,17 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 // Самостоятельная регистрация отключена — пользователей создаёт только администратор
 app.post("/api/auth/register", (_req, res) => {
   res.status(403).json({ error: "Самостоятельная регистрация отключена. Обратитесь к администратору." });
+});
+
+// Logout: добавляет jti текущего токена в blacklist до его истечения.
+// Клиент также удаляет токен из localStorage, но этот вызов гарантирует отзыв на сервере.
+app.post("/api/auth/logout", authMiddleware, (req: AuthRequest, res) => {
+  const jti = (req as any)._jwtJti as string | undefined;
+  const exp = (req as any)._jwtExp as number | undefined;
+  if (jti && exp) {
+    tokenBlacklist.set(jti, exp * 1000);
+  }
+  res.json({ success: true });
 });
 
 // ==================== Управление пользователями (только администратор) ====================
@@ -1995,7 +2028,9 @@ async function processUploadQueue() {
         try {
           const { cleanupRawRows } = await import('./sqlAggregator');
           await cleanupRawRows(pool, userId, fileId);
-        } catch {}
+        } catch (cleanupErr) {
+          console.error(`[Upload cleanup] user_id=${userId}, fileId=${fileId}: не удалось очистить raw_sales_rows:`, cleanupErr);
+        }
         const userMsg = classifyUploadError(e);
         try {
           await safeQuery(
@@ -2021,7 +2056,9 @@ async function processUploadQueue() {
           `UPDATE world_medicine.upload_history SET status = 'error', error_message = $1 WHERE user_id = $2 AND upload_id = $3 AND status = 'processing'`,
           [(error as Error).message?.substring(0, 500) || 'Streaming error', userId, fileId]
         );
-      } catch {}
+      } catch (histErr) {
+        console.error(`[Upload ERROR] user_id=${userId}, fileId=${fileId}: не удалось обновить upload_history → error:`, histErr);
+      }
       updateProcessingStatus(fileId, {
         status: 'error',
         progress: 100,
@@ -2532,7 +2569,8 @@ app.post("/api/files/upload-chunk", authMiddleware, (req: AuthRequest, res) => {
     if (chunkWritePromise) {
       try {
         await chunkWritePromise;
-      } catch {
+      } catch (chunkErr) {
+        console.error('[ChunkUpload] Ошибка записи chunk:', chunkErr);
         responseSent = true;
         if (tempChunkPath && fs.existsSync(tempChunkPath)) fs.unlinkSync(tempChunkPath);
         return res.status(500).json({ error: 'Ошибка записи части файла' });
@@ -2589,7 +2627,9 @@ app.post("/api/files/upload-chunk", authMiddleware, (req: AuthRequest, res) => {
   bb.on('error', (err: Error) => {
     if (responseSent) return;
     responseSent = true;
-    if (tempChunkPath && fs.existsSync(tempChunkPath)) try { fs.unlinkSync(tempChunkPath); } catch {}
+    if (tempChunkPath && fs.existsSync(tempChunkPath)) {
+      try { fs.unlinkSync(tempChunkPath); } catch (e) { console.warn('[ChunkUpload] Не удалось удалить temp-файл:', e); }
+    }
     logUploadError(`Busboy ошибка при загрузке чанка`, err);
     const userMsg = classifyUploadError(err);
     res.status(500).json({ error: userMsg });

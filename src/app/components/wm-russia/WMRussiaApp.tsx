@@ -198,7 +198,19 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const token = localStorage.getItem('wm_auth_token');
+    if (token) {
+      // Отзываем токен на сервере (добавляем в blacklist). Не блокируем UX при ошибке.
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+      } catch (err) {
+        console.warn('[WMLogout] Не удалось отозвать токен на сервере:', err);
+      }
+    }
     setCurrentUser(null);
     [
       'wm_russia_user',

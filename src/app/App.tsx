@@ -3408,7 +3408,9 @@ export default function MDLPAnalyzerPro() {
                   localStorage.setItem('mdlp_user', JSON.stringify(mdlpUser));
                   setShowUserSelect(false);
                 }
-              } catch {}
+              } catch (err) {
+                console.warn('[App] Не удалось прочитать wm_russia_user:', err);
+              }
             }
             setAppMode('mdlp');
           }}

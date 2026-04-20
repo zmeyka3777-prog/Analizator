@@ -1,5 +1,6 @@
 import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
+import fs from "fs";
 import * as schema from "@shared/schema";
 
 const { Pool } = pg;
@@ -60,15 +61,34 @@ export function getDbHealthStatus(): { status: string; message?: string; remaini
   return { status: 'connected' };
 }
 
+// TLS для внешних PG. Если задан PG_CA_CERT_PATH, читаем CA и требуем проверку сертификата.
+// Иначе — в dev разрешаем rejectUnauthorized: false, в prod падаем в явное предупреждение.
+function buildSslConfig(isLocal: boolean) {
+  if (isLocal) return false as const;
+  const caPath = process.env.PG_CA_CERT_PATH;
+  if (caPath) {
+    try {
+      const ca = fs.readFileSync(caPath, 'utf8');
+      return { rejectUnauthorized: true, ca };
+    } catch (err) {
+      console.error(`[DB] Не удалось прочитать PG_CA_CERT_PATH=${caPath}:`, err);
+    }
+  }
+  if (process.env.NODE_ENV === 'production') {
+    console.warn('[DB] ВНИМАНИЕ: PG_CA_CERT_PATH не задан в production — TLS без проверки сертификата (MITM-риск). Укажите путь к CA Timeweb Cloud.');
+  }
+  return { rejectUnauthorized: false };
+}
+
 const getConnectionConfig = () => {
   // Supabase / любой стандартный PostgreSQL connection string
   if (process.env.DATABASE_URL) {
     const url = process.env.DATABASE_URL;
     const isLocal = url.includes('localhost') || url.includes('127.0.0.1');
-    console.log(`[DB] Подключение через DATABASE_URL (Supabase)`);
+    console.log(`[DB] Подключение через DATABASE_URL`);
     return {
       connectionString: url,
-      ssl: isLocal ? false : { rejectUnauthorized: false },
+      ssl: buildSslConfig(isLocal),
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 30000,
@@ -85,6 +105,7 @@ const getConnectionConfig = () => {
     const port = parseInt(process.env.POSTGRESQL_PORT || "5432");
     const user = process.env.POSTGRESQL_USER;
     const database = process.env.POSTGRESQL_DBNAME;
+    const isLocal = host === 'localhost' || host === '127.0.0.1';
     console.log(`[DB] Подключение к внешней БД: ${user}@${host}:${port}/${database}`);
     return {
       host,
@@ -92,7 +113,7 @@ const getConnectionConfig = () => {
       user,
       password: process.env.POSTGRESQL_PASSWORD,
       database,
-      ssl: host === 'localhost' || host === '127.0.0.1' ? false : { rejectUnauthorized: false },
+      ssl: buildSslConfig(isLocal),
       max: 3,
       idleTimeoutMillis: 30000,
       connectionTimeoutMillis: 30000,

@@ -450,7 +450,8 @@ export function createAdminRouter(
         try {
           const result = await safeQuery(`SELECT COUNT(*) as cnt FROM world_medicine.${table}`);
           stats[table] = parseInt(result.rows[0]?.cnt || '0');
-        } catch {
+        } catch (err) {
+          console.warn(`[Admin stats] COUNT(*) упал для ${table}:`, (err as Error).message);
           stats[table] = -1;
         }
       }

@@ -613,7 +613,11 @@ async function sendChunkXHR(
             }
           } else {
             let errMsg = `HTTP ${xhr.status}`;
-            try { errMsg = JSON.parse(xhr.responseText).error || errMsg; } catch {}
+            try {
+              errMsg = JSON.parse(xhr.responseText).error || errMsg;
+            } catch {
+              // ответ сервера не JSON — оставляем HTTP-код
+            }
             reject(new Error(errMsg));
           }
         };

@@ -1,6 +1,6 @@
 // ==================== ВКЛАДКА ОТЧЁТОВ — СВЕТЛАЯ ТЕМА ====================
 
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import * as XLSX from 'xlsx';
 import Papa from 'papaparse';
 import {
@@ -1108,15 +1108,30 @@ export default function ReportsTabLight() {
   const [savedReports, setSavedReports] = useState<SavedReport[]>(MOCK_SAVED_REPORTS);
   const [savedNotice, setSavedNotice] = useState(false);
 
+  // Держим ссылку на interval генерации, чтобы очистить при unmount.
+  const generateIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const savedNoticeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (generateIntervalRef.current) clearInterval(generateIntervalRef.current);
+      if (savedNoticeTimeoutRef.current) clearTimeout(savedNoticeTimeoutRef.current);
+    };
+  }, []);
+
   const handleGenerate = useCallback(() => {
     setStatus('generating');
     setProgress(0);
 
-    const interval = setInterval(() => {
+    if (generateIntervalRef.current) clearInterval(generateIntervalRef.current);
+    generateIntervalRef.current = setInterval(() => {
       setProgress(prev => {
         const next = prev + Math.round(Math.random() * 18 + 7);
         if (next >= 100) {
-          clearInterval(interval);
+          if (generateIntervalRef.current) {
+            clearInterval(generateIntervalRef.current);
+            generateIntervalRef.current = null;
+          }
           try {
             const data = computeReportData(config);
             setGeneratedReport(data);
@@ -1147,7 +1162,8 @@ export default function ReportsTabLight() {
     };
     setSavedReports(prev => [newReport, ...prev]);
     setSavedNotice(true);
-    setTimeout(() => setSavedNotice(false), 2500);
+    if (savedNoticeTimeoutRef.current) clearTimeout(savedNoticeTimeoutRef.current);
+    savedNoticeTimeoutRef.current = setTimeout(() => setSavedNotice(false), 2500);
   }, [generatedReport]);
 
   const handleOpenFromArchive = useCallback((report: GeneratedReport) => {
