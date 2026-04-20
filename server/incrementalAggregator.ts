@@ -83,7 +83,7 @@ export class IncrementalAggregator {
   }
 
   private processRow(row: ParsedRow): void {
-    const amount = row.amount || row.quantity || 0;
+    const amount = row.quantity || row.amount || 0;
     const yearNum = row.year || new Date().getFullYear();
     const yearStr = String(yearNum);
 

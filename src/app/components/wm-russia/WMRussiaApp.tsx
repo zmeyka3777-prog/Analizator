@@ -117,9 +117,14 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     if (initialUser) return; // Skip localStorage if initialUser provided
     const savedUser = localStorage.getItem('wm_russia_user');
     if (savedUser) {
-      const user = JSON.parse(savedUser) as WMUser;
-      setCurrentUser(user);
-      setActiveSection(getDefaultSectionStatic(user.role));
+      try {
+        const user = JSON.parse(savedUser) as WMUser;
+        setCurrentUser(user);
+        setActiveSection(getDefaultSectionStatic(user.role));
+      } catch (err) {
+        console.warn('[WMRussia] Битый wm_russia_user в localStorage, очищаю:', err);
+        localStorage.removeItem('wm_russia_user');
+      }
     }
   }, [initialUser]);
 
@@ -152,6 +157,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
       }
 
       localStorage.setItem('wm_auth_token', data.token);
+      // Вычищаем устаревшие ключи токенов (legacy)
+      ['mdlp_auth_token', 'mdlp_token', 'token'].forEach(k => localStorage.removeItem(k));
 
       const user: WMUser = {
         id: data.id,
@@ -163,6 +170,15 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
       setCurrentUser(user);
       localStorage.setItem('wm_russia_user', JSON.stringify(user));
+      // Синхронизируем mdlp_user (читается App.tsx и AuthContext)
+      localStorage.setItem('mdlp_user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        fullName: user.name,
+        role: user.role,
+        avatar: user.avatar,
+      }));
       setActiveSection(getDefaultSection(user.role));
 
       // Синхронизируем с figma_auth_user чтобы AppLayout показывал правильное имя
@@ -174,7 +190,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
         isActive: true,
         createdAt: new Date().toISOString(),
       }));
-    } catch {
+    } catch (err) {
+      console.error('[WMLogin] Ошибка сети:', err);
       setLoginError('Ошибка соединения с сервером');
     } finally {
       setLoginLoading(false);
@@ -183,7 +200,15 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
   const handleLogout = () => {
     setCurrentUser(null);
-    localStorage.removeItem('wm_russia_user');
+    [
+      'wm_russia_user',
+      'wm_auth_token',
+      'mdlp_auth_token',
+      'mdlp_token',
+      'token',
+      'mdlp_user',
+      'figma_auth_user',
+    ].forEach(k => localStorage.removeItem(k));
     setLoginEmail('');
     setActiveSection('');
     if (onLogoutToMain) {
@@ -333,15 +358,9 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
       }
 
       case 'director': {
-        return (
-          <DirectorWMDashboard
-            allMedReps={salesData}
-            activeSection={activeSection}
-            onRoleSwitch={handleRoleSwitch}
-            mdlpUserId={mdlpUserId}
-            onLogout={handleLogout}
-          />
-        );
+        // Директор обрабатывается через early-return ниже (AppLayout без сайдбара).
+        // Этот case недостижим, оставлен для полноты switch.
+        return null;
       }
 
       case 'admin': {

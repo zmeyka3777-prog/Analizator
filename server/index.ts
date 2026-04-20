@@ -31,6 +31,8 @@ import {
   uploadSchema,
   salesBatchSchema,
   yearlySalesDataSchema,
+  createUserSchema,
+  updateUserSchema,
   parseIntParam,
   sanitizeString,
 } from "./validation";
@@ -139,13 +141,15 @@ if (!JWT_SECRET) {
   console.error("FATAL: JWT_SECRET environment variable is required");
   process.exit(1);
 }
-const JWT_EXPIRES_IN = "7d";
+const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "24h";
 
 app.use(helmet({
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+      // 'unsafe-inline' нужен для inline-стилей shadcn/ui charts. 'unsafe-eval' убран —
+      // если какая-то зависимость его потребует, добавлять только с nonce.
+      scriptSrc: ["'self'", "'unsafe-inline'"],
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "blob:"],
@@ -221,8 +225,10 @@ app.use(cors({
   },
   credentials: true,
 }));
-app.use(express.json({ limit: "500mb" }));
-app.use(express.urlencoded({ extended: true, limit: "500mb" }));
+// Небольшой глобальный лимит JSON — защита от DoS через огромные payload'ы на login/etc.
+// Большие загрузки идут через chunked upload (multipart/form-data) со своими лимитами.
+app.use(express.json({ limit: "2mb" }));
+app.use(express.urlencoded({ extended: true, limit: "2mb" }));
 app.use("/api", apiLimiter);
 
 const uploadDir = path.join(__dirname, "../uploads");
@@ -438,11 +444,11 @@ app.get("/api/diag", authMiddleware, requireAdmin, async (_req, res) => {
   }
 });
 
-app.post("/api/db-reset", authMiddleware, async (_req, res) => {
+app.post("/api/db-reset", authMiddleware, requireAdmin, async (_req, res) => {
   try {
     const wasOpen = getCircuitState().open;
     recordDbSuccess();
-    const result = await pool.query('SELECT 1');
+    await pool.query('SELECT 1');
     recordDbSuccess();
     res.json({ status: 'ok', wasOpen, message: 'Circuit breaker сброшен, БД доступна' });
   } catch (err: any) {
@@ -453,7 +459,7 @@ app.post("/api/db-reset", authMiddleware, async (_req, res) => {
 
 app.get("/api/population", authMiddleware, async (_req, res) => {
   try {
-    const result = await safeQuery('SELECT * FROM world_medicine.population_data ORDER BY id');
+    const result = await safeQuery('SELECT * FROM world_medicine.population_data ORDER BY id LIMIT 1000');
     res.json(result.rows);
   } catch (error: any) {
     console.error("Get population error:", error.message);
@@ -523,16 +529,11 @@ app.get("/api/users", authMiddleware, requireAdmin, async (_req: AuthRequest, re
 
 app.post("/api/users", authMiddleware, requireAdmin, async (req: AuthRequest, res) => {
   try {
-    const { email, password, name, role, avatar } = req.body;
-    if (!email || !password || !name || !role) {
-      return res.status(400).json({ error: "Обязательные поля: email, password, name, role" });
+    const parsed = createUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message || "Некорректные данные" });
     }
-    if (!email.includes('@')) {
-      return res.status(400).json({ error: "Некорректный email" });
-    }
-    if (password.length < 8) {
-      return res.status(400).json({ error: "Пароль должен быть не менее 8 символов" });
-    }
+    const { email, password, name, role, avatar } = parsed.data;
     const existing = await storage.getUserByEmail(email);
     if (existing) {
       return res.status(409).json({ error: "Пользователь с таким email уже существует" });
@@ -550,7 +551,14 @@ app.post("/api/users", authMiddleware, requireAdmin, async (req: AuthRequest, re
 app.put("/api/users/:id", authMiddleware, requireAdmin, async (req: AuthRequest, res) => {
   try {
     const id = Number(req.params.id);
-    const { name, email, role, avatar, password } = req.body;
+    if (!Number.isFinite(id) || id <= 0) {
+      return res.status(400).json({ error: "Некорректный id" });
+    }
+    const parsed = updateUserSchema.safeParse(req.body);
+    if (!parsed.success) {
+      return res.status(400).json({ error: parsed.error.issues[0]?.message || "Некорректные данные" });
+    }
+    const { name, email, role, avatar, password } = parsed.data;
     if (email) {
       const existing = await storage.getUserByEmail(email);
       if (existing && existing.id !== id) {
@@ -558,9 +566,6 @@ app.put("/api/users/:id", authMiddleware, requireAdmin, async (req: AuthRequest,
       }
     }
     if (password) {
-      if (password.length < 8) {
-        return res.status(400).json({ error: "Пароль должен быть не менее 8 символов" });
-      }
       const passwordHash = await bcrypt.hash(password, 12);
       await storage.updateUserPassword(id, passwordHash);
     }
@@ -605,7 +610,7 @@ app.post("/api/auth/password-reset/request", authLimiter, async (req, res) => {
     }
 
     const token = generateResetToken();
-    const tokenHash = await bcrypt.hash(token, 10);
+    const tokenHash = await bcrypt.hash(token, 12);
     const expiresAt = new Date(Date.now() + 60 * 60 * 1000);
 
     await storage.createPasswordResetToken({
@@ -613,8 +618,6 @@ app.post("/api/auth/password-reset/request", authLimiter, async (req, res) => {
       tokenHash,
       expiresAt,
     });
-
-    console.log(`Password reset requested for ${email}`);
 
     res.json({ message: "Если email зарегистрирован, инструкции отправлены" });
   } catch (error) {
@@ -647,7 +650,7 @@ app.post("/api/auth/password-reset/confirm", authLimiter, async (req, res) => {
       return res.status(400).json({ error: "Недействительный или просроченный токен" });
     }
 
-    const passwordHash = await bcrypt.hash(newPassword, 10);
+    const passwordHash = await bcrypt.hash(newPassword, 12);
     await storage.updateUserPassword(user.id, passwordHash);
     await storage.markResetTokenUsed(resetToken.id);
 
@@ -2195,6 +2198,8 @@ app.post("/api/files/upload", authMiddleware, (req: AuthRequest, res) => {
       if (!responseSent) {
         responseSent = true;
         updateProcessingStatus(fileId, {
+          fileName,
+          userId,
           status: 'uploading',
           progress: 0,
           message: 'Загрузка файла на сервер...',
@@ -2380,6 +2385,8 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
   });
 
   updateProcessingStatus(fileId, {
+    fileName,
+    userId,
     status: 'uploading',
     progress: 0,
     message: 'Инициализация загрузки...',
@@ -2394,7 +2401,7 @@ app.post("/api/files/upload-init", authMiddleware, async (req: AuthRequest, res)
 
 // Сброс зависших загрузок для текущего пользователя
 app.post("/api/files/reset-stuck", authMiddleware, async (req: AuthRequest, res) => {
-  const userId = req.user?.id;
+  const userId = req.userId;
   if (!userId) return res.status(401).json({ error: 'Не авторизован' });
   try {
     const result = await safeQuery(
@@ -2594,17 +2601,26 @@ app.post("/api/files/upload-chunk", authMiddleware, (req: AuthRequest, res) => {
 app.get("/api/files/status/:fileId", authMiddleware, (req: AuthRequest, res) => {
   const fileId = req.params.fileId as string;
   const status = getProcessingStatus(fileId);
-  
+
   if (!status) {
     return res.status(404).json({ error: 'Задача не найдена' });
   }
-  
+
+  // Проверка владельца: только сам пользователь или админ видят статус загрузки
+  if (status.userId != null && status.userId !== req.userId && req.userRole !== 'admin') {
+    return res.status(403).json({ error: 'Доступ запрещён' });
+  }
+
   res.json(status);
 });
 
 app.get("/api/files/jobs", authMiddleware, (req: AuthRequest, res) => {
   const jobs = getAllProcessingJobs();
-  res.json(jobs);
+  // Админ видит все, остальные — только свои
+  const filtered = req.userRole === 'admin'
+    ? jobs
+    : jobs.filter(j => j.userId == null || j.userId === req.userId);
+  res.json(filtered);
 });
 
 if (isProduction) {

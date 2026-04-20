@@ -43,7 +43,7 @@ export function createAdminRouter(
       if (existing.rows.length > 0) {
         return res.status(409).json({ error: 'Пользователь с таким email уже существует' });
       }
-      const passwordHash = await bcrypt.hash(password, 10);
+      const passwordHash = await bcrypt.hash(password, 12);
       const result = await safeQuery(
         `INSERT INTO world_medicine.users (email, password_hash, name, role)
          VALUES ($1, $2, $3, $4) RETURNING id, email, name, role, created_at`,
@@ -69,7 +69,7 @@ export function createAdminRouter(
       if (name) { updates.push(`name = $${paramIdx++}`); values.push(name); }
       if (role) { updates.push(`role = $${paramIdx++}`); values.push(role); }
       if (password) {
-        const hash = await bcrypt.hash(password, 10);
+        const hash = await bcrypt.hash(password, 12);
         updates.push(`password_hash = $${paramIdx++}`);
         values.push(hash);
       }

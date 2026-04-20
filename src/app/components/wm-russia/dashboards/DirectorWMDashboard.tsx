@@ -480,22 +480,44 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
   const [mdlpRealData, setMdlpRealData] = useState<any>(null);
   const [mdlpLoading, setMdlpLoading] = useState(false);
 
-  useEffect(() => {
+  const loadMdlpData = React.useCallback(() => {
     const token = localStorage.getItem('wm_auth_token');
     if (!token) return;
     setMdlpLoading(true);
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
     Promise.all([
-      fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(() => null),
-      fetch('/api/dashboard', { headers }).then(r => r.json()).catch(() => null),
-      fetch('/api/wm-products', { headers }).then(r => r.json()).catch(() => null),
-      fetch('/api/metadata', { headers }).then(r => r.json()).catch(() => null),
+      fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(err => {
+        console.error('[DirectorWM] /api/wm-dashboard ошибка:', err);
+        return null;
+      }),
+      fetch('/api/dashboard', { headers }).then(r => r.json()).catch(err => {
+        console.error('[DirectorWM] /api/dashboard ошибка:', err);
+        return null;
+      }),
+      fetch('/api/wm-products', { headers }).then(r => r.json()).catch(err => {
+        console.error('[DirectorWM] /api/wm-products ошибка:', err);
+        return null;
+      }),
+      fetch('/api/metadata', { headers }).then(r => r.json()).catch(err => {
+        console.error('[DirectorWM] /api/metadata ошибка:', err);
+        return null;
+      }),
     ]).then(([wmDash, dash, wmProd, meta]) => {
       if (wmDash?.hasData || dash?.monthlySales?.length) {
         setMdlpRealData({ wmDash, dash, wmProd, meta });
+      } else {
+        setMdlpRealData(null);
       }
     }).finally(() => setMdlpLoading(false));
   }, []);
+
+  useEffect(() => {
+    loadMdlpData();
+    // Авто-обновление при успешной загрузке нового файла (App.tsx диспатчит событие).
+    const handler = () => loadMdlpData();
+    window.addEventListener('mdlp-data-updated', handler);
+    return () => window.removeEventListener('mdlp-data-updated', handler);
+  }, [loadMdlpData]);
 
   // Синхронизация сайдбара с внутренними вкладками
   useEffect(() => {

@@ -810,11 +810,15 @@ export default function MDLPAnalyzerPro() {
     const token = getAuthToken();
     
     if (savedUser && token) {
-      const user = JSON.parse(savedUser);
-      setCurrentUser(user);
-      setShowUserSelect(false);
-      
-      loadSavedYearlyDataOnStartup(user.id);
+      try {
+        const user = JSON.parse(savedUser);
+        setCurrentUser(user);
+        setShowUserSelect(false);
+        loadSavedYearlyDataOnStartup(user.id);
+      } catch (err) {
+        console.warn('[App] Битый mdlp_user в localStorage, очищаю:', err);
+        localStorage.removeItem('mdlp_user');
+      }
     } else {
       // Совместимость со старым ключом
       const legacyUser = localStorage.getItem('mdlp_current_user');
@@ -857,7 +861,7 @@ export default function MDLPAnalyzerPro() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${localStorage.getItem('token')}`
+                'Authorization': `Bearer ${getAuthToken() ?? ''}`
               },
               signal: rebuildController.signal,
             });
@@ -1641,11 +1645,11 @@ export default function MDLPAnalyzerPro() {
       return;
     }
     
-    if (loginPassword.length < 4) {
-      setLoginError('Пароль слишком короткий');
+    if (loginPassword.length < 8) {
+      setLoginError('Пароль должен быть не короче 8 символов');
       return;
     }
-    
+
     try {
       const response = await api.auth.login(loginEmail, loginPassword);
 
@@ -1663,22 +1667,8 @@ export default function MDLPAnalyzerPro() {
 
       loadSavedYearlyData(response.id);
     } catch (error: any) {
-      // Фолбэк: если сервер недоступен — пробуем mock-пользователей
-      const mockUser = wmMockUsers.find(u => u.email === loginEmail);
-      if (mockUser) {
-        const user: UserProfile = {
-          id: mockUser.id,
-          name: mockUser.name,
-          email: mockUser.email,
-          role: mockUser.role,
-          avatar: mockUser.avatar || '👤'
-        };
-        setCurrentUser(user);
-        localStorage.setItem('mdlp_user', JSON.stringify(user));
-        setShowUserSelect(false);
-      } else {
-        setLoginError('Сервер недоступен. Попробуйте позже или проверьте подключение.');
-      }
+      console.error('[Login] Ошибка авторизации:', error);
+      setLoginError(error?.message || 'Неверный email или пароль');
     }
   };
   
@@ -1889,6 +1879,8 @@ export default function MDLPAnalyzerPro() {
                     ));
                     setDataSavedByServer(true);
                     console.log(`[Upload] Обработка завершена: ${status.totalRows} строк (данные сохранены сервером)`);
+                    // Оповещаем кабинеты (директора и др.) обновить реальные данные.
+                    window.dispatchEvent(new CustomEvent('mdlp-data-updated', { detail: { rows: status.totalRows } }));
                     return;
                   } else if (status.status === 'error') {
                     throw new Error(status.error || 'Ошибка обработки файла');

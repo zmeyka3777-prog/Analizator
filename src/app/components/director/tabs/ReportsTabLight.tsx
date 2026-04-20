@@ -239,6 +239,16 @@ function computeReportData(config: ReportConfig): GeneratedReport {
 
 // ==================== ЭКСПОРТ В PDF (браузерная печать) ====================
 
+// Экранирование HTML-специальных символов для безопасного встраивания в шаблон.
+function escapeHtml(v: unknown): string {
+  return String(v ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function downloadPDF(report: GeneratedReport) {
   const totalPlan = report.productRows.reduce((s, r) => s + r.plan, 0);
   const totalPrevRevenue = report.productRows.reduce((s, r) => s + r.prevRevenue, 0);
@@ -246,8 +256,8 @@ function downloadPDF(report: GeneratedReport) {
   const productRows = report.productRows.map((r, i) => `
     <tr>
       <td class="num">${i + 1}</td>
-      <td>${r.shortName}</td>
-      <td class="cat">${r.category}</td>
+      <td>${escapeHtml(r.shortName)}</td>
+      <td class="cat">${escapeHtml(r.category)}</td>
       <td class="right">${formatCurrency(r.revenue)}</td>
       <td class="right">${formatNumber(r.units)}</td>
       <td class="right">${formatCurrency(r.plan)}</td>
@@ -259,7 +269,7 @@ function downloadPDF(report: GeneratedReport) {
   const territoryRows = report.territoryRows.map((r, i) => `
     <tr>
       <td class="num">${i + 1}</td>
-      <td>${r.territory}</td>
+      <td>${escapeHtml(r.territory)}</td>
       <td class="right">${formatCurrency(r.revenue)}</td>
       <td class="right">${formatNumber(r.units)}</td>
       <td class="right">${r.share.toFixed(1)}%</td>
@@ -270,7 +280,7 @@ function downloadPDF(report: GeneratedReport) {
     const growth = r.prevRevenue > 0 ? ((r.revenue - r.prevRevenue) / r.prevRevenue) * 100 : 0;
     return `
       <tr>
-        <td>${r.month}</td>
+        <td>${escapeHtml(r.month)}</td>
         <td class="right">${formatCurrency(r.revenue)}</td>
         <td class="right">${formatCurrency(r.prevRevenue)}</td>
         <td class="right ${growth >= 0 ? 'green' : 'red'}">${formatGrowth(growth)}</td>
@@ -283,7 +293,7 @@ function downloadPDF(report: GeneratedReport) {
 <html lang="ru">
 <head>
   <meta charset="utf-8">
-  <title>${report.title}</title>
+  <title>${escapeHtml(report.title)}</title>
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { font-family: Arial, Helvetica, sans-serif; font-size: 11px; color: #1e293b; padding: 24px; }
@@ -314,8 +324,8 @@ function downloadPDF(report: GeneratedReport) {
   </style>
 </head>
 <body>
-  <h1>${report.title}</h1>
-  <div class="subtitle">Период: ${report.period} · Сформирован: ${report.generatedAt} · World Medicine ПФО</div>
+  <h1>${escapeHtml(report.title)}</h1>
+  <div class="subtitle">Период: ${escapeHtml(report.period)} · Сформирован: ${escapeHtml(report.generatedAt)} · World Medicine ПФО</div>
 
   ${report.config.includeSummary ? `
   <div class="kpi-row">
@@ -370,7 +380,7 @@ function downloadPDF(report: GeneratedReport) {
 
   ${report.config.includeCharts ? `
   <div class="section">
-    <div class="section-title">Помесячная динамика: ${report.year} vs ${report.year - 1}</div>
+    <div class="section-title">Помесячная динамика: ${escapeHtml(String(report.year))} vs ${escapeHtml(String(report.year - 1))}</div>
     <table>
       <thead>
         <tr><th>Месяц</th><th class="right">Выручка ${report.year}</th><th class="right">Выручка ${report.year - 1}</th><th class="right">Рост</th><th class="right">Упак.</th></tr>
@@ -380,7 +390,7 @@ function downloadPDF(report: GeneratedReport) {
   </div>
   ` : ''}
 
-  <div class="footer">Отчёт сформирован автоматически · World Medicine Анализатор МДЛП · ${report.generatedAt}</div>
+  <div class="footer">Отчёт сформирован автоматически · World Medicine Анализатор МДЛП · ${escapeHtml(report.generatedAt)}</div>
 
   <script>window.onload = () => { setTimeout(() => { window.print(); }, 300); }</script>
 </body>

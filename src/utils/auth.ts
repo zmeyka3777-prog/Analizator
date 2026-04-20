@@ -1,20 +1,7 @@
 // ==================== УТИЛИТЫ АВТОРИЗАЦИИ ====================
+// Пароли хешируются только на сервере (bcrypt). Клиент их не обрабатывает.
 
 import { User, Role, CreateUserDTO } from '@/types/user.types';
-
-/**
- * Хеширование пароля (упрощённое для демо)
- */
-export function hashPassword(password: string): string {
-  return btoa(password);
-}
-
-/**
- * Проверка пароля
- */
-export function verifyPassword(password: string, hash: string): boolean {
-  return btoa(password) === hash;
-}
 
 /**
  * Валидация email

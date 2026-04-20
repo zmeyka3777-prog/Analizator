@@ -50,6 +50,24 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Пароль обязателен").max(128),
 });
 
+const VALID_ROLES = ['admin', 'director', 'manager', 'territory_manager', 'medrep', 'analyst'] as const;
+
+export const createUserSchema = z.object({
+  email: z.string().email("Некорректный email").max(255),
+  password: z.string().min(8, "Пароль должен быть не менее 8 символов").max(128),
+  name: z.string().min(2, "Имя должно быть не менее 2 символов").max(100).transform(sanitizeString),
+  role: z.enum(VALID_ROLES, { errorMap: () => ({ message: "Недопустимая роль" }) }),
+  avatar: z.string().max(500).optional(),
+});
+
+export const updateUserSchema = z.object({
+  email: z.string().email("Некорректный email").max(255).optional(),
+  password: z.string().min(8, "Пароль должен быть не менее 8 символов").max(128).optional(),
+  name: z.string().min(2).max(100).transform(sanitizeString).optional(),
+  role: z.enum(VALID_ROLES, { errorMap: () => ({ message: "Недопустимая роль" }) }).optional(),
+  avatar: z.string().max(500).optional(),
+});
+
 export const registerSchema = z.object({
   email: z.string()
     .email("Некорректный email")

@@ -98,7 +98,7 @@ export function aggregateData(parsedData: ParsedData): AggregatedData {
   const territoryFOMap = new Map<string, { sales: number; salesByYear: Map<string, number>; contragents: Set<string>; drugSales: Map<string, number> }>();
 
   for (const row of rows) {
-    const amount = row.amount || row.quantity || 0;
+    const amount = row.quantity || row.amount || 0;
     const yearStr = row.year ? String(row.year) : String(new Date().getFullYear());
     allYears.add(yearStr);
     

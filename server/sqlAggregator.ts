@@ -12,7 +12,7 @@ const SQL_MONTH_NORM: Record<string, string> = {
   '1': 'Янв', '2': 'Фев', '3': 'Мар', '4': 'Апр', '5': 'Май', '6': 'Июн',
   '7': 'Июл', '8': 'Авг', '9': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
   '01': 'Янв', '02': 'Фев', '03': 'Мар', '04': 'Апр', '05': 'Май', '06': 'Июн',
-  '07': 'Июл', '08': 'Авг', '09': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
+  '07': 'Июл', '08': 'Авг', '09': 'Сен',
 };
 function normMonth(m: string): string {
   if (!m) return m;
@@ -60,7 +60,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const monthlyRes = await queryable.query(
-    `SELECT month, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT month, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND month IS NOT NULL
      GROUP BY month ORDER BY month`,
     baseParams
@@ -77,7 +77,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const years = allYearsRes.rows.map(r => r.year);
 
   const yearMonthRes = await queryable.query(
-    `SELECT year::text as yr, month, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT year::text as yr, month, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND month IS NOT NULL AND year IS NOT NULL
      GROUP BY year, month`,
     [userId, uploadId]
@@ -113,7 +113,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const contragentRes = await queryable.query(
-    `SELECT contragent as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales,
+    `SELECT contragent as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
      MAX(region) as region, MAX(city) as city, MAX(receiver_type) as "receiverType",
      MAX(contractor_group) as "contractorGroup", MAX(federal_district) as "federalDistrict",
      MAX(district) as district
@@ -124,7 +124,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const contragentSales = contragentRes.rows.map(r => ({ ...r, sales: parseFloat(r.sales) }));
 
   const regionRes = await queryable.query(
-    `SELECT region as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT region as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND region IS NOT NULL
      GROUP BY region ORDER BY sales DESC`,
     baseParams
@@ -132,7 +132,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const regionSales = regionRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales) }));
 
   const drugRes = await queryable.query(
-    `SELECT drug as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT drug as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND drug IS NOT NULL
      GROUP BY drug ORDER BY sales DESC`,
     baseParams
@@ -141,7 +141,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const drugs = drugSales.map(d => d.name).sort();
 
   const disposalRes = await queryable.query(
-    `SELECT disposal_type as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales, COUNT(*) as count
+    `SELECT disposal_type as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales, COUNT(*) as count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND disposal_type IS NOT NULL
      GROUP BY disposal_type ORDER BY sales DESC`,
     baseParams
@@ -149,7 +149,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const disposalTypeSales = disposalRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales), count: parseInt(r.count) }));
 
   const fdRes = await queryable.query(
-    `SELECT federal_district as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT federal_district as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND federal_district IS NOT NULL
      GROUP BY federal_district ORDER BY sales DESC`,
     baseParams
@@ -157,7 +157,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const federalDistrictSales = fdRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales) }));
 
   const rtRes = await queryable.query(
-    `SELECT receiver_type as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales, COUNT(*) as count
+    `SELECT receiver_type as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales, COUNT(*) as count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND receiver_type IS NOT NULL
      GROUP BY receiver_type ORDER BY sales DESC`,
     baseParams
@@ -165,7 +165,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   const receiverTypeSales = rtRes.rows.map(r => ({ name: r.name, sales: parseFloat(r.sales), count: parseInt(r.count) }));
 
   const drugMonthlyRes = await queryable.query(
-    `SELECT drug, month, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT drug, month, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND drug IS NOT NULL AND month IS NOT NULL
      GROUP BY drug, month`,
     baseParams
@@ -179,7 +179,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const drugRegionRes = await queryable.query(
-    `SELECT drug, region, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT drug, region, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND drug IS NOT NULL AND region IS NOT NULL
      GROUP BY drug, region`,
     baseParams
@@ -191,7 +191,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const drugContragentRes = await queryable.query(
-    `SELECT drug, contragent, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT drug, contragent, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND drug IS NOT NULL AND contragent IS NOT NULL
      GROUP BY drug, contragent`,
     baseParams
@@ -203,7 +203,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const drugYearRes = await queryable.query(
-    `SELECT drug, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT drug, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND drug IS NOT NULL AND year IS NOT NULL
      GROUP BY drug, year`,
     [userId, uploadId]
@@ -231,7 +231,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const contragentDrugRes = await queryable.query(
-    `SELECT contragent, drug, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT contragent, drug, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND contragent IS NOT NULL AND drug IS NOT NULL
      GROUP BY contragent, drug`,
     baseParams
@@ -243,7 +243,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const contragentMonthlyRes = await queryable.query(
-    `SELECT contragent, month, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT contragent, month, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND contragent IS NOT NULL AND month IS NOT NULL
      GROUP BY contragent, month`,
     baseParams
@@ -257,7 +257,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const contragentYearRes = await queryable.query(
-    `SELECT contragent, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT contragent, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND contragent IS NOT NULL AND year IS NOT NULL
      GROUP BY contragent, year`,
     [userId, uploadId]
@@ -283,7 +283,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const terrRegionRes = await queryable.query(
-    `SELECT region as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales,
+    `SELECT region as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
      COUNT(DISTINCT contragent) as contragent_count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND region IS NOT NULL
      GROUP BY region ORDER BY sales DESC`,
@@ -291,7 +291,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   );
 
   const terrRegionDrugRes = await queryable.query(
-    `SELECT region, drug, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT region, drug, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND region IS NOT NULL AND drug IS NOT NULL
      GROUP BY region, drug`,
     baseParams
@@ -303,7 +303,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const terrRegionYearRes = await queryable.query(
-    `SELECT region, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT region, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND region IS NOT NULL AND year IS NOT NULL
      GROUP BY region, year`,
     [userId, uploadId]
@@ -328,14 +328,14 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const terrFDRes = await queryable.query(
-    `SELECT federal_district as name, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales,
+    `SELECT federal_district as name, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
      COUNT(DISTINCT contragent) as contragent_count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND federal_district IS NOT NULL
      GROUP BY federal_district ORDER BY sales DESC`,
     baseParams
   );
   const fdYearRes2 = await queryable.query(
-    `SELECT federal_district, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT federal_district, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND federal_district IS NOT NULL AND year IS NOT NULL
      GROUP BY federal_district, year`,
     [userId, uploadId]
@@ -346,7 +346,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
     fdYearMap.get(r.federal_district)![r.yr] = parseFloat(r.sales);
   }
   const fdDrugRes = await queryable.query(
-    `SELECT federal_district, drug, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT federal_district, drug, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND federal_district IS NOT NULL AND drug IS NOT NULL
      GROUP BY federal_district, drug`,
     baseParams
@@ -368,14 +368,14 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
   }
 
   const terrCityRes = await queryable.query(
-    `SELECT city as name, MAX(region) as region, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales,
+    `SELECT city as name, MAX(region) as region, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
      COUNT(DISTINCT contragent) as contragent_count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND city IS NOT NULL
      GROUP BY city ORDER BY sales DESC`,
     baseParams
   );
   const cityYearRes = await queryable.query(
-    `SELECT city, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT city, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND city IS NOT NULL AND year IS NOT NULL
      GROUP BY city, year`,
     [userId, uploadId]
@@ -386,7 +386,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
     cityYearMap.get(r.city)![r.yr] = parseFloat(r.sales);
   }
   const cityDrugRes = await queryable.query(
-    `SELECT city, drug, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT city, drug, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND city IS NOT NULL AND drug IS NOT NULL
      GROUP BY city, drug`,
     baseParams
@@ -414,14 +414,14 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
 
   const terrDistRes = await queryable.query(
     `SELECT COALESCE(district, settlement) as name, MAX(city) as city, MAX(region) as region,
-     COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales,
+     COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales,
      COUNT(DISTINCT contragent) as contragent_count
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND (district IS NOT NULL OR settlement IS NOT NULL)
      GROUP BY COALESCE(district, settlement) ORDER BY sales DESC`,
     baseParams
   );
   const distYearRes = await queryable.query(
-    `SELECT COALESCE(district, settlement) as dist, year::text as yr, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT COALESCE(district, settlement) as dist, year::text as yr, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE user_id = $1 AND upload_id = $2 AND (district IS NOT NULL OR settlement IS NOT NULL) AND year IS NOT NULL
      GROUP BY COALESCE(district, settlement), year`,
     [userId, uploadId]
@@ -432,7 +432,7 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
     distYearMap.get(r.dist)![r.yr] = parseFloat(r.sales);
   }
   const distDrugRes = await queryable.query(
-    `SELECT COALESCE(district, settlement) as dist, drug, COALESCE(SUM(COALESCE(amount, quantity, 0)), 0) as sales
+    `SELECT COALESCE(district, settlement) as dist, drug, COALESCE(SUM(COALESCE(quantity, amount, 0)), 0) as sales
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND (district IS NOT NULL OR settlement IS NOT NULL) AND drug IS NOT NULL
      GROUP BY COALESCE(district, settlement), drug`,
     baseParams
@@ -461,12 +461,12 @@ async function buildYearAggregation(queryable: { query: (text: string, params?: 
 
   const weeklyRes = await queryable.query(
     `SELECT month, drug,
-     CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 WHEN day <= 28 THEN 4 ELSE 5 END as week,
+     CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 ELSE 4 END as week,
      COALESCE(SUM(COALESCE(quantity, 0)), 0) as quantity,
      COALESCE(SUM(COALESCE(amount, 0)), 0) as amount
      FROM world_medicine.raw_sales_rows WHERE ${baseWhere} AND day IS NOT NULL AND drug IS NOT NULL AND month IS NOT NULL
      GROUP BY month, drug,
-       CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 WHEN day <= 28 THEN 4 ELSE 5 END
+       CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 ELSE 4 END
      ORDER BY month, week, drug`,
     baseParams
   );
@@ -503,7 +503,7 @@ export async function buildCompactRowsFromDB(pool: Pool, userId: number, uploadI
   const compactRes = await heavyClient.query(
     `SELECT year, month,
      CASE WHEN day IS NOT NULL THEN
-       CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 WHEN day <= 28 THEN 4 ELSE 5 END
+       CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 ELSE 4 END
      ELSE NULL END as week,
      drug, region, city, federal_district as "federalDistrict",
      contractor_group as "contractorGroup", disposal_type as "disposalType",
@@ -514,7 +514,7 @@ export async function buildCompactRowsFromDB(pool: Pool, userId: number, uploadI
      WHERE user_id = $1 AND upload_id = $2
      GROUP BY year, month,
        CASE WHEN day IS NOT NULL THEN
-         CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 WHEN day <= 28 THEN 4 ELSE 5 END
+         CASE WHEN day <= 7 THEN 1 WHEN day <= 14 THEN 2 WHEN day <= 21 THEN 3 ELSE 4 END
        ELSE NULL END,
        drug, region, city, federal_district, contractor_group, disposal_type, receiver_type`,
     [userId, uploadId]
@@ -795,7 +795,7 @@ const NUM_MONTH_MAP: Record<string, string> = {
   '1': 'Янв', '2': 'Фев', '3': 'Мар', '4': 'Апр', '5': 'Май', '6': 'Июн',
   '7': 'Июл', '8': 'Авг', '9': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
   '01': 'Янв', '02': 'Фев', '03': 'Мар', '04': 'Апр', '05': 'Май', '06': 'Июн',
-  '07': 'Июл', '08': 'Авг', '09': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
+  '07': 'Июл', '08': 'Авг', '09': 'Сен',
 };
 
 function normalizeMonthValue(m: any): string {

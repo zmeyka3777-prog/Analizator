@@ -13,7 +13,7 @@ import {
 } from 'lucide-react';
 
 // --- API helper ---
-const getToken = () => localStorage.getItem('mdlp_token');
+const getToken = () => localStorage.getItem('wm_auth_token');
 const apiCall = async (url: string, options: RequestInit = {}) => {
   const token = getToken();
   const res = await fetch(url, {

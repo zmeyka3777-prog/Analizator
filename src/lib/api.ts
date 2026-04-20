@@ -1,28 +1,44 @@
 const API_BASE = '/api';
+const AUTH_TOKEN_KEY = 'wm_auth_token';
+// Устаревшие ключи удаляются при любом clearAuth/setAuthToken.
+const LEGACY_TOKEN_KEYS = ['mdlp_auth_token', 'mdlp_token', 'token'];
 
 let authToken: string | null = null;
 
 export function setAuthToken(token: string | null): void {
   authToken = token;
   if (token) {
-    localStorage.setItem('mdlp_auth_token', token);
+    localStorage.setItem(AUTH_TOKEN_KEY, token);
   } else {
-    localStorage.removeItem('mdlp_auth_token');
+    localStorage.removeItem(AUTH_TOKEN_KEY);
   }
+  LEGACY_TOKEN_KEYS.forEach(k => localStorage.removeItem(k));
 }
 
 export function getAuthToken(): string | null {
   if (!authToken) {
-    // Проверяем оба ключа: WM Russia и MDLP
-    authToken = localStorage.getItem('wm_auth_token') || localStorage.getItem('mdlp_auth_token');
+    authToken = localStorage.getItem(AUTH_TOKEN_KEY);
+    if (!authToken) {
+      for (const k of LEGACY_TOKEN_KEYS) {
+        const legacy = localStorage.getItem(k);
+        if (legacy) {
+          authToken = legacy;
+          localStorage.setItem(AUTH_TOKEN_KEY, legacy);
+          localStorage.removeItem(k);
+          break;
+        }
+      }
+    }
   }
   return authToken;
 }
 
 export function clearAuth(): void {
   authToken = null;
-  localStorage.removeItem('mdlp_auth_token');
+  localStorage.removeItem(AUTH_TOKEN_KEY);
   localStorage.removeItem('mdlp_user');
+  localStorage.removeItem('figma_auth_user');
+  LEGACY_TOKEN_KEYS.forEach(k => localStorage.removeItem(k));
 }
 
 async function fetchApi<T>(endpoint: string, options?: RequestInit & { auth?: boolean }): Promise<T> {

@@ -34,6 +34,7 @@ export interface ParsedRow {
 export interface ProcessingStatus {
   fileId: string;
   fileName: string;
+  userId?: number;
   status: 'uploading' | 'processing' | 'aggregating' | 'saving' | 'completed' | 'error';
   progress: number;
   totalBytes: number;
@@ -63,7 +64,7 @@ const MONTH_MAP: Record<string, string> = {
   '09': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
   '1': 'Янв', '2': 'Фев', '3': 'Мар', '4': 'Апр',
   '5': 'Май', '6': 'Июн', '7': 'Июл', '8': 'Авг',
-  '9': 'Сен', '10': 'Окт', '11': 'Ноя', '12': 'Дек',
+  '9': 'Сен',
 };
 
 function normalizeMonth(value: string): string {

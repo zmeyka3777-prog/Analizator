@@ -22,7 +22,7 @@ export function requireRole(...allowedRoles: UserRole[]) {
     if (!userRole) {
       return res.status(401).json({ error: 'Требуется авторизация' });
     }
-    if (userRole === 'admin' || userRole === 'director') {
+    if (userRole === 'admin') {
       return next();
     }
     if (allowedRoles.includes(userRole)) {

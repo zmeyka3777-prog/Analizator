@@ -433,8 +433,9 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
     console.log(`[applyFilters] compactRows total=${compactRows.length}, yearDistribution=${JSON.stringify(Object.fromEntries(yearCounts))}, selectedYears=${JSON.stringify(selectedYears)}`);
 
     const filteredRows = compactRows.filter((row: any) => {
+      // Строгое равенство имени препарата, чтобы «Артоксан» не захватывал «Артоксан таблетки» и «Артоксан гель».
       const matchesDrug = selectedDrugs.length === 0 ||
-        selectedDrugs.some((d: string) => row.drug?.includes(d) || row.complexDrugName?.includes(d));
+        selectedDrugs.some((d: string) => row.drug === d || row.complexDrugName === d);
       const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(row.region);
       const matchesFD = selectedFederalDistricts.length === 0 || selectedFederalDistricts.includes(row.federalDistrict);
       const matchesYear = selectedYears.length === 0 || selectedYears.includes(String(row.year));
@@ -459,7 +460,7 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
     const combinedMap = new Map<string, any>();
 
     filteredRows.forEach((row: any) => {
-      const sales = row.amount || row.quantity || 0;
+      const sales = row.quantity || row.amount || 0;
       if (row.region) regionSalesMap.set(row.region, (regionSalesMap.get(row.region) || 0) + sales);
       if (row.contragent) {
         const ex = contragentSalesMap.get(row.contragent);
@@ -564,7 +565,7 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
     const regionDataMap = new Map<string, RegionData>();
 
     filteredRows.forEach((row: any) => {
-      const sales = row.amount || row.quantity || 0;
+      const sales = row.quantity || row.amount || 0;
       const fd = row.federalDistrict || '';
       const region = row.region || '';
       const city = row.city || '';
@@ -743,14 +744,15 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
           yearSelected += dt.sales || 0;
         }
       }
-      const ratio = yearTotal > 0 ? yearSelected / yearTotal : 1.0;
+      // Нет данных по disposalType для года — фильтр исключает всё, ratio=0 (не 1.0: иначе фильтр не применится).
+      const ratio = yearTotal > 0 ? yearSelected / yearTotal : 0;
       disposalRatioPerYear.set(yearStr, ratio);
       totalAllTypes += yearTotal;
       totalSelectedTypes += yearSelected;
       ratioComputed = true;
     }
     if (ratioComputed) {
-      globalDisposalRatio = totalAllTypes > 0 ? totalSelectedTypes / totalAllTypes : 1.0;
+      globalDisposalRatio = totalAllTypes > 0 ? totalSelectedTypes / totalAllTypes : 0;
       hasDisposalFilter = true;
       console.log(`[applyFilters] Пропорциональный пересчёт по типам выбытия: globalRatio=${globalDisposalRatio.toFixed(4)}, perYear=${JSON.stringify(Object.fromEntries(disposalRatioPerYear))}`);
     } else {
@@ -1211,7 +1213,7 @@ export function createTabDataRouter(authMiddleware: any) {
 
         for (const row of fRows) {
           const yr = String(row.year);
-          const sales = row.amount || row.quantity || 0;
+          const sales = row.quantity || row.amount || 0;
           if (!yearDrugMap.has(yr)) yearDrugMap.set(yr, new Map());
           if (!yearRegionSet.has(yr)) yearRegionSet.set(yr, new Set());
           if (!yearContraSet.has(yr)) yearContraSet.set(yr, new Set());
@@ -1593,7 +1595,7 @@ export function createTabDataRouter(authMiddleware: any) {
         return yearsWithCompact.has(String(row.year)) && row.month === selectedMonth;
       });
       for (const row of filtered) {
-        const sales = row.amount || row.quantity || 0;
+        const sales = row.quantity || row.amount || 0;
         const drug = row.drug || '';
         const fd = row.federalDistrict || '';
         const region = row.region || '';
