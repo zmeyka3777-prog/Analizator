@@ -536,6 +536,7 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
     <AppLayout
       navigation={<DirectorNavigation activeTab={activeTab} setActiveTab={setActiveTab} />}
       onLogout={onLogout}
+      onLogoClick={() => setActiveTab('dashboard')}
     >
       <div className="space-y-6">
         {/* Кнопка назад */}

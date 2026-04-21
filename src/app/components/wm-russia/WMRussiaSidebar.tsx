@@ -31,12 +31,11 @@ const menuItemsByRole: Record<WMUserRole, MenuItem[]> = {
     { id: 'territory-kpi', label: 'KPI территории', icon: '🎯' },
   ],
   manager: [
+    // Три реальные вкладки (overview/employees/products) — остальные дубли удалены:
+    // territories, district-kpi, reports все маппятся в overview, создавая путаницу.
     { id: 'district-dashboard', label: 'Дашборд округа', icon: '📊' },
-    { id: 'territories', label: 'Территории', icon: '🗺️' },
     { id: 'all-medreps', label: 'Все медпреды', icon: '👥' },
-    { id: 'analytics', label: 'Аналитика', icon: '📈' },
-    { id: 'district-kpi', label: 'KPI округа', icon: '🎯' },
-    { id: 'reports', label: 'Отчёты', icon: '📑' },
+    { id: 'analytics', label: 'Аналитика по препаратам', icon: '📈' },
   ],
   director: [
     { id: 'director-dashboard', label: 'Общая панель', icon: '🏢' },
@@ -91,9 +90,17 @@ export function WMRussiaSidebar({
 
   const sidebarContent = (
     <>
-      {/* Logo */}
+      {/* Logo — клик возвращает на первый пункт меню (главную) */}
       <div className="wm-sidebar-logo p-5 border-b border-slate-200">
-        <div className="flex items-center gap-3">
+        <button
+          type="button"
+          onClick={() => {
+            if (menuItems.length > 0) onNavigate(menuItems[0].id);
+            setIsOpen(false);
+          }}
+          className="flex items-center gap-3 w-full text-left hover:opacity-80 transition-opacity"
+          aria-label="На главную"
+        >
           <div className="w-9 h-9 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg shadow-cyan-500/20">
             <span className="text-white font-black text-sm">WM</span>
           </div>
@@ -101,7 +108,7 @@ export function WMRussiaSidebar({
             <h1 className="font-bold text-slate-800 text-sm">WM Russia</h1>
             <p className="text-xs text-slate-400">Аналитика продаж</p>
           </div>
-        </div>
+        </button>
       </div>
 
       {/* Back to MDLP button */}

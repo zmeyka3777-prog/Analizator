@@ -13,11 +13,11 @@ import {
   RefreshCw,
 } from 'lucide-react';
 
-// Логотип
-const Logo = ({ size = 'normal' }: { size?: 'small' | 'normal' }) => {
+// Логотип. Если передан onClick — становится кликабельной кнопкой → возврат на главный дашборд.
+const Logo = ({ size = 'normal', onClick }: { size?: 'small' | 'normal'; onClick?: () => void }) => {
   const sizeClasses = size === 'small' ? 'w-8 h-8 text-sm' : 'w-10 h-10 text-base';
 
-  return (
+  const content = (
     <div className="flex items-center gap-2">
       <div className={`${sizeClasses} rounded-xl bg-gradient-to-br from-cyan-500 via-cyan-600 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/30 relative overflow-hidden group`}>
         <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/20 to-white/0 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -33,15 +33,30 @@ const Logo = ({ size = 'normal' }: { size?: 'small' | 'normal' }) => {
       )}
     </div>
   );
+
+  if (onClick) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="hover:opacity-80 transition-opacity cursor-pointer"
+        aria-label="На главную"
+      >
+        {content}
+      </button>
+    );
+  }
+  return content;
 };
 
 interface AppLayoutProps {
   children: React.ReactNode;
   navigation?: React.ReactNode; // Навигация для конкретной роли
   onLogout?: () => void; // Дополнительный обработчик при выходе
+  onLogoClick?: () => void; // Клик по логотипу — возврат на главную вкладку
 }
 
-export default function AppLayout({ children, navigation, onLogout }: AppLayoutProps) {
+export default function AppLayout({ children, navigation, onLogout, onLogoClick }: AppLayoutProps) {
   const { currentUser, logout } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
@@ -55,7 +70,7 @@ export default function AppLayout({ children, navigation, onLogout }: AppLayoutP
         <div className="max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
-            <Logo />
+            <Logo onClick={onLogoClick} />
 
             {/* Desktop Navigation */}
             <div className="hidden lg:flex items-center gap-4 flex-1 ml-8">

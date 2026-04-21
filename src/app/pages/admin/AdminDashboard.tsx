@@ -219,6 +219,13 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
       });
       await loadUsers();
       setNewUserForm({ email: '', fullName: '', role: 'med_rep', phone: '', territory: '' });
+      // Показываем сгенерированный пароль и предупреждение, модалка закроется через 8 секунд
+      // (даём время скопировать пароль). Форма уже очищена — повторный submit безопасен.
+      setTimeout(() => {
+        setShowAddUser(false);
+        setGeneratedPassword('');
+        setFormError('');
+      }, 8000);
     } catch (err: any) {
       setFormError(err.message || 'Ошибка создания пользователя');
       setGeneratedPassword('');
