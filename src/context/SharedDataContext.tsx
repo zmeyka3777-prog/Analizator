@@ -441,6 +441,74 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
     }
   }, [wmRussiaData, calculateSummary]);
 
+  // ========================================================================
+  // Единый источник данных: подтягиваем compact rows из БД и транслируем
+  // в MDLPSaleRecord, чтобы все дашборды (medrep/TM/manager) получали
+  // актуальные данные после chunked upload без перезагрузки страницы.
+  // Загружаем при монтировании (если юзер залогинен) и по событию
+  // 'mdlp-data-updated' (App.tsx диспатчит после успеха upload).
+  // ========================================================================
+  const reloadFromServer = useCallback(async () => {
+    const token = localStorage.getItem('wm_auth_token');
+    if (!token) return;
+    let userId: string | number | null = null;
+    try {
+      const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+      if (raw) {
+        const u = JSON.parse(raw);
+        userId = u?.id ?? null;
+      }
+    } catch {
+      return;
+    }
+    if (!userId) return;
+
+    try {
+      const res = await fetch(`/api/yearly-data/${userId}/9999`, {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (!res.ok) return;
+      const data = await res.json();
+      const agg = data?.aggregatedData as any;
+      const rows: any[] | undefined = agg?.rows;
+      if (!Array.isArray(rows) || rows.length === 0) {
+        setMdlpDataState([]);
+        return;
+      }
+      const mdlpRecords: MDLPSaleRecord[] = rows.map(r => ({
+        drug: r.drug || r.complexDrugName || '',
+        region: r.region || '',
+        city: r.city || undefined,
+        contragent: r.contragent || undefined,
+        sales: Number(r.amount) || 0,
+        packages: Number(r.quantity) || 0,
+        year: r.year != null ? Number(r.year) : undefined,
+        month: typeof r.month === 'number' ? r.month : undefined,
+        week: r.week != null ? Number(r.week) : undefined,
+        disposalType: r.disposalType || undefined,
+        receiverType: r.receiverType || undefined,
+        federalDistrict: r.federalDistrict || undefined,
+      }));
+      setMdlpDataState(mdlpRecords);
+      setLastUploadDate(new Date().toISOString());
+      const transformed = transformMdlpToWmRussia(mdlpRecords);
+      setWmRussiaDataState(prev => {
+        const kept = prev.filter(d => !d.id.startsWith('mdlp-'));
+        return [...kept, ...transformed];
+      });
+      console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
+    } catch (err) {
+      console.warn('[SharedData] Не удалось подгрузить данные из БД:', err);
+    }
+  }, [transformMdlpToWmRussia]);
+
+  useEffect(() => {
+    reloadFromServer(); // первичная загрузка
+    const handler = () => reloadFromServer();
+    window.addEventListener('mdlp-data-updated', handler);
+    return () => window.removeEventListener('mdlp-data-updated', handler);
+  }, [reloadFromServer]);
+
   return (
     <SharedDataContext.Provider value={{
       mdlpData,
