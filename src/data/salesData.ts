@@ -4,6 +4,86 @@ import { getAllYears, getActiveYears } from './yearsManager';
 // Реэкспортируем PRODUCTS для совместимости с существующим кодом
 export { PRODUCTS } from '@/types/sales.types';
 
+/**
+ * Маппинг drug-имени из MDLP (может быть русское/английское/разнописание)
+ * → productId из PRODUCTS каталога. Возвращает null если не найден.
+ */
+function matchDrugToProductId(drugName: string): string | null {
+  if (!drugName) return null;
+  const normalized = drugName.toLowerCase().trim();
+  // Сначала строгое совпадение с shortName или частью name
+  for (const p of PRODUCTS) {
+    const short = (p.shortName || '').toLowerCase();
+    const full = p.name.toLowerCase();
+    if (short && normalized.includes(short)) return p.id;
+    if (normalized.includes(full.split(' ')[0].toLowerCase())) return p.id;
+  }
+  // Русские названия препаратов (MDLP часто на русском)
+  const ruMap: Record<string, string> = {
+    'кокарнит': 'cocarnit',
+    'роноцит': 'ronocit',
+    'артоксан лиофилизат': 'artoxan-lyof',
+    'артоксан гель': 'artoxan-gel',
+    'артоксан таблетки': 'artoxan-tablets',
+    'артоксан': 'artoxan-lyof',
+    'клодифен': 'clodifen',
+    'секнидокс': 'secnidox',
+    'драстоп': 'drastop',
+    'лименда': 'limenda',
+    'орцепол': 'orcipol',
+    'дорамитцин': 'doramycin',
+    'апфекто': 'apfecto',
+  };
+  for (const [ru, id] of Object.entries(ruMap)) {
+    if (normalized.includes(ru)) return id;
+  }
+  return null;
+}
+
+/**
+ * Заполняет SALES_DATA из MDLP-записей (сырые продажи из БД).
+ * Вызывается SharedDataProvider при загрузке данных.
+ */
+export function setSalesDataFromMdlp(records: Array<{
+  drug?: string;
+  region?: string;
+  year?: number;
+  month?: number | string;
+  packages?: number;
+  sales?: number;
+}>): void {
+  const MONTH_RU_TO_NUM: Record<string, number> = {
+    'Янв': 1, 'Фев': 2, 'Мар': 3, 'Апр': 4, 'Май': 5, 'Июн': 6,
+    'Июл': 7, 'Авг': 8, 'Сен': 9, 'Окт': 10, 'Ноя': 11, 'Дек': 12,
+    'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4, 'Июнь': 6,
+    'Июль': 7, 'Август': 8, 'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12,
+  };
+  const mapped: SalesData[] = [];
+  for (const r of records) {
+    const productId = matchDrugToProductId(r.drug || '');
+    if (!productId) continue;
+    const territory = r.region || '';
+    if (!territory) continue;
+    const year = typeof r.year === 'number' ? r.year : 0;
+    if (!year) continue;
+    let month: number = 0;
+    if (typeof r.month === 'number') month = r.month;
+    else if (typeof r.month === 'string') month = MONTH_RU_TO_NUM[r.month] || 0;
+    if (!month) continue;
+    mapped.push({
+      productId,
+      territory,
+      year,
+      month,
+      units: Number(r.packages) || 0,
+      revenue: Number(r.sales) || 0,
+    });
+  }
+  SALES_DATA.length = 0;
+  SALES_DATA.push(...mapped);
+  console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length}`);
+}
+
 // Список территорий ПФО
 export const TERRITORIES = [
   'Республика Татарстан',
@@ -23,69 +103,8 @@ export interface SalesData {
   revenue: number;
 }
 
-function generateSalesData(): SalesData[] {
-  const data: SalesData[] = [];
-
-  const territoryCoef: Record<string, number> = {
-    'Республика Татарстан': 0.28,
-    'Самарская область': 0.22,
-    'Республика Башкортостан': 0.19,
-    'Нижегородская область': 0.16,
-    'Пензенская область': 0.09,
-    'Республика Мордовия': 0.06,
-  };
-
-  const seasonality = [0.95, 0.88, 1.02, 1.05, 0.98, 0.92, 0.85, 0.90, 1.08, 1.15, 1.18, 1.04];
-
-  const activeYears = getActiveYears();
-  const baseYear = 2025;
-
-  PRODUCTS.forEach(product => {
-    const monthlyQuota2025 = product.quota2025 / 12;
-
-    TERRITORIES.forEach(territory => {
-      activeYears.forEach(yearData => {
-        const year = yearData.year;
-
-        for (let month = 1; month <= 12; month++) {
-          let yearCoef = 1.0;
-          if (year < baseYear) {
-            const yearsBack = baseYear - year;
-            yearCoef = Math.pow(0.85, yearsBack);
-          } else if (year > baseYear) {
-            const yearsForward = year - baseYear;
-            yearCoef = Math.pow(1.18, yearsForward);
-          }
-
-          const randomFactor = 0.90 + Math.random() * 0.20;
-
-          const units = Math.round(
-            monthlyQuota2025 *
-            territoryCoef[territory] *
-            seasonality[month - 1] *
-            yearCoef *
-            randomFactor
-          );
-
-          const revenue = units * product.price;
-
-          data.push({
-            productId: product.id,
-            territory,
-            year,
-            month,
-            units,
-            revenue,
-          });
-        }
-      });
-    });
-  });
-
-  return data;
-}
-
-// Моковые данные отключены — данные загружаются через файлы
+// Массив заполняется из MDLP-загрузок через setSalesDataFromMdlp().
+// Mock-генератор удалён — данные только из реальных загрузок пользователя.
 export const SALES_DATA: SalesData[] = [];
 
 export function getSalesData(filters?: {

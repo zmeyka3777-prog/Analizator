@@ -27,7 +27,7 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useSharedData, MDLPSaleRecord } from '../context/SharedDataContext';
 import { DrugPriceEntry, findDrugPrice, convertToMoney, formatMoney, formatMoneyFull, formatPackages, formatValue, convertTotal, convertDrugBreakdownToRubles, formatDual, calcRublesRatio } from '../lib/priceUtils';
-import { wmMockUsers } from '../data/wmRussiaData';
+// wmMockUsers удалены из App.tsx — пользователь строится напрямую из currentUser
 import type { WMUser, WMUserRole } from '../types';
 
 export default function MDLPAnalyzerPro() {
@@ -3388,12 +3388,13 @@ export default function MDLPAnalyzerPro() {
   // WM users can switch to their personal dashboard via sidebar button
   const wmRoles: string[] = ['director', 'admin', 'manager', 'territory_manager', 'medrep'];
   if (appMode === 'wm-russia' && currentUser && wmRoles.includes(currentUser.role)) {
-    const wmUser: WMUser | undefined = wmMockUsers.find(u => u.email === currentUser.email);
-    const mappedUser: WMUser = wmUser || {
+    // Строим WMUser из реального залогиненного пользователя (не ищем в моках)
+    const mappedUser: WMUser = {
       id: currentUser.id.toString(),
       email: currentUser.email,
       name: currentUser.name,
       role: currentUser.role as WMUserRole,
+      avatar: currentUser.avatar,
     };
     return (
       <ThemeProvider>

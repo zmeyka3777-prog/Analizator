@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { MedRepData, WMFederalDistrict } from '../types';
+import { setSalesDataFromMdlp } from '@/data/salesData';
 
 export interface MDLPSaleRecord {
   drug: string;
@@ -496,6 +497,9 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         const kept = prev.filter(d => !d.id.startsWith('mdlp-'));
         return [...kept, ...transformed];
       });
+      // Синхронизируем SALES_DATA — чтобы getSalesData()/getTotalStats()/
+      // aggregateByProduct() в DirectorWMDashboard возвращали реальные данные.
+      setSalesDataFromMdlp(mdlpRecords);
       console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
     } catch (err) {
       console.warn('[SharedData] Не удалось подгрузить данные из БД:', err);
@@ -510,6 +514,7 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       setMdlpDataState([]);
       setWmRussiaDataState([]);
       setLastUploadDate(null);
+      setSalesDataFromMdlp([]); // очистить SALES_DATA
       reloadFromServer();
     };
     window.addEventListener('mdlp-data-updated', dataHandler);
