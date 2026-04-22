@@ -486,19 +486,19 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
     setMdlpLoading(true);
     const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
     Promise.all([
-      fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(err => {
+      fetch('/api/tab/wm-dashboard', { headers }).then(r => r.json()).catch(err => {
         console.error('[DirectorWM] /api/wm-dashboard ошибка:', err);
         return null;
       }),
-      fetch('/api/dashboard', { headers }).then(r => r.json()).catch(err => {
+      fetch('/api/tab/dashboard', { headers }).then(r => r.json()).catch(err => {
         console.error('[DirectorWM] /api/dashboard ошибка:', err);
         return null;
       }),
-      fetch('/api/wm-products', { headers }).then(r => r.json()).catch(err => {
+      fetch('/api/tab/wm-products', { headers }).then(r => r.json()).catch(err => {
         console.error('[DirectorWM] /api/wm-products ошибка:', err);
         return null;
       }),
-      fetch('/api/metadata', { headers }).then(r => r.json()).catch(err => {
+      fetch('/api/tab/metadata', { headers }).then(r => r.json()).catch(err => {
         console.error('[DirectorWM] /api/metadata ошибка:', err);
         return null;
       }),
@@ -619,10 +619,10 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
                           const token = localStorage.getItem('wm_auth_token');
                           const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
                           Promise.all([
-                            fetch('/api/wm-dashboard', { headers }).then(r => r.json()).catch(() => null),
-                            fetch('/api/dashboard', { headers }).then(r => r.json()).catch(() => null),
-                            fetch('/api/wm-products', { headers }).then(r => r.json()).catch(() => null),
-                            fetch('/api/metadata', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/tab/wm-dashboard', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/tab/dashboard', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/tab/wm-products', { headers }).then(r => r.json()).catch(() => null),
+                            fetch('/api/tab/metadata', { headers }).then(r => r.json()).catch(() => null),
                           ]).then(([w, d, p, m]) => {
                             if (w?.hasData || d?.monthlySales?.length) setMdlpRealData({ wmDash: w, dash: d, wmProd: p, meta: m });
                           }).finally(() => setMdlpLoading(false));
