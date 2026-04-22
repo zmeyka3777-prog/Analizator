@@ -56,8 +56,28 @@ interface AppLayoutProps {
   onLogoClick?: () => void; // Клик по логотипу — возврат на главную вкладку
 }
 
+// Читает пользователя из localStorage(mdlp_user) когда AuthProvider не смонтирован.
+// Логин происходит через WMRussiaApp/App.tsx, они сохраняют пользователя туда;
+// AppLayout — просто потребитель, должен уметь работать без контекста.
+function readUserFromStorage(): { fullName: string; email: string; role: string } | null {
+  try {
+    const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+    if (!raw) return null;
+    const u = JSON.parse(raw);
+    if (!u || typeof u !== 'object' || !u.email) return null;
+    return {
+      fullName: u.fullName || u.name || u.email,
+      email: u.email,
+      role: u.role || 'director',
+    };
+  } catch {
+    return null;
+  }
+}
+
 export default function AppLayout({ children, navigation, onLogout, onLogoClick }: AppLayoutProps) {
-  const { currentUser, logout } = useAuth();
+  const { currentUser: contextUser, logout } = useAuth();
+  const currentUser = contextUser || readUserFromStorage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
 
