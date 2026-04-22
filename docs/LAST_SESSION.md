@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 12:26
+**Дата:** 2026-04-22 12:33
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+7f05111 Auto-save at end of session
 8a3a56c Auto-save at end of session
 900af7a Auto-save at end of session
 8d76b59 Auto-save at end of session
 d7680be Navigation fixes: logo→home, modal auto-close, dedup manager menu
-ab0aeb8 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
