@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 14:18
+**Дата:** 2026-04-22 14:57
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+b2a0216 Revert: restore 'Аналитика директора' button (it was the working one)
+6fc5222 Remove broken 'Аналитика директора' button from sidebar
+f874c67 Auto-save at end of session
 d338e07 Auto-save at end of session
 b95b112 Fix director dashboard 404s: add /tab/ prefix to API calls
-dc10149 Auto-save at end of session
-71208ad Auto-save at end of session
-d5e4b47 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
