@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 15:38
+**Дата:** 2026-04-22 15:48
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+1808812 Auto-save at end of session
 c34da5f Auto-save at end of session
 89452bc Auto-save at end of session
 c62de5d Fix white screen: AppLayout now reads user from localStorage as fallback
 0b61405 Auto-save at end of session
-a1eef2b Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
