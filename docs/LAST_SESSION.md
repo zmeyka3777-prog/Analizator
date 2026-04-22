@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 15:23
+**Дата:** 2026-04-22 15:30
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+c62de5d Fix white screen: AppLayout now reads user from localStorage as fallback
+0b61405 Auto-save at end of session
 a1eef2b Auto-save at end of session
 504a494 Auto-save at end of session
 3367972 Auto-save at end of session
-b2a0216 Revert: restore 'Аналитика директора' button (it was the working one)
-6fc5222 Remove broken 'Аналитика директора' button from sidebar
 ```
 
 ## Для нового Claude (инструкции)
