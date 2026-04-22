@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 13:04
+**Дата:** 2026-04-22 13:40
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+b95b112 Fix director dashboard 404s: add /tab/ prefix to API calls
+dc10149 Auto-save at end of session
 71208ad Auto-save at end of session
 d5e4b47 Auto-save at end of session
 4ae8205 Auto-save at end of session
-2fb3a5b Auto-save at end of session
-7f05111 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
