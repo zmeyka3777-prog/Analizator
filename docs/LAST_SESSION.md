@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+2fb3a5b Auto-save at end of session
 7f05111 Auto-save at end of session
 8a3a56c Auto-save at end of session
 900af7a Auto-save at end of session
 8d76b59 Auto-save at end of session
-d7680be Navigation fixes: logo→home, modal auto-close, dedup manager menu
 ```
 
 ## Для нового Claude (инструкции)
