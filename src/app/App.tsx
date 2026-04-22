@@ -23,7 +23,7 @@ import { parseFile, aggregateData, type ParsedData, type AggregatedData } from '
 import { MultiSelect, type MultiSelectOption } from './components/ui/multi-select';
 import { WMRussiaApp } from './components/wm-russia/WMRussiaApp';
 import { ThemeProvider } from '../contexts/ThemeContext';
-import { DirectorDashboard } from './components/director/DirectorDashboard';
+// DirectorDashboard (старая mock-панель) удалена — используется DirectorWMDashboard через appMode='wm-russia'
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useSharedData, MDLPSaleRecord } from '../context/SharedDataContext';
 import { DrugPriceEntry, findDrugPrice, convertToMoney, formatMoney, formatMoneyFull, formatPackages, formatValue, convertTotal, convertDrugBreakdownToRubles, formatDual, calcRublesRatio } from '../lib/priceUtils';
@@ -42,7 +42,7 @@ export default function MDLPAnalyzerPro() {
   const [chartsReady, setChartsReady] = useState(false);
   
   // Toggle between MDLP, WM Russia, and Director modes
-  const [appMode, setAppMode] = useState<'mdlp' | 'wm-russia' | 'director'>('mdlp');
+  const [appMode, setAppMode] = useState<'mdlp' | 'wm-russia'>('mdlp');
   const [drugPrices, setDrugPrices] = useState<DrugPriceEntry[]>([]);
   
   // Shared data context for syncing between MDLP and WM Russia
@@ -3632,21 +3632,8 @@ export default function MDLPAnalyzerPro() {
                   </span>
                 )}
               </button>
-              {currentUser.role === 'director' && (
-                <button
-                  onClick={() => setAppMode('director')}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm relative overflow-hidden ${
-                    appMode === 'director'
-                      ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/10 text-purple-300 border border-purple-500/30 shadow-lg shadow-purple-500/10'
-                      : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-[1.02]'
-                  }`}
-                >
-                  <BarChart3 size={18} className="flex-shrink-0" />
-                  {!sidebarCollapsed && (
-                    <span className="flex-1 text-left font-medium">Аналитика директора</span>
-                  )}
-                </button>
-              )}
+              {/* Кнопка «Аналитика директора» удалена — её функционал полностью перенесён
+                  в «Панель директора WM» (appMode='wm-russia'). */}
             </>
           )}
 
@@ -3674,13 +3661,8 @@ export default function MDLPAnalyzerPro() {
       {/* Main */}
       <main className="flex-1 overflow-auto">
       <ErrorBoundary fallbackLabel="содержимого">{/* ErrorBoundary wrap */}
-        {/* Director Dashboard Mode */}
-        {appMode === 'director' ? (
-          <DirectorDashboard 
-            onBack={() => setAppMode('mdlp')} 
-            userName={currentUser?.name || 'Иванов Иван Иванович'} 
-          />
-        ) : (
+        {/* Director Dashboard Mode удалён — используйте appMode='wm-russia' */}
+        {false ? null : (
         <>
         {/* Top Bar с фильтрами */}
         {dataLoaded && (

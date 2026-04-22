@@ -232,16 +232,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     }
   };
 
-  const handleRoleSwitch = (role: WMUserRole, userId?: string) => {
-    if (userId) {
-      const user = wmMockUsers.find(u => u.id === userId);
-      if (user) {
-        setCurrentUser(user);
-        localStorage.setItem('wm_russia_user', JSON.stringify(user));
-        setActiveSection(getDefaultSection(user.role));
-      }
-    }
-  };
+  // handleRoleSwitch удалён — каждый пользователь видит только свою роль и свои данные.
+  // Переключение ролей между пользователями не поддерживается (требует отдельного логина).
 
   const getRoleName = (role: WMUserRole): string => {
     switch (role) {
@@ -396,7 +388,6 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
       <DirectorWMDashboard
         allMedReps={salesData}
         activeSection={activeSection}
-        onRoleSwitch={handleRoleSwitch}
         mdlpUserId={mdlpUserId}
         onLogout={handleLogout}
         onBackToMDLP={onBackToMDLP}

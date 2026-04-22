@@ -117,13 +117,9 @@ const PERIOD_PRESETS = [
 
 const MONTH_NAMES = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 
-const MOCK_SAVED_REPORTS: SavedReport[] = [
-  { id: '1', name: 'Ежемесячный отчёт - Январь 2026', template: 'monthly', format: 'pdf', date: '31.01.2026', size: '2.4 МБ', status: 'ready' },
-  { id: '2', name: 'Квартальный отчёт - Q4 2025', template: 'quarterly', format: 'excel', date: '15.01.2026', size: '5.1 МБ', status: 'ready' },
-  { id: '3', name: 'Годовой отчёт 2025', template: 'annual', format: 'pdf', date: '10.01.2026', size: '12.8 МБ', status: 'ready' },
-  { id: '4', name: 'Отчёт по НПВС - Декабрь 2025', template: 'custom', format: 'csv', date: '05.01.2026', size: '0.8 МБ', status: 'ready' },
-  { id: '5', name: 'Ежемесячный отчёт - Декабрь 2025', template: 'monthly', format: 'excel', date: '31.12.2025', size: '3.2 МБ', status: 'expired' },
-];
+// Архив отчётов загружается с сервера (см. useEffect в компоненте).
+// Пустой массив — потому что пока пользователь не сохранил ни одного отчёта.
+const INITIAL_SAVED_REPORTS: SavedReport[] = [];
 
 // ==================== ФОРМАТИРОВАНИЕ ====================
 
@@ -1105,7 +1101,37 @@ export default function ReportsTabLight() {
   const [status, setStatus] = useState<GenerationStatus>('idle');
   const [progress, setProgress] = useState(0);
   const [generatedReport, setGeneratedReport] = useState<GeneratedReport | null>(null);
-  const [savedReports, setSavedReports] = useState<SavedReport[]>(MOCK_SAVED_REPORTS);
+  const [savedReports, setSavedReports] = useState<SavedReport[]>(INITIAL_SAVED_REPORTS);
+
+  // Подгружаем реальные сохранённые отчёты текущего юзера с сервера.
+  useEffect(() => {
+    const token = localStorage.getItem('wm_auth_token');
+    if (!token) return;
+    let userId: string | number | null = null;
+    try {
+      const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+      if (raw) userId = JSON.parse(raw)?.id ?? null;
+    } catch { /* битый localStorage — игнорируем */ }
+    if (!userId) return;
+
+    fetch(`/api/reports/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then((reports: any[]) => {
+        if (!Array.isArray(reports)) return;
+        const mapped: SavedReport[] = reports.map(r => ({
+          id: String(r.id),
+          name: r.name || r.title || 'Без названия',
+          template: (r.type || 'custom') as ReportTemplate,
+          format: 'pdf' as ReportFormat,
+          date: r.createdAt ? new Date(r.createdAt).toLocaleDateString('ru-RU') : '',
+          size: '—',
+          status: 'ready' as const,
+          reportData: r.data,
+        }));
+        setSavedReports(mapped);
+      })
+      .catch(err => console.warn('[Reports] Не удалось загрузить архив:', err));
+  }, []);
   const [savedNotice, setSavedNotice] = useState(false);
 
   // Держим ссылку на interval генерации, чтобы очистить при unmount.
