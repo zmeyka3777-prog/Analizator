@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 16:26
+**Дата:** 2026-04-22 16:30
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+1d14340 Auto-save at end of session
 1a625d8 Per-user изоляция: событие user-changed при login/logout
 026912f Auto-save at end of session
 7727882 Этап A: Единый источник данных для всех дашбордов
 6f18967 Auto-save at end of session
-1808812 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
