@@ -159,6 +159,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
       localStorage.setItem('wm_auth_token', data.token);
       // Вычищаем устаревшие ключи токенов (legacy)
       ['mdlp_auth_token', 'mdlp_token', 'token'].forEach(k => localStorage.removeItem(k));
+      // Оповещаем SharedDataProvider что сменился пользователь
+      window.dispatchEvent(new Event('user-changed'));
 
       const user: WMUser = {
         id: data.id,
@@ -223,6 +225,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
     ].forEach(k => localStorage.removeItem(k));
     setLoginEmail('');
     setActiveSection('');
+    // Очищаем данные прежнего юзера в SharedDataProvider
+    window.dispatchEvent(new Event('user-changed'));
     if (onLogoutToMain) {
       onLogoutToMain();
     }

@@ -503,10 +503,21 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
   }, [transformMdlpToWmRussia]);
 
   useEffect(() => {
-    reloadFromServer(); // первичная загрузка
-    const handler = () => reloadFromServer();
-    window.addEventListener('mdlp-data-updated', handler);
-    return () => window.removeEventListener('mdlp-data-updated', handler);
+    reloadFromServer(); // первичная загрузка для текущего юзера
+    const dataHandler = () => reloadFromServer();
+    // Смена пользователя — очищаем старые данные и подтягиваем новые
+    const userChangedHandler = () => {
+      setMdlpDataState([]);
+      setWmRussiaDataState([]);
+      setLastUploadDate(null);
+      reloadFromServer();
+    };
+    window.addEventListener('mdlp-data-updated', dataHandler);
+    window.addEventListener('user-changed', userChangedHandler);
+    return () => {
+      window.removeEventListener('mdlp-data-updated', dataHandler);
+      window.removeEventListener('user-changed', userChangedHandler);
+    };
   }, [reloadFromServer]);
 
   return (

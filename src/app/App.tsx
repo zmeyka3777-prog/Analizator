@@ -1665,6 +1665,9 @@ export default function MDLPAnalyzerPro() {
       localStorage.setItem('mdlp_user', JSON.stringify(user));
       setShowUserSelect(false);
 
+      // Оповещаем SharedDataProvider что сменился пользователь → очистить/перезагрузить данные
+      window.dispatchEvent(new Event('user-changed'));
+
       loadSavedYearlyData(response.id);
     } catch (error: any) {
       console.error('[Login] Ошибка авторизации:', error);
@@ -1752,6 +1755,8 @@ export default function MDLPAnalyzerPro() {
     setShowUserSelect(true);
     setDataLoaded(false);
     setActiveTab('upload');
+    // Очищаем данные прежнего юзера в SharedDataProvider
+    window.dispatchEvent(new Event('user-changed'));
   };
 
   const navigateTo = (tab) => {
