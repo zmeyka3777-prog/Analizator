@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-04-22 20:17
+**Дата:** 2026-05-03 20:58
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+d222309 Auto-save at end of session
 341da5f Этап D: Удалить mock-данные из salesData / wmRussiaData
 4f918b5 Auto-save at end of session
 6067284 Этап B+C: убрать mock-данные и удалить старую панель директора
 af48b46 Auto-save at end of session
-1d14340 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
