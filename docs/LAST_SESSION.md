@@ -1,27 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-24 23:23
+**Дата:** 2026-05-24 23:30
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-.playwright-mcp/page-2026-05-24T16-03-13-221Z.yml
-.playwright-mcp/page-2026-05-24T20-19-54-381Z.yml
-.playwright-mcp/page-2026-05-24T20-20-21-393Z.yml
-.playwright-mcp/page-2026-05-24T20-21-01-900Z.yml
-.playwright-mcp/page-2026-05-24T20-21-53-254Z.yml
-.playwright-mcp/page-2026-05-24T20-22-26-155Z.yml
+нет изменений
 ```
 
 ## Последние 5 коммитов
 
 ```
+ebbe06e Auto-save at end of session
 bdef877 feat: revenue=units×price + фильтр месяцев во всех ключевых компонентах
 ec3c598 Auto-save at end of session
 561b675 fix: TerritoriesAnalytics ПФО — динамический currentYear вместо хардкода 2025
 73020c0 feat: глобальные фильтры (месяцы + рубли/упак) и 14 регионов ПФО
-1e1eba6 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
