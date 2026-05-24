@@ -514,7 +514,9 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       // Синхронизируем SALES_DATA — чтобы getSalesData()/getTotalStats()/
       // aggregateByProduct() в DirectorWMDashboard возвращали реальные данные.
       setSalesDataFromMdlp(mdlpRecords);
-      console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
+      if (import.meta.env.DEV) {
+        console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
+      }
     } catch (err) {
       console.warn('[SharedData] Не удалось подгрузить данные из БД:', err);
     }

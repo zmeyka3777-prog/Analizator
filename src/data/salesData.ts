@@ -84,7 +84,9 @@ export function setSalesDataFromMdlp(records: Array<{
   }
   SALES_DATA.length = 0;
   SALES_DATA.push(...mapped);
-  console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length}`);
+  if (import.meta.env.DEV) {
+    console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length}`);
+  }
 }
 
 // Полный список 14 регионов Приволжского ФО

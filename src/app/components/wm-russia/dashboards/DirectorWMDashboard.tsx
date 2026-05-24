@@ -185,11 +185,24 @@ const DashboardView = () => {
   const { selectedMonths } = useGlobalFilters();
   const { wmRussiaData } = useSharedData();
 
+  // Динамические годы — раньше был хардкод 2024/2025/2026, который сломался
+  // бы 2027-01-01. Берём текущий год из системы.
+  const now = new Date();
+  const yearCurrent = now.getFullYear();
+  const yearPrev = yearCurrent - 1;
+  const yearNext = yearCurrent + 1;
+
   // Все стат-расчёты пересчитываются при изменении фильтра месяцев и при
-  // загрузке новых данных.
-  const stats2024 = useMemo(() => getTotalStats(2024, selectedMonths), [selectedMonths, wmRussiaData]);
-  const stats2025 = useMemo(() => getTotalStats(2025, selectedMonths), [selectedMonths, wmRussiaData]);
-  const stats2026 = useMemo(() => getTotalStats(2026, selectedMonths), [selectedMonths, wmRussiaData]);
+  // загрузке новых данных. Имена statsPrev/Current/Next вместо stats2024/...
+  // чтобы не приходилось переименовывать каждый год.
+  const statsPrev = useMemo(() => getTotalStats(yearPrev, selectedMonths), [selectedMonths, wmRussiaData, yearPrev]);
+  const statsCurrent = useMemo(() => getTotalStats(yearCurrent, selectedMonths), [selectedMonths, wmRussiaData, yearCurrent]);
+  const statsNext = useMemo(() => getTotalStats(yearNext, selectedMonths), [selectedMonths, wmRussiaData, yearNext]);
+
+  // Aliasing для остального кода (graph data) который ссылается на конкретные годы.
+  const stats2024 = statsPrev;
+  const stats2025 = statsCurrent;
+  const stats2026 = statsNext;
 
   const growthPercent = stats2024.totalRevenue > 0 ? ((stats2025.totalRevenue - stats2024.totalRevenue) / stats2024.totalRevenue) * 100 : 0;
   const growth2026Percent = stats2025.totalRevenue > 0 ? ((stats2026.totalRevenue - stats2025.totalRevenue) / stats2025.totalRevenue) * 100 : 0;
@@ -197,10 +210,10 @@ const DashboardView = () => {
   const planExecution = totalBudget2025 > 0 ? (stats2025.totalRevenue / totalBudget2025) * 100 : 0;
 
   const kpiCards = [
-    { title: 'Продажи 2025', value: formatCurrency(stats2025.totalRevenue), change: `+${growthPercent.toFixed(1)}%`, trend: 'up', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: `План: ${formatCurrency(totalBudget2025)}` },
-    { title: 'Продажи 2026', value: formatCurrency(stats2026.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `План: ${formatCurrency(stats2026.totalRevenue * 1.15)}` },
+    { title: `Продажи ${yearCurrent}`, value: formatCurrency(stats2025.totalRevenue), change: `+${growthPercent.toFixed(1)}%`, trend: 'up', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: `План: ${formatCurrency(totalBudget2025)}` },
+    { title: `Продажи ${yearNext} (прогноз)`, value: formatCurrency(stats2026.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `План: ${formatCurrency(stats2026.totalRevenue * 1.15)}` },
     { title: 'Выполнение плана', value: `${planExecution.toFixed(1)}%`, change: `${formatCurrency(totalBudget2025)}`, trend: planExecution > 100 ? 'up' : 'neutral', icon: Target, gradient: planExecution > 100 ? 'from-green-500 to-green-600' : 'from-yellow-500 to-yellow-600', color: planExecution > 100 ? 'green' : 'yellow' },
-    { title: 'Рост vs 2025', value: formatCurrency(stats2026.totalRevenue - stats2025.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: ArrowUpRight, gradient: 'from-blue-500 to-blue-600', color: 'blue' },
+    { title: `Рост vs ${yearCurrent}`, value: formatCurrency(stats2026.totalRevenue - stats2025.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: ArrowUpRight, gradient: 'from-blue-500 to-blue-600', color: 'blue' },
   ];
 
   const salesTrendData = getMonthlyDynamics();

@@ -35,8 +35,13 @@ export function GlobalFilterControls({ variant = 'light', compact = false }: Pro
     return () => document.removeEventListener('mousedown', onClick);
   }, [monthsOpen]);
 
+  // Семантически разные состояния:
+  //   - пустой массив = "Без фильтра" (фильтр выключен)
+  //   - 12 выбранных = "Все месяцы" (фильтр включён, отмечены все)
+  //   - 1 = название месяца
+  //   - 2-11 = "N мес."
   const monthsLabel = selectedMonths.length === 0
-    ? 'Все месяцы'
+    ? 'Без фильтра'
     : selectedMonths.length === 12
       ? 'Все месяцы'
       : selectedMonths.length === 1

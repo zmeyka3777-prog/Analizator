@@ -10,7 +10,7 @@
 //   if (isMonthSelected(record.month)) { ... }
 //   const value = metric === 'rubles' ? record.revenue : record.units;
 
-import React, { createContext, useContext, useState, useCallback, useMemo, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
 
 export type Metric = 'rubles' | 'packages';
 
@@ -96,8 +96,19 @@ export function GlobalFiltersProvider({ children }: { children: ReactNode }) {
   const reset = useCallback(() => {
     setSelectedMonthsState([]);
     setMetricState('packages');
-    persist([], 'packages');
-  }, [persist]);
+    try {
+      localStorage.removeItem('globalFilters');
+    } catch { /* quota — игнор */ }
+  }, []);
+
+  // Сбрасываем фильтры при смене пользователя — иначе фильтр одного юзера
+  // подхватывается следующим, кто залогинится в том же браузере. Событие
+  // 'user-changed' диспатчат обе login-формы (App.tsx и WMRussiaApp.tsx) и logout.
+  useEffect(() => {
+    const handler = () => reset();
+    window.addEventListener('user-changed', handler);
+    return () => window.removeEventListener('user-changed', handler);
+  }, [reset]);
 
   const value = useMemo<GlobalFiltersContextType>(() => ({
     selectedMonths, setSelectedMonths, toggleMonth, isMonthSelected,
