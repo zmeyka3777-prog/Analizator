@@ -65,16 +65,37 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     });
     if (!response.ok) return false;
     const data = await response.json();
-    if (!data?.token || !data?.user) return false;
+    // Сервер /api/auth/login отвечает ПЛОСКО: { id, email, name, role, avatar, token }.
+    // Раньше код ждал data.user — никогда не срабатывал. Поддерживаем оба формата
+    // на случай если в будущем wrapper user появится.
+    const token: string | undefined = data?.token;
+    const u = data?.user ?? data;
+    if (!token || !u?.id || !u?.email) return false;
     localStorage.setItem('wm_auth_token', data.token);
     const user: SessionUser = {
-      id: data.user.id,
-      email: data.user.email,
-      fullName: data.user.name || data.user.fullName || data.user.email,
-      role: data.user.role,
-      avatar: data.user.avatar,
+      id: u.id,
+      email: u.email,
+      fullName: u.fullName || u.name || u.email,
+      role: u.role,
+      territory: u.territory,
+      district: u.district,
+      region: u.region,
+      avatar: u.avatar,
     };
     setCurrentUser(user);
+    // Синхронизируем mdlp_user — другие части кода (App.tsx, WMRussiaApp.tsx,
+    // SharedDataProvider) читают user оттуда. Без этого они не узнают про login.
+    try {
+      localStorage.setItem('mdlp_user', JSON.stringify({
+        id: user.id,
+        email: user.email,
+        name: user.fullName,
+        fullName: user.fullName,
+        role: user.role,
+        avatar: user.avatar,
+      }));
+    } catch { /* quota */ }
+    window.dispatchEvent(new Event('user-changed'));
     return true;
   };
 
@@ -82,6 +103,9 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setCurrentUser(null);
     AUTH_KEYS.forEach(k => localStorage.removeItem(k));
     localStorage.removeItem('mdlp_auth_token');
+    // Оповещаем GlobalFiltersProvider/SharedDataProvider что юзер ушёл —
+    // чтобы они очистили данные и фильтры.
+    window.dispatchEvent(new Event('user-changed'));
   };
 
   const updateUser = (updates: Partial<SessionUser>) => {
