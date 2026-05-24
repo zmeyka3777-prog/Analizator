@@ -18,6 +18,7 @@ import {
   TERRITORIES,
   getSalesData,
 } from '@/data/salesData';
+import { useSharedData } from '@/context/SharedDataContext';
 
 // ==================== ТИПЫ ====================
 
@@ -1086,12 +1087,20 @@ const ArchiveView = ({
 // ==================== ОСНОВНОЙ КОМПОНЕНТ ====================
 
 export default function ReportsTabLight() {
+  // Подписка на единый источник — после загрузки файла компонент пере-рендерится,
+  // и при следующей генерации отчёта данные будут актуальные.
+  const { wmRussiaData } = useSharedData();
+
   const [view, setView] = useState<ReportsView>('builder');
+  // Дефолтный период — текущий год полностью (раньше был хардкод "Янв 2026"
+  // что приводило к нулевому отчёту если данных за январь нет).
+  const _now = new Date();
+  const _curYear = _now.getFullYear();
   const [config, setConfig] = useState<ReportConfig>({
-    template: 'monthly',
+    template: 'annual',
     format: 'excel',
-    periodStart: '2026-01-01',
-    periodEnd: '2026-01-31',
+    periodStart: `${_curYear}-01-01`,
+    periodEnd: `${_curYear}-12-31`,
     selectedProducts: PRODUCTS.map(p => p.id),
     selectedTerritories: TERRITORIES,
     includeCharts: true,

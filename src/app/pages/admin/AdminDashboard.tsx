@@ -38,7 +38,7 @@ import {
 
 // ==================== ТИПЫ ====================
 
-type AdminTab = 'overview' | 'users' | 'employees' | 'products' | 'territories' | 'years' | 'data' | 'logs';
+type AdminTab = 'overview' | 'users' | 'employees' | 'products' | 'territories' | 'years' | 'data' | 'logs' | 'settings' | 'upload' | 'stats';
 
 interface TabConfig {
   id: AdminTab;
@@ -78,14 +78,17 @@ const ROLE_OPTIONS: { value: Role; label: string; color: string }[] = [
 
 // ==================== КОМПОНЕНТ ====================
 
-// Маппинг sidebar section → внутренняя вкладка.
-// Удалены дублирующие/немые кнопки: 'system-settings', 'upload', 'db-stats'.
+// Маппинг sidebar section → внутренняя вкладка. Каждая кнопка ведёт в свой
+// раздел, без дублей.
 const ADMIN_SECTION_MAP: Record<string, AdminTab> = {
   'admin-panel': 'overview',
   'user-management': 'users',
   'employee-management': 'employees',
   'data-management': 'data',
+  'system-settings': 'settings',
+  'upload': 'upload',
   'activity-log': 'logs',
+  'db-stats': 'stats',
 };
 
 export default function AdminDashboard({ activeSection }: { activeSection?: string }) {
@@ -679,6 +682,66 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
     </div>
   );
 
+  const renderSettings = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-slate-800">Настройки системы</h2>
+        <p className="text-sm text-slate-500 mt-1">Параметры авторизации, безопасности и среды выполнения</p>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">JWT TTL</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">24 часа</p>
+          <p className="text-xs text-slate-400 mt-2">Срок жизни токена авторизации. После истечения требуется повторный вход.</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Bcrypt cost</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">12</p>
+          <p className="text-xs text-slate-400 mt-2">Сложность хеширования паролей при создании/смене.</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Body limit</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">2 МБ</p>
+          <p className="text-xs text-slate-400 mt-2">Лимит JSON-запросов. Загрузка файлов идёт отдельным multipart-каналом.</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Chunk upload</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">20 МБ / 5 ГБ</p>
+          <p className="text-xs text-slate-400 mt-2">Размер чанка / максимальный размер итогового файла.</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Rate limit (login)</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">5 / 15 мин</p>
+          <p className="text-xs text-slate-400 mt-2">Защита от брутфорса на /api/auth/login и /password-reset.</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Среда</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">production</p>
+          <p className="text-xs text-slate-400 mt-2">trust proxy включён, CSP без unsafe-eval, TLS rejectUnauthorized=true.</p>
+        </div>
+      </div>
+    </div>
+  );
+
+  const renderUpload = () => (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-slate-800">Загрузка данных МДЛП</h2>
+        <p className="text-sm text-slate-500 mt-1">Файлы CSV/XLSX/XLS обрабатываются чанками по 20 МБ через основной интерфейс анализатора.</p>
+      </div>
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-8 text-center">
+        <Database className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+        <p className="text-base font-semibold text-slate-700 mb-2">Используйте основную панель «Загрузка»</p>
+        <p className="text-sm text-slate-500 mb-4">
+          Загрузка идёт в раздел МДЛП-аналитики — оттуда все данные распределяются по дашбордам директора, менеджеров и медпредов.
+        </p>
+        <p className="text-xs text-slate-400">Поддерживаемые форматы: .xlsx, .xls, .csv · до 5 ГБ</p>
+      </div>
+    </div>
+  );
+
+  const renderStats = () => <DbStatsPanel />;
+
   const renderTabContent = () => {
     switch (activeTab) {
       case 'overview':
@@ -697,6 +760,12 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
         return renderData();
       case 'logs':
         return renderLogs();
+      case 'settings':
+        return renderSettings();
+      case 'upload':
+        return renderUpload();
+      case 'stats':
+        return renderStats();
       default:
         return renderOverview();
     }
@@ -706,6 +775,139 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
     <div className="min-h-screen p-6 space-y-6">
       {/* Контент вкладки */}
       {renderTabContent()}
+    </div>
+  );
+}
+
+// ==================== СТАТИСТИКА БД ====================
+// Загружает /api/database/stats и показывает память, summary, дубликаты
+// и последние 20 загрузок (доступно только админу — endpoint защищён).
+
+interface DbStats {
+  memory?: { rss: number; heapUsed: number; heapTotal: number };
+  compactRows?: Array<{ user_id: number; year: number; rows: number }>;
+  duplicates?: Array<{ user_id: number; data_type: string; count: number }>;
+  summary?: Array<{ user_id: number; year: number; records: number; total_mb: string }>;
+  uploadHistory?: Array<{ id: number; user_id: number; filename: string; status: string; year_period: string; uploaded_at: string }>;
+}
+
+function DbStatsPanel() {
+  const [stats, setStats] = useState<DbStats | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const token = localStorage.getItem('wm_auth_token');
+    fetch('/api/database/stats', { headers: { Authorization: `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then(setStats)
+      .catch(err => setError(err.message))
+      .finally(() => setLoading(false));
+  }, []);
+
+  if (loading) return <div className="text-center py-12"><Loader2 className="w-6 h-6 animate-spin text-slate-400 mx-auto" /></div>;
+  if (error) return <div className="text-center py-12 text-red-600 text-sm">Ошибка загрузки: {error}</div>;
+
+  const memMB = stats?.memory ? Math.round(stats.memory.heapUsed / 1024 / 1024) : 0;
+  const memTotalMB = stats?.memory ? Math.round(stats.memory.heapTotal / 1024 / 1024) : 0;
+  const totalRows = (stats?.compactRows || []).reduce((s, r) => s + Number(r.rows), 0);
+  const totalSizeMb = (stats?.summary || []).reduce((s, r) => s + parseFloat(r.total_mb || '0'), 0);
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-xl font-bold text-slate-800">Статистика БД</h2>
+        <p className="text-sm text-slate-500 mt-1">PostgreSQL Timeweb · schema world_medicine</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Heap процесса</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">{memMB} МБ</p>
+          <p className="text-xs text-slate-400 mt-1">из {memTotalMB} МБ</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Compact rows</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">{totalRows.toLocaleString('ru-RU')}</p>
+          <p className="text-xs text-slate-400 mt-1">по всем пользователям</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Объём данных</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">{totalSizeMb.toFixed(1)} МБ</p>
+          <p className="text-xs text-slate-400 mt-1">yearly_sales_data</p>
+        </div>
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 p-5">
+          <p className="text-xs text-slate-500 uppercase tracking-wider">Загрузки</p>
+          <p className="text-2xl font-bold text-slate-800 mt-1">{(stats?.uploadHistory || []).length}</p>
+          <p className="text-xs text-slate-400 mt-1">последних в истории</p>
+        </div>
+      </div>
+
+      {(stats?.summary || []).length > 0 && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100">
+            <h3 className="font-semibold text-slate-800">По пользователям и годам</h3>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-2 text-left">User ID</th>
+                <th className="px-4 py-2 text-left">Год</th>
+                <th className="px-4 py-2 text-right">Записей</th>
+                <th className="px-4 py-2 text-right">МБ</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(stats?.summary || []).map((row, i) => (
+                <tr key={`${row.user_id}-${row.year}-${i}`}>
+                  <td className="px-4 py-2 text-slate-700">{row.user_id}</td>
+                  <td className="px-4 py-2 text-slate-700">{row.year}</td>
+                  <td className="px-4 py-2 text-right text-slate-700">{Number(row.records).toLocaleString('ru-RU')}</td>
+                  <td className="px-4 py-2 text-right text-slate-700">{row.total_mb}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {(stats?.uploadHistory || []).length > 0 && (
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl border border-slate-200 overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100">
+            <h3 className="font-semibold text-slate-800">Последние загрузки</h3>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="bg-slate-50 text-xs uppercase text-slate-500">
+              <tr>
+                <th className="px-4 py-2 text-left">ID</th>
+                <th className="px-4 py-2 text-left">User</th>
+                <th className="px-4 py-2 text-left">Файл</th>
+                <th className="px-4 py-2 text-left">Период</th>
+                <th className="px-4 py-2 text-left">Статус</th>
+                <th className="px-4 py-2 text-left">Дата</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100">
+              {(stats?.uploadHistory || []).map(row => (
+                <tr key={row.id}>
+                  <td className="px-4 py-2 text-slate-500">{row.id}</td>
+                  <td className="px-4 py-2 text-slate-700">{row.user_id}</td>
+                  <td className="px-4 py-2 text-slate-700 max-w-xs truncate">{row.filename}</td>
+                  <td className="px-4 py-2 text-slate-700">{row.year_period}</td>
+                  <td className="px-4 py-2">
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      row.status === 'completed' ? 'bg-green-100 text-green-700' :
+                      row.status === 'processing' ? 'bg-amber-100 text-amber-700' :
+                      'bg-red-100 text-red-700'
+                    }`}>{row.status}</span>
+                  </td>
+                  <td className="px-4 py-2 text-slate-500 text-xs">{new Date(row.uploaded_at).toLocaleString('ru-RU')}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
     </div>
   );
 }

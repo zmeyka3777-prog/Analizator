@@ -50,14 +50,14 @@ const menuItemsByRole: Record<WMUserRole, MenuItem[]> = {
     { id: 'upload', label: 'Загрузка данных', icon: '⬆️' },
   ],
   admin: [
-    // Удалены три дубля: 'system-settings', 'upload', 'db-stats' — обработчики
-    // отсутствовали, кнопки возвращали либо обзорный экран, либо дублировали
-    // 'data-management'.
     { id: 'admin-panel', label: 'Панель управления', icon: '🔧' },
     { id: 'user-management', label: 'Пользователи', icon: '👤' },
     { id: 'employee-management', label: 'Сотрудники', icon: '👥' },
     { id: 'data-management', label: 'Управление данными', icon: '🗄️' },
+    { id: 'system-settings', label: 'Настройки системы', icon: '⚙️' },
+    { id: 'upload', label: 'Загрузка данных', icon: '⬆️' },
     { id: 'activity-log', label: 'Журнал активности', icon: '📋' },
+    { id: 'db-stats', label: 'Статистика БД', icon: '📊' },
   ],
 };
 

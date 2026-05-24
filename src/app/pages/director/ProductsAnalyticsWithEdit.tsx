@@ -31,6 +31,7 @@ import { Product } from '@/types/product.types';
 import { getAllProducts, updateProduct, addProduct, deleteProduct } from '@/data/productsManager';
 import EditModal from '@/app/components/modals/EditModal';
 import { useDateContext } from '@/contexts/DateContext';
+import { useSharedData } from '@/context/SharedDataContext';
 
 // Форматирование
 const formatNumber = (num: number): string => new Intl.NumberFormat('ru-RU').format(Math.round(num));
@@ -52,6 +53,8 @@ const CATEGORIES = [
 
 export default function ProductsAnalyticsWithEdit() {
   const { dateSettings } = useDateContext();
+  // Подписываемся на единый источник — после загрузки файла useMemo пересчитает.
+  const { wmRussiaData } = useSharedData();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -97,18 +100,19 @@ export default function ProductsAnalyticsWithEdit() {
   ];
 
   // Получение данных — используем актуальный год из DateContext (а не хардкод 2025).
-  // Раньше aggregateByProduct(2025) возвращало нули потому что реальные данные за 2026.
+  // wmRussiaData в зависимостях — useMemo пересчитает после загрузки файла МДЛП
+  // (SharedDataProvider обновит wmRussiaData → useSharedData вернёт новую ссылку).
   const productsDataCurrent = useMemo(
     () => aggregateByProduct(dateSettings.currentYear),
-    [products, dateSettings.currentYear],
+    [products, dateSettings.currentYear, wmRussiaData],
   );
   const productsDataPrev = useMemo(
     () => aggregateByProduct(dateSettings.previousYear),
-    [products, dateSettings.previousYear],
+    [products, dateSettings.previousYear, wmRussiaData],
   );
   const productsDataNext = useMemo(
     () => aggregateByProduct(dateSettings.nextYear),
-    [products, dateSettings.nextYear],
+    [products, dateSettings.nextYear, wmRussiaData],
   );
 
   // Объединение данных

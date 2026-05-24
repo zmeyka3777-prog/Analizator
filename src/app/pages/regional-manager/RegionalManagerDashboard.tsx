@@ -8,6 +8,7 @@ import { getSalesData, TERRITORIES } from '@/data/salesData';
 import { EMPLOYEES, getSubordinates } from '@/data/employees';
 import { ProductsTab } from './ProductsTab';
 import { EmployeesTabNew } from './EmployeesTabNew';
+import { useSharedData } from '@/context/SharedDataContext';
 
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 
@@ -24,9 +25,11 @@ function OverviewTab() {
   // Берём актуальный год из реальной даты — раньше был хардкод 2025 и все KPI
   // показывали 0 потому что данные за 2026 в БД.
   const year = new Date().getFullYear();
+  // Подписка на единый источник — после загрузки файла useMemo пересчитают.
+  const { wmRussiaData } = useSharedData();
 
   // KPI: общие продажи за год
-  const yearData = useMemo(() => getSalesData({ year }), [year]);
+  const yearData = useMemo(() => getSalesData({ year }), [year, wmRussiaData]);
 
   const totalUnits = useMemo(
     () => yearData.reduce((sum, d) => sum + d.units, 0),
@@ -54,7 +57,7 @@ function OverviewTab() {
       const units = tData.reduce((s, d) => s + d.units, 0);
       return { name: territory, value: units, color: COLORS[i % COLORS.length] };
     });
-  }, [year]);
+  }, [year, wmRussiaData]);
 
   // Помесячная динамика (bar chart)
   const monthlyData = useMemo(() => {
@@ -64,7 +67,7 @@ function OverviewTab() {
       const revenue = mData.reduce((s, d) => s + d.revenue, 0);
       return { month, units, revenue: Math.round(revenue / 1000) };
     });
-  }, [year]);
+  }, [year, wmRussiaData]);
 
   // Топ-5 препаратов
   const topProducts = useMemo(() => {
@@ -77,7 +80,7 @@ function OverviewTab() {
     })
       .sort((a, b) => b.units - a.units)
       .slice(0, 5);
-  }, [year]);
+  }, [year, wmRussiaData]);
 
   return (
     <div className="space-y-6">

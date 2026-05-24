@@ -9,6 +9,7 @@ import { getYears } from '@/utils/dateUtils';
 import { getSalesData } from '@/data/salesData';
 import { PRODUCTS } from '@/data/salesData';
 import { getPlanByTerritory } from '@/data/regionalPlansManager';
+import { useSharedData } from '@/context/SharedDataContext';
 import {
   TrendingUp,
   TrendingDown,
@@ -115,6 +116,9 @@ export default function TerritoriesAnalytics() {
   const [selectedTerritory, setSelectedTerritory] = useState<Territory | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'revenue' | 'growth' | 'name'>('revenue');
+  // Реактивная подписка на единый источник — при загрузке файла все useMemo
+  // пересчитают благодаря изменению ссылки wmRussiaData.
+  const { wmRussiaData } = useSharedData();
 
   // ==================== АНАЛИТИКА ПО ОКРУГАМ ====================
   const districtsAnalytics = useMemo(() => {
@@ -153,9 +157,10 @@ export default function TerritoriesAnalytics() {
         forecast2026: 0,
       };
     });
-  }, []);
+  }, [wmRussiaData]);
 
   // ==================== АНАЛИТИКА ПО РЕГИОНАМ ВЫБРАННОГО ОКРУГА ====================
+  // wmRussiaData в deps — пересчитываем после загрузки файла.
   const selectedDistrictTerritoriesAnalytics = useMemo(() => {
     if (!selectedDistrict) return [];
     
@@ -219,7 +224,7 @@ export default function TerritoriesAnalytics() {
         topProducts: productSales,
       };
     });
-  }, [selectedDistrict]);
+  }, [selectedDistrict, wmRussiaData]);
 
   // ==================== СОРТИРОВКА РЕГИОНОВ ВЫБРАННОГО ОКРУГА ====================
   const sortedSelectedDistrictTerritories = useMemo(() => {

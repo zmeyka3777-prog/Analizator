@@ -5,6 +5,7 @@ import { getSalesData } from '@/data/salesData';
 import { MPDetailModal } from '@/app/components/MPDetailModal';
 import { EditEmployeeModal } from '@/app/components/EditEmployeeModal';
 import { AddEmployeeModal } from '@/app/components/AddEmployeeModal';
+import { useSharedData } from '@/context/SharedDataContext';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
 
@@ -31,6 +32,8 @@ export function EmployeesTabNew() {
 
   // Актуальный год — раньше был хардкод 2025 и факт по МП всегда был 0.
   const year = new Date().getFullYear();
+  // Реактивность: после загрузки файла getMPStats пересчитает.
+  const { wmRussiaData } = useSharedData();
 
   const [expandedTM, setExpandedTM] = useState<string | null>(null);
   const [selectedMP, setSelectedMP] = useState<Employee | null>(null);
@@ -55,8 +58,9 @@ export function EmployeesTabNew() {
     { name: 'Неактивные', value: totalEmployees - activeCount, color: '#ef4444' },
   ];
 
-  // Рассчитать KPI для МП: план-факт
-  const getMPStats = (mp: Employee) => {
+  // Рассчитать KPI для МП: план-факт. Мемоизируем по wmRussiaData чтобы
+  // после загрузки файла все строки таблицы обновились.
+  const getMPStats = React.useCallback((mp: Employee) => {
     const salesData = getSalesData({ territory: mp.territory, year });
     const totalFact = salesData.reduce((s, d) => s + d.units, 0);
     // Делим факт пропорционально между МП на территории
@@ -65,7 +69,8 @@ export function EmployeesTabNew() {
     const mpPlan = Object.values(mp.productPlans).reduce((s, v) => s + v, 0) || Math.round(mpFact * 1.1);
     const pct = mpPlan > 0 ? Math.round((mpFact / mpPlan) * 100) : 0;
     return { fact: mpFact, plan: mpPlan, pct };
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [year, allMPs, wmRussiaData]);
 
   return (
     <div className="space-y-6">

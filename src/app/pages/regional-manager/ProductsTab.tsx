@@ -5,6 +5,7 @@ import {
 } from 'recharts';
 import { PRODUCTS } from '@/data/salesData';
 import { getSalesData, TERRITORIES } from '@/data/salesData';
+import { useSharedData } from '@/context/SharedDataContext';
 
 const MONTHS_SHORT = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 const MONTHS_FULL = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -19,6 +20,8 @@ export function ProductsTab() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   // Берём актуальный год — раньше был хардкод 2025 и все KPI = 0 при данных за 2026.
   const year = new Date().getFullYear();
+  // Реактивность на загрузку файла.
+  const { wmRussiaData } = useSharedData();
 
   // Сводка по всем продуктам
   const productSummary = useMemo(() => {
@@ -39,7 +42,7 @@ export function ProductsTab() {
         budget2025: product.budget2025,
       };
     }).sort((a, b) => b.totalUnits - a.totalUnits);
-  }, [year]);
+  }, [year, wmRussiaData]);
 
   // Данные выбранного продукта: план-факт по месяцам
   const selectedDetail = useMemo(() => {
