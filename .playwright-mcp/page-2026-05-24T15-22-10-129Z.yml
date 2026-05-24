@@ -1,0 +1,57 @@
+- generic [ref=e51]:
+  - generic [ref=e52]:
+    - button "На главную" [ref=e54]:
+      - generic [ref=e56]: WM
+      - generic [ref=e57]:
+        - heading "WM Russia" [level=1] [ref=e58]
+        - paragraph [ref=e59]: Аналитика продаж
+    - button "← Анализатор МДЛП" [ref=e61]:
+      - img [ref=e62]
+      - generic [ref=e64]: ← Анализатор МДЛП
+    - navigation [ref=e65]:
+      - list [ref=e66]:
+        - listitem [ref=e67]:
+          - button "📊 Моя территория" [ref=e68]:
+            - generic [ref=e69]: 📊
+            - generic [ref=e70]: Моя территория
+        - listitem [ref=e72]:
+          - button "👥 Команда" [ref=e73]:
+            - generic [ref=e74]: 👥
+            - generic [ref=e75]: Команда
+        - listitem [ref=e76]:
+          - button "📈 Сравнительная аналитика" [ref=e77]:
+            - generic [ref=e78]: 📈
+            - generic [ref=e79]: Сравнительная аналитика
+        - listitem [ref=e80]:
+          - button "🎯 KPI территории" [ref=e81]:
+            - generic [ref=e82]: 🎯
+            - generic [ref=e83]: KPI территории
+    - generic [ref=e84]:
+      - generic [ref=e85]:
+        - generic [ref=e87]: ТМ
+        - generic [ref=e88]:
+          - paragraph [ref=e89]: ТМ Самара
+          - text: Территориальный менеджер
+      - button "Выйти" [ref=e90]:
+        - img [ref=e91]
+        - text: Выйти
+  - main [ref=e94]:
+    - generic [ref=e96]:
+      - 'heading "Территория: Все территории" [level=1] [ref=e98]'
+      - generic [ref=e99]:
+        - button "MDLP" [ref=e100]:
+          - img [ref=e101]
+          - text: MDLP
+        - generic [ref=e103]:
+          - generic [ref=e105]: ТС
+          - generic [ref=e106]:
+            - paragraph [ref=e107]: ТМ Самара
+            - paragraph [ref=e108]: Территориальный менеджер
+    - generic [ref=e110]:
+      - generic [ref=e111]:
+        - 'heading "Территория: Все территории" [level=2] [ref=e112]'
+        - paragraph [ref=e113]: Данные не загружены
+      - generic [ref=e114]:
+        - img [ref=e116]
+        - paragraph [ref=e118]: Нет данных по территории
+        - paragraph [ref=e119]: Данные за вашу территорию ещё не загружены администратором или директором. После загрузки выгрузки МДЛП аналитика появится автоматически — обновлять страницу не нужно.

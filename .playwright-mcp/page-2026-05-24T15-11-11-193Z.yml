@@ -1,0 +1,408 @@
+- generic [ref=e1]:
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e54]:
+        - button "На главную" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]:
+            - generic [ref=e59]: WM
+            - generic [ref=e60]:
+              - heading "World Medicine" [level=1] [ref=e61]
+              - paragraph [ref=e62]: MDLP Analytics Pro
+        - navigation [ref=e64]:
+          - button "Дашборд" [ref=e65]:
+            - img
+            - text: Дашборд
+          - button "Калькулятор бюджета" [ref=e66]:
+            - img
+            - text: Калькулятор бюджета
+          - button "По препаратам" [ref=e67]:
+            - img
+            - text: По препаратам
+          - button "По территориям" [active] [ref=e68]:
+            - img
+            - text: По территориям
+          - button "Сотрудники" [ref=e69]:
+            - img
+            - text: Сотрудники
+          - button "Отчёты" [ref=e70]:
+            - img
+            - text: Отчёты
+        - generic [ref=e71]:
+          - generic [ref=e73]:
+            - generic [ref=e74]:
+              - button "Январь 1" [ref=e1142]:
+                - img [ref=e76]
+                - generic [ref=e78]: Январь
+                - generic [ref=e1143]: "1"
+                - img [ref=e79]
+              - generic [ref=e1099]:
+                - generic [ref=e1100]:
+                  - generic [ref=e1101]: Месяцы
+                  - generic [ref=e1102]:
+                    - button "Все" [ref=e1103]
+                    - button "Сбросить" [ref=e1104]
+                - generic [ref=e1105]:
+                  - button "Январь" [ref=e1106]:
+                    - img [ref=e1144]
+                    - generic [ref=e1108]: Январь
+                  - button "Февраль" [ref=e1109]:
+                    - generic [ref=e1111]: Февраль
+                  - button "Март" [ref=e1112]:
+                    - generic [ref=e1114]: Март
+                  - button "Апрель" [ref=e1115]:
+                    - generic [ref=e1117]: Апрель
+                  - button "Май" [ref=e1118]:
+                    - generic [ref=e1120]: Май
+                  - button "Июнь" [ref=e1121]:
+                    - generic [ref=e1123]: Июнь
+                  - button "Июль" [ref=e1124]:
+                    - generic [ref=e1126]: Июль
+                  - button "Август" [ref=e1127]:
+                    - generic [ref=e1129]: Август
+                  - button "Сентябрь" [ref=e1130]:
+                    - generic [ref=e1132]: Сентябрь
+                  - button "Октябрь" [ref=e1133]:
+                    - generic [ref=e1135]: Октябрь
+                  - button "Ноябрь" [ref=e1136]:
+                    - generic [ref=e1138]: Ноябрь
+                  - button "Декабрь" [ref=e1139]:
+                    - generic [ref=e1141]: Декабрь
+            - generic [ref=e81]:
+              - button "Рубли" [ref=e82]:
+                - img [ref=e83]
+                - generic [ref=e86]: Рубли
+              - button "Упаковки" [ref=e87]:
+                - img [ref=e88]
+                - generic [ref=e92]: Упаковки
+          - button "Д Директор WM Генеральный директор" [ref=e94]:
+            - generic [ref=e95]: Д
+            - generic [ref=e96]:
+              - paragraph [ref=e97]: Директор WM
+              - paragraph [ref=e98]: Генеральный директор
+            - img [ref=e99]
+    - main [ref=e101]:
+      - generic [ref=e102]:
+        - button "Вернуться в анализатор МДЛП" [ref=e103]:
+          - img [ref=e104]
+          - text: Вернуться в анализатор МДЛП
+        - generic [ref=e106]:
+          - generic [ref=e107]:
+            - img [ref=e109]
+            - generic [ref=e112]:
+              - heading "Панель директора" [level=1] [ref=e113]
+              - paragraph [ref=e114]: Аналитика и планирование продаж
+          - generic [ref=e115]:
+            - button "Управление препаратами" [ref=e116]:
+              - img
+              - text: Управление препаратами
+            - button "Управление территориями" [ref=e117]:
+              - img
+              - text: Управление территориями
+        - generic [ref=e705]:
+          - generic [ref=e706]:
+            - generic [ref=e707]:
+              - heading "Территориальный анализ" [level=2] [ref=e708]
+              - paragraph [ref=e709]: Анализ продаж по федеральным округам и регионам России
+            - button "Экспорт" [ref=e711]:
+              - img
+              - text: Экспорт
+          - generic [ref=e712]:
+            - generic [ref=e713]:
+              - generic [ref=e714]:
+                - paragraph [ref=e715]: Общая выручка
+                - img [ref=e716]
+              - paragraph [ref=e718]: 0 ₽
+              - generic [ref=e719]:
+                - img [ref=e720]
+                - generic [ref=e723]: 0.0% к 2024
+            - generic [ref=e724]:
+              - generic [ref=e725]:
+                - paragraph [ref=e726]: Федеральных округов
+                - img [ref=e727]
+              - paragraph [ref=e731]: "8"
+              - paragraph [ref=e732]: Покрытие всей России
+            - generic [ref=e733]:
+              - generic [ref=e734]:
+                - paragraph [ref=e735]: Лучший округ
+                - img [ref=e736]
+              - paragraph [ref=e739]: ПФО
+              - generic [ref=e740]:
+                - img [ref=e741]
+                - generic [ref=e744]: 0.0%
+            - generic [ref=e745]:
+              - generic [ref=e746]:
+                - paragraph [ref=e747]: Требует внимания
+                - img [ref=e748]
+              - paragraph [ref=e750]: ДФО
+              - generic [ref=e751]:
+                - img [ref=e752]
+                - generic [ref=e755]: 0.0%
+          - generic [ref=e757]:
+            - generic [ref=e758]:
+              - img [ref=e759]
+              - textbox "Поиск по названию округа или региона..." [ref=e762]
+            - combobox [ref=e763]:
+              - option "По выручке" [selected]
+              - option "По росту"
+              - option "По названию"
+          - generic [ref=e764]:
+            - generic [ref=e765]:
+              - heading "Сравнение выручки по округам" [level=3] [ref=e766]:
+                - img [ref=e767]
+                - text: Сравнение выручки по округам
+              - generic [ref=e770]:
+                - img [ref=e771]:
+                  - generic [ref=e776]:
+                    - generic [ref=e778]: ПФО
+                    - generic [ref=e780]: ЦФО
+                    - generic [ref=e782]: СЗФО
+                    - generic [ref=e784]: УФО
+                    - generic [ref=e786]: СФО
+                    - generic [ref=e788]: ЮФО
+                    - generic [ref=e790]: СКФО
+                    - generic [ref=e792]: ДФО
+                  - generic [ref=e793]:
+                    - generic [ref=e794]:
+                      - generic [ref=e796]: "0"
+                      - generic [ref=e798]: "1"
+                      - generic [ref=e800]: "2"
+                      - generic [ref=e802]: "3"
+                      - generic [ref=e804]: "4"
+                    - generic [ref=e805]: млн ₽
+                - list [ref=e807]:
+                  - listitem [ref=e808]:
+                    - img [ref=e809]
+                    - text: Выручка 2024
+                  - listitem [ref=e811]:
+                    - img [ref=e812]
+                    - text: Выручка 2025
+                  - listitem [ref=e814]:
+                    - img [ref=e815]
+                    - text: Прогноз 2026
+            - generic [ref=e817]:
+              - heading "Сравнение упаковок по округам" [level=3] [ref=e818]:
+                - img [ref=e819]
+                - text: Сравнение упаковок по округам
+              - generic [ref=e822]:
+                - img [ref=e823]:
+                  - generic [ref=e828]:
+                    - generic [ref=e830]: ПФО
+                    - generic [ref=e832]: ЦФО
+                    - generic [ref=e834]: СЗФО
+                    - generic [ref=e836]: УФО
+                    - generic [ref=e838]: СФО
+                    - generic [ref=e840]: ЮФО
+                    - generic [ref=e842]: СКФО
+                    - generic [ref=e844]: ДФО
+                  - generic [ref=e845]:
+                    - generic [ref=e846]:
+                      - generic [ref=e848]: "0"
+                      - generic [ref=e1147]: "1"
+                      - generic [ref=e1149]: "2"
+                      - generic [ref=e1151]: "3"
+                      - generic [ref=e1153]: "4"
+                    - generic [ref=e857]: тыс. упак.
+                - list [ref=e859]:
+                  - listitem [ref=e860]:
+                    - img [ref=e861]
+                    - text: Упаковки 2024
+                  - listitem [ref=e863]:
+                    - img [ref=e864]
+                    - text: Упаковки 2025
+                  - listitem [ref=e866]:
+                    - img [ref=e867]
+                    - text: Прогноз 2026
+          - generic [ref=e869]:
+            - generic [ref=e872] [cursor=pointer]:
+              - generic [ref=e873]:
+                - generic [ref=e874]: 🌊
+                - generic [ref=e875]: ПФО
+              - heading "Приволжский федеральный округ" [level=3] [ref=e876]
+              - generic [ref=e877]:
+                - generic [ref=e878]:
+                  - paragraph [ref=e879]: Выручка 2026
+                  - paragraph [ref=e880]: 0 ₽
+                - generic [ref=e881]:
+                  - generic [ref=e882]:
+                    - paragraph [ref=e883]: Продано упак.
+                    - paragraph [ref=e884]: 3 919
+                  - generic [ref=e885]:
+                    - paragraph [ref=e886]: Регионов
+                    - paragraph [ref=e887]: "14"
+              - generic [ref=e888]:
+                - generic [ref=e889]:
+                  - img [ref=e890]
+                  - generic [ref=e893]: 0.0%
+                - generic [ref=e894]: 0.0% от РФ
+              - generic [ref=e895]:
+                - text: Подробнее
+                - img [ref=e896]
+            - generic [ref=e900] [cursor=pointer]:
+              - generic [ref=e901]:
+                - generic [ref=e902]: 🏛️
+                - generic [ref=e903]: ЦФО
+              - heading "Центральный федеральный округ" [level=3] [ref=e904]
+              - generic [ref=e905]:
+                - generic [ref=e906]:
+                  - paragraph [ref=e907]: Выручка 2026
+                  - paragraph [ref=e908]: 0 ₽
+                - generic [ref=e909]:
+                  - generic [ref=e910]:
+                    - paragraph [ref=e911]: Продано упак.
+                    - paragraph [ref=e912]: "0"
+                  - generic [ref=e913]:
+                    - paragraph [ref=e914]: Регионов
+                    - paragraph [ref=e915]: "8"
+              - generic [ref=e916]:
+                - generic [ref=e917]:
+                  - img [ref=e918]
+                  - generic [ref=e921]: 0.0%
+                - generic [ref=e922]: 0.0% от РФ
+              - generic [ref=e923]:
+                - text: Подробнее
+                - img [ref=e924]
+            - generic [ref=e928] [cursor=pointer]:
+              - generic [ref=e929]:
+                - generic [ref=e930]: ⚓
+                - generic [ref=e931]: СЗФО
+              - heading "Северо-Западный федеральный округ" [level=3] [ref=e932]
+              - generic [ref=e933]:
+                - generic [ref=e934]:
+                  - paragraph [ref=e935]: Выручка 2026
+                  - paragraph [ref=e936]: 0 ₽
+                - generic [ref=e937]:
+                  - generic [ref=e938]:
+                    - paragraph [ref=e939]: Продано упак.
+                    - paragraph [ref=e940]: "0"
+                  - generic [ref=e941]:
+                    - paragraph [ref=e942]: Регионов
+                    - paragraph [ref=e943]: "6"
+              - generic [ref=e944]:
+                - generic [ref=e945]:
+                  - img [ref=e946]
+                  - generic [ref=e949]: 0.0%
+                - generic [ref=e950]: 0.0% от РФ
+              - generic [ref=e951]:
+                - text: Подробнее
+                - img [ref=e952]
+            - generic [ref=e956] [cursor=pointer]:
+              - generic [ref=e957]:
+                - generic [ref=e958]: ⛰️
+                - generic [ref=e959]: УФО
+              - heading "Уральский федеральный округ" [level=3] [ref=e960]
+              - generic [ref=e961]:
+                - generic [ref=e962]:
+                  - paragraph [ref=e963]: Выручка 2026
+                  - paragraph [ref=e964]: 0 ₽
+                - generic [ref=e965]:
+                  - generic [ref=e966]:
+                    - paragraph [ref=e967]: Продано упак.
+                    - paragraph [ref=e968]: "0"
+                  - generic [ref=e969]:
+                    - paragraph [ref=e970]: Регионов
+                    - paragraph [ref=e971]: "5"
+              - generic [ref=e972]:
+                - generic [ref=e973]:
+                  - img [ref=e974]
+                  - generic [ref=e977]: 0.0%
+                - generic [ref=e978]: 0.0% от РФ
+              - generic [ref=e979]:
+                - text: Подробнее
+                - img [ref=e980]
+            - generic [ref=e984] [cursor=pointer]:
+              - generic [ref=e985]:
+                - generic [ref=e986]: 🌲
+                - generic [ref=e987]: СФО
+              - heading "Сибирский федеральный округ" [level=3] [ref=e988]
+              - generic [ref=e989]:
+                - generic [ref=e990]:
+                  - paragraph [ref=e991]: Выручка 2026
+                  - paragraph [ref=e992]: 0 ₽
+                - generic [ref=e993]:
+                  - generic [ref=e994]:
+                    - paragraph [ref=e995]: Продано упак.
+                    - paragraph [ref=e996]: "0"
+                  - generic [ref=e997]:
+                    - paragraph [ref=e998]: Регионов
+                    - paragraph [ref=e999]: "6"
+              - generic [ref=e1000]:
+                - generic [ref=e1001]:
+                  - img [ref=e1002]
+                  - generic [ref=e1005]: 0.0%
+                - generic [ref=e1006]: 0.0% от РФ
+              - generic [ref=e1007]:
+                - text: Подробнее
+                - img [ref=e1008]
+            - generic [ref=e1012] [cursor=pointer]:
+              - generic [ref=e1013]:
+                - generic [ref=e1014]: ☀️
+                - generic [ref=e1015]: ЮФО
+              - heading "Южный федеральный округ" [level=3] [ref=e1016]
+              - generic [ref=e1017]:
+                - generic [ref=e1018]:
+                  - paragraph [ref=e1019]: Выручка 2026
+                  - paragraph [ref=e1020]: 0 ₽
+                - generic [ref=e1021]:
+                  - generic [ref=e1022]:
+                    - paragraph [ref=e1023]: Продано упак.
+                    - paragraph [ref=e1024]: "0"
+                  - generic [ref=e1025]:
+                    - paragraph [ref=e1026]: Регионов
+                    - paragraph [ref=e1027]: "6"
+              - generic [ref=e1028]:
+                - generic [ref=e1029]:
+                  - img [ref=e1030]
+                  - generic [ref=e1033]: 0.0%
+                - generic [ref=e1034]: 0.0% от РФ
+              - generic [ref=e1035]:
+                - text: Подробнее
+                - img [ref=e1036]
+            - generic [ref=e1040] [cursor=pointer]:
+              - generic [ref=e1041]:
+                - generic [ref=e1042]: 🏔️
+                - generic [ref=e1043]: СКФО
+              - heading "Северо-Кавказский федеральный округ" [level=3] [ref=e1044]
+              - generic [ref=e1045]:
+                - generic [ref=e1046]:
+                  - paragraph [ref=e1047]: Выручка 2026
+                  - paragraph [ref=e1048]: 0 ₽
+                - generic [ref=e1049]:
+                  - generic [ref=e1050]:
+                    - paragraph [ref=e1051]: Продано упак.
+                    - paragraph [ref=e1052]: "0"
+                  - generic [ref=e1053]:
+                    - paragraph [ref=e1054]: Регионов
+                    - paragraph [ref=e1055]: "5"
+              - generic [ref=e1056]:
+                - generic [ref=e1057]:
+                  - img [ref=e1058]
+                  - generic [ref=e1061]: 0.0%
+                - generic [ref=e1062]: 0.0% от РФ
+              - generic [ref=e1063]:
+                - text: Подробнее
+                - img [ref=e1064]
+            - generic [ref=e1068] [cursor=pointer]:
+              - generic [ref=e1069]:
+                - generic [ref=e1070]: 🌅
+                - generic [ref=e1071]: ДФО
+              - heading "Дальневосточный федеральный округ" [level=3] [ref=e1072]
+              - generic [ref=e1073]:
+                - generic [ref=e1074]:
+                  - paragraph [ref=e1075]: Выручка 2026
+                  - paragraph [ref=e1076]: 0 ₽
+                - generic [ref=e1077]:
+                  - generic [ref=e1078]:
+                    - paragraph [ref=e1079]: Продано упак.
+                    - paragraph [ref=e1080]: "0"
+                  - generic [ref=e1081]:
+                    - paragraph [ref=e1082]: Регионов
+                    - paragraph [ref=e1083]: "6"
+              - generic [ref=e1084]:
+                - generic [ref=e1085]:
+                  - img [ref=e1086]
+                  - generic [ref=e1089]: 0.0%
+                - generic [ref=e1090]: 0.0% от РФ
+              - generic [ref=e1091]:
+                - text: Подробнее
+                - img [ref=e1092]
+  - generic [ref=e683]: "15"

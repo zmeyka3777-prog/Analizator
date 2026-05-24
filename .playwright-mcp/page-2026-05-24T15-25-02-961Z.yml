@@ -1,0 +1,53 @@
+- generic [ref=e51]:
+  - generic [ref=e52]:
+    - button "На главную" [ref=e54]:
+      - generic [ref=e56]: WM
+      - generic [ref=e57]:
+        - heading "WM Russia" [level=1] [ref=e58]
+        - paragraph [ref=e59]: Аналитика продаж
+    - button "← Анализатор МДЛП" [ref=e61]:
+      - img [ref=e62]
+      - generic [ref=e64]: ← Анализатор МДЛП
+    - navigation [ref=e65]:
+      - list [ref=e66]:
+        - listitem [ref=e67]:
+          - button "📊 Мои продажи" [ref=e68]:
+            - generic [ref=e69]: 📊
+            - generic [ref=e70]: Мои продажи
+        - listitem [ref=e72]:
+          - button "📈 Динамика" [ref=e73]:
+            - generic [ref=e74]: 📈
+            - generic [ref=e75]: Динамика
+        - listitem [ref=e76]:
+          - button "🎯 Мои KPI" [ref=e77]:
+            - generic [ref=e78]: 🎯
+            - generic [ref=e79]: Мои KPI
+    - generic [ref=e80]:
+      - generic [ref=e81]:
+        - generic [ref=e83]: ШЕ
+        - generic [ref=e84]:
+          - paragraph [ref=e85]: Шестакова А.В.
+          - text: Медпред
+      - button "Выйти" [ref=e86]:
+        - img [ref=e87]
+        - text: Выйти
+  - main [ref=e90]:
+    - generic [ref=e92]:
+      - heading "Личный кабинет" [level=1] [ref=e94]
+      - generic [ref=e95]:
+        - button "MDLP" [ref=e96]:
+          - img [ref=e97]
+          - text: MDLP
+        - generic [ref=e99]:
+          - generic [ref=e101]: ША
+          - generic [ref=e102]:
+            - paragraph [ref=e103]: Шестакова А.В.
+            - paragraph [ref=e104]: Медпред
+    - generic [ref=e106]:
+      - generic [ref=e107]:
+        - heading "Шестакова А.В." [level=2] [ref=e108]
+        - paragraph [ref=e109]: Данные не загружены
+      - generic [ref=e110]:
+        - img [ref=e112]
+        - paragraph [ref=e114]: Нет данных для отображения
+        - paragraph [ref=e115]: Данные за ваш период ещё не загружены администратором или директором. После загрузки выгрузки МДЛП показатели появятся автоматически — обновлять страницу не нужно.
