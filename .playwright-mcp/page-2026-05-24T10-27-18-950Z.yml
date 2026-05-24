@@ -1,0 +1,340 @@
+- generic [ref=e1]:
+  - generic [ref=e274]:
+    - banner [ref=e275]:
+      - generic [ref=e277]:
+        - button "На главную" [ref=e278] [cursor=pointer]:
+          - generic [ref=e279]:
+            - generic [ref=e282]: WM
+            - generic [ref=e283]:
+              - heading "World Medicine" [level=1] [ref=e284]
+              - paragraph [ref=e285]: MDLP Analytics Pro
+        - navigation [ref=e287]:
+          - button "Дашборд" [ref=e288]:
+            - img
+            - text: Дашборд
+          - button "Калькулятор бюджета" [ref=e289]:
+            - img
+            - text: Калькулятор бюджета
+          - button "По препаратам" [ref=e290]:
+            - img
+            - text: По препаратам
+          - button "По территориям" [ref=e291]:
+            - img
+            - text: По территориям
+          - button "Сотрудники" [active] [ref=e292]:
+            - img
+            - text: Сотрудники
+          - button "Отчёты" [ref=e293]:
+            - img
+            - text: Отчёты
+        - button "Д Директор WM Генеральный директор" [ref=e296]:
+          - generic [ref=e297]: Д
+          - generic [ref=e298]:
+            - paragraph [ref=e299]: Директор WM
+            - paragraph [ref=e300]: Генеральный директор
+          - img [ref=e301]
+    - main [ref=e303]:
+      - generic [ref=e304]:
+        - button "Вернуться в анализатор МДЛП" [ref=e305]:
+          - img [ref=e306]
+          - text: Вернуться в анализатор МДЛП
+        - generic [ref=e308]:
+          - generic [ref=e309]:
+            - img [ref=e311]
+            - generic [ref=e314]:
+              - heading "Панель директора" [level=1] [ref=e315]
+              - paragraph [ref=e316]: Аналитика и планирование продаж
+          - generic [ref=e317]:
+            - button "Управление препаратами" [ref=e318]:
+              - img
+              - text: Управление препаратами
+            - button "Управление территориями" [ref=e319]:
+              - img
+              - text: Управление территориями
+        - generic [ref=e2333]:
+          - generic [ref=e2334]:
+            - heading "Анализ сотрудников" [level=2] [ref=e2335]
+            - button "Все округа" [ref=e2337]:
+              - img [ref=e2338]
+              - text: Все округа
+          - generic [ref=e2341]:
+            - generic [ref=e2342]:
+              - generic [ref=e2343]:
+                - paragraph [ref=e2344]: Организационная структура
+                - img [ref=e2345]
+              - paragraph [ref=e2349]: Российская Федерация
+              - paragraph [ref=e2350]: "Округов: 8 • Территорий: 48 • Сотрудников: 54"
+            - generic [ref=e2351]:
+              - generic [ref=e2354]:
+                - generic [ref=e2355]:
+                  - generic [ref=e2356] [cursor=pointer]: 🌊
+                  - button [ref=e2357]:
+                    - img [ref=e2358]
+                - generic [ref=e2361] [cursor=pointer]:
+                  - heading "ПФО" [level=3] [ref=e2362]
+                  - paragraph [ref=e2363]: Приволжский федеральный округ
+                  - generic [ref=e2364]:
+                    - generic [ref=e2365]:
+                      - paragraph [ref=e2366]: Территориалов
+                      - paragraph [ref=e2367]: "6"
+                    - generic [ref=e2368]:
+                      - paragraph [ref=e2369]: Медпредов
+                      - paragraph [ref=e2370]: "11"
+                  - generic [ref=e2371]:
+                    - generic [ref=e2372]:
+                      - generic [ref=e2373]:
+                        - paragraph [ref=e2374]: План (упак.)
+                        - paragraph [ref=e2375]: 13 920
+                      - generic [ref=e2376]:
+                        - paragraph [ref=e2377]: Факт (упак.)
+                        - paragraph [ref=e2378]: "0"
+                    - generic [ref=e2381]:
+                      - generic [ref=e2382]: Выпо��нение
+                      - generic [ref=e2383]: 0.0%
+                  - generic [ref=e2384]:
+                    - paragraph [ref=e2385]: Региональный менеджер
+                    - generic [ref=e2386]:
+                      - generic [ref=e2387]: СД
+                      - generic [ref=e2388]:
+                        - paragraph [ref=e2389]: Смирнов Д.
+                        - paragraph [ref=e2390]: +7 (987) 654-32-12
+                - img [ref=e2392]
+              - generic [ref=e2396]:
+                - generic [ref=e2397]:
+                  - generic [ref=e2398] [cursor=pointer]: 🏛️
+                  - button [ref=e2399]:
+                    - img [ref=e2400]
+                - generic [ref=e2403] [cursor=pointer]:
+                  - heading "ЦФО" [level=3] [ref=e2404]
+                  - paragraph [ref=e2405]: Центральный федеральный округ
+                  - generic [ref=e2406]:
+                    - generic [ref=e2407]:
+                      - paragraph [ref=e2408]: Территориалов
+                      - paragraph [ref=e2409]: "3"
+                    - generic [ref=e2410]:
+                      - paragraph [ref=e2411]: Медпредов
+                      - paragraph [ref=e2412]: "6"
+                  - generic [ref=e2413]:
+                    - generic [ref=e2414]:
+                      - generic [ref=e2415]:
+                        - paragraph [ref=e2416]: План (упак.)
+                        - paragraph [ref=e2417]: "0"
+                      - generic [ref=e2418]:
+                        - paragraph [ref=e2419]: Факт (упак.)
+                        - paragraph [ref=e2420]: "0"
+                    - generic [ref=e2423]:
+                      - generic [ref=e2424]: Выпо��нение
+                      - generic [ref=e2425]: 0.0%
+                  - generic [ref=e2426]:
+                    - paragraph [ref=e2427]: Региональный менеджер
+                    - generic [ref=e2428]:
+                      - generic [ref=e2429]: ПА
+                      - generic [ref=e2430]:
+                        - paragraph [ref=e2431]: Петров А.
+                        - paragraph [ref=e2432]: +7 (495) 123-45-01
+                - img [ref=e2434]
+              - generic [ref=e2438]:
+                - generic [ref=e2439]:
+                  - generic [ref=e2440] [cursor=pointer]: ⚓
+                  - button [ref=e2441]:
+                    - img [ref=e2442]
+                - generic [ref=e2445] [cursor=pointer]:
+                  - heading "СЗФО" [level=3] [ref=e2446]
+                  - paragraph [ref=e2447]: Северо-Западный федеральный округ
+                  - generic [ref=e2448]:
+                    - generic [ref=e2449]:
+                      - paragraph [ref=e2450]: Территориалов
+                      - paragraph [ref=e2451]: "2"
+                    - generic [ref=e2452]:
+                      - paragraph [ref=e2453]: Медпредов
+                      - paragraph [ref=e2454]: "3"
+                  - generic [ref=e2455]:
+                    - generic [ref=e2456]:
+                      - generic [ref=e2457]:
+                        - paragraph [ref=e2458]: План (упак.)
+                        - paragraph [ref=e2459]: "0"
+                      - generic [ref=e2460]:
+                        - paragraph [ref=e2461]: Факт (упак.)
+                        - paragraph [ref=e2462]: "0"
+                    - generic [ref=e2465]:
+                      - generic [ref=e2466]: Выпо��нение
+                      - generic [ref=e2467]: 0.0%
+                  - generic [ref=e2468]:
+                    - paragraph [ref=e2469]: Региональный менеджер
+                    - generic [ref=e2470]:
+                      - generic [ref=e2471]: КМ
+                      - generic [ref=e2472]:
+                        - paragraph [ref=e2473]: Кузнецов М.
+                        - paragraph [ref=e2474]: +7 (812) 234-56-01
+                - img [ref=e2476]
+              - generic [ref=e2480]:
+                - generic [ref=e2481]:
+                  - generic [ref=e2482] [cursor=pointer]: ⛰️
+                  - button [ref=e2483]:
+                    - img [ref=e2484]
+                - generic [ref=e2487] [cursor=pointer]:
+                  - heading "УФО" [level=3] [ref=e2488]
+                  - paragraph [ref=e2489]: Уральский федеральный округ
+                  - generic [ref=e2490]:
+                    - generic [ref=e2491]:
+                      - paragraph [ref=e2492]: Территориалов
+                      - paragraph [ref=e2493]: "2"
+                    - generic [ref=e2494]:
+                      - paragraph [ref=e2495]: Медпредов
+                      - paragraph [ref=e2496]: "3"
+                  - generic [ref=e2497]:
+                    - generic [ref=e2498]:
+                      - generic [ref=e2499]:
+                        - paragraph [ref=e2500]: План (упак.)
+                        - paragraph [ref=e2501]: "0"
+                      - generic [ref=e2502]:
+                        - paragraph [ref=e2503]: Факт (упак.)
+                        - paragraph [ref=e2504]: "0"
+                    - generic [ref=e2507]:
+                      - generic [ref=e2508]: Выпо��нение
+                      - generic [ref=e2509]: 0.0%
+                  - generic [ref=e2510]:
+                    - paragraph [ref=e2511]: Региональный менеджер
+                    - generic [ref=e2512]:
+                      - generic [ref=e2513]: СВ
+                      - generic [ref=e2514]:
+                        - paragraph [ref=e2515]: Сидоров В.
+                        - paragraph [ref=e2516]: +7 (343) 345-67-01
+                - img [ref=e2518]
+              - generic [ref=e2522]:
+                - generic [ref=e2523]:
+                  - generic [ref=e2524] [cursor=pointer]: 🌲
+                  - button [ref=e2525]:
+                    - img [ref=e2526]
+                - generic [ref=e2529] [cursor=pointer]:
+                  - heading "СФО" [level=3] [ref=e2530]
+                  - paragraph [ref=e2531]: Сибирский федеральный округ
+                  - generic [ref=e2532]:
+                    - generic [ref=e2533]:
+                      - paragraph [ref=e2534]: Территориалов
+                      - paragraph [ref=e2535]: "2"
+                    - generic [ref=e2536]:
+                      - paragraph [ref=e2537]: Медпредов
+                      - paragraph [ref=e2538]: "3"
+                  - generic [ref=e2539]:
+                    - generic [ref=e2540]:
+                      - generic [ref=e2541]:
+                        - paragraph [ref=e2542]: План (упак.)
+                        - paragraph [ref=e2543]: "0"
+                      - generic [ref=e2544]:
+                        - paragraph [ref=e2545]: Факт (упак.)
+                        - paragraph [ref=e2546]: "0"
+                    - generic [ref=e2549]:
+                      - generic [ref=e2550]: Выпо��нение
+                      - generic [ref=e2551]: 0.0%
+                  - generic [ref=e2552]:
+                    - paragraph [ref=e2553]: Региональный менеджер
+                    - generic [ref=e2554]:
+                      - generic [ref=e2555]: ПЕ
+                      - generic [ref=e2556]:
+                        - paragraph [ref=e2557]: Попов Е.
+                        - paragraph [ref=e2558]: +7 (391) 456-78-01
+                - img [ref=e2560]
+              - generic [ref=e2564]:
+                - generic [ref=e2565]:
+                  - generic [ref=e2566] [cursor=pointer]: ☀️
+                  - button [ref=e2567]:
+                    - img [ref=e2568]
+                - generic [ref=e2571] [cursor=pointer]:
+                  - heading "ЮФО" [level=3] [ref=e2572]
+                  - paragraph [ref=e2573]: Южный федеральный округ
+                  - generic [ref=e2574]:
+                    - generic [ref=e2575]:
+                      - paragraph [ref=e2576]: Территориалов
+                      - paragraph [ref=e2577]: "2"
+                    - generic [ref=e2578]:
+                      - paragraph [ref=e2579]: Медпредов
+                      - paragraph [ref=e2580]: "3"
+                  - generic [ref=e2581]:
+                    - generic [ref=e2582]:
+                      - generic [ref=e2583]:
+                        - paragraph [ref=e2584]: План (упак.)
+                        - paragraph [ref=e2585]: "0"
+                      - generic [ref=e2586]:
+                        - paragraph [ref=e2587]: Факт (упак.)
+                        - paragraph [ref=e2588]: "0"
+                    - generic [ref=e2591]:
+                      - generic [ref=e2592]: Выпо��нение
+                      - generic [ref=e2593]: 0.0%
+                  - generic [ref=e2594]:
+                    - paragraph [ref=e2595]: Региональный менеджер
+                    - generic [ref=e2596]:
+                      - generic [ref=e2597]: АГ
+                      - generic [ref=e2598]:
+                        - paragraph [ref=e2599]: Алексеев Г.
+                        - paragraph [ref=e2600]: +7 (861) 567-89-01
+                - img [ref=e2602]
+              - generic [ref=e2606]:
+                - generic [ref=e2607]:
+                  - generic [ref=e2608] [cursor=pointer]: 🏔️
+                  - button [ref=e2609]:
+                    - img [ref=e2610]
+                - generic [ref=e2613] [cursor=pointer]:
+                  - heading "СКФО" [level=3] [ref=e2614]
+                  - paragraph [ref=e2615]: Северо-Кавказский федеральный округ
+                  - generic [ref=e2616]:
+                    - generic [ref=e2617]:
+                      - paragraph [ref=e2618]: Территориалов
+                      - paragraph [ref=e2619]: "2"
+                    - generic [ref=e2620]:
+                      - paragraph [ref=e2621]: Медпредов
+                      - paragraph [ref=e2622]: "2"
+                  - generic [ref=e2623]:
+                    - generic [ref=e2624]:
+                      - generic [ref=e2625]:
+                        - paragraph [ref=e2626]: План (упак.)
+                        - paragraph [ref=e2627]: "0"
+                      - generic [ref=e2628]:
+                        - paragraph [ref=e2629]: Факт (упак.)
+                        - paragraph [ref=e2630]: "0"
+                    - generic [ref=e2633]:
+                      - generic [ref=e2634]: Выпо��нение
+                      - generic [ref=e2635]: 0.0%
+                  - generic [ref=e2636]:
+                    - paragraph [ref=e2637]: Региональный менеджер
+                    - generic [ref=e2638]:
+                      - generic [ref=e2639]: НА
+                      - generic [ref=e2640]:
+                        - paragraph [ref=e2641]: Николаев А.
+                        - paragraph [ref=e2642]: +7 (865) 678-90-01
+                - img [ref=e2644]
+              - generic [ref=e2648]:
+                - generic [ref=e2649]:
+                  - generic [ref=e2650] [cursor=pointer]: 🌅
+                  - button [ref=e2651]:
+                    - img [ref=e2652]
+                - generic [ref=e2655] [cursor=pointer]:
+                  - heading "ДФО" [level=3] [ref=e2656]
+                  - paragraph [ref=e2657]: Дальневосточный федеральный округ
+                  - generic [ref=e2658]:
+                    - generic [ref=e2659]:
+                      - paragraph [ref=e2660]: Территориалов
+                      - paragraph [ref=e2661]: "2"
+                    - generic [ref=e2662]:
+                      - paragraph [ref=e2663]: Медпредов
+                      - paragraph [ref=e2664]: "2"
+                  - generic [ref=e2665]:
+                    - generic [ref=e2666]:
+                      - generic [ref=e2667]:
+                        - paragraph [ref=e2668]: План (упак.)
+                        - paragraph [ref=e2669]: "0"
+                      - generic [ref=e2670]:
+                        - paragraph [ref=e2671]: Факт (упак.)
+                        - paragraph [ref=e2672]: "0"
+                    - generic [ref=e2675]:
+                      - generic [ref=e2676]: Выпо��нение
+                      - generic [ref=e2677]: 0.0%
+                  - generic [ref=e2678]:
+                    - paragraph [ref=e2679]: Региональный менеджер
+                    - generic [ref=e2680]:
+                      - generic [ref=e2681]: БК
+                      - generic [ref=e2682]:
+                        - paragraph [ref=e2683]: Белов К.
+                        - paragraph [ref=e2684]: +7 (423) 789-01-01
+                - img [ref=e2686]
+  - generic [ref=e885]: "65"

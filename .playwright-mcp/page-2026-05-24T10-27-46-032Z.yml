@@ -1,0 +1,232 @@
+- generic [ref=e1]:
+  - generic [ref=e274]:
+    - banner [ref=e275]:
+      - generic [ref=e277]:
+        - button "На главную" [ref=e278] [cursor=pointer]:
+          - generic [ref=e279]:
+            - generic [ref=e282]: WM
+            - generic [ref=e283]:
+              - heading "World Medicine" [level=1] [ref=e284]
+              - paragraph [ref=e285]: MDLP Analytics Pro
+        - navigation [ref=e287]:
+          - button "Дашборд" [ref=e288]:
+            - img
+            - text: Дашборд
+          - button "Калькулятор бюджета" [ref=e289]:
+            - img
+            - text: Калькулятор бюджета
+          - button "По препаратам" [ref=e290]:
+            - img
+            - text: По препаратам
+          - button "По территориям" [ref=e291]:
+            - img
+            - text: По территориям
+          - button "Сотрудники" [ref=e292]:
+            - img
+            - text: Сотрудники
+          - button "Отчёты" [active] [ref=e293]:
+            - img
+            - text: Отчёты
+        - button "Д Директор WM Генеральный директор" [ref=e296]:
+          - generic [ref=e297]: Д
+          - generic [ref=e298]:
+            - paragraph [ref=e299]: Директор WM
+            - paragraph [ref=e300]: Генеральный директор
+          - img [ref=e301]
+    - main [ref=e303]:
+      - generic [ref=e304]:
+        - button "Вернуться в анализатор МДЛП" [ref=e305]:
+          - img [ref=e306]
+          - text: Вернуться в анализатор МДЛП
+        - generic [ref=e308]:
+          - generic [ref=e309]:
+            - img [ref=e311]
+            - generic [ref=e314]:
+              - heading "Панель директора" [level=1] [ref=e315]
+              - paragraph [ref=e316]: Аналитика и планирование продаж
+          - generic [ref=e317]:
+            - button "Управление препаратами" [ref=e318]:
+              - img
+              - text: Управление препаратами
+            - button "Управление территориями" [ref=e319]:
+              - img
+              - text: Управление территориями
+        - generic [ref=e2688]:
+          - generic [ref=e2690]:
+            - heading "Генерация отчётов" [level=2] [ref=e2691]:
+              - img [ref=e2693]
+              - text: Генерация отчётов
+            - paragraph [ref=e2696]: Аналитические отчёты по продажам World Medicine ПФО
+          - generic [ref=e2697]:
+            - button "Конструктор" [ref=e2698]:
+              - img [ref=e2699]
+              - text: Конструктор
+            - button "Просмотр" [disabled] [ref=e2701]:
+              - img [ref=e2702]
+              - text: Просмотр
+            - button "Архив 0" [ref=e2705]:
+              - img [ref=e2706]
+              - text: Архив
+              - generic [ref=e2709]: "0"
+          - generic [ref=e2710]:
+            - generic [ref=e2711]:
+              - generic [ref=e2712]:
+                - heading "Шаблон отчёта" [level=3] [ref=e2713]:
+                  - img [ref=e2714]
+                  - text: Шаблон отчёта
+                - generic [ref=e2717]:
+                  - button "Ежемесячный Отчёт за выбранный месяц с детализацией по препаратам и территориям" [ref=e2718]:
+                    - paragraph [ref=e2719]: Ежемесячный
+                    - paragraph [ref=e2720]: Отчёт за выбранный месяц с детализацией по препаратам и территориям
+                  - button "Квартальный Квартальный сводный отчёт с динамикой и сравнением план/факт" [ref=e2721]:
+                    - paragraph [ref=e2722]: Квартальный
+                    - paragraph [ref=e2723]: Квартальный сводный отчёт с динамикой и сравнением план/факт
+                  - button "Годовой Полный годовой отчёт по всем направлениям деятельности" [ref=e2724]:
+                    - paragraph [ref=e2725]: Годовой
+                    - paragraph [ref=e2726]: Полный годовой отчёт по всем направлениям деятельности
+                  - button "Пользовательский Настраиваемый отчёт с произвольными фильтрами и периодом" [ref=e2727]:
+                    - paragraph [ref=e2728]: Пользовательский
+                    - paragraph [ref=e2729]: Настраиваемый отчёт с произвольными фильтрами и периодом
+              - generic [ref=e2730]:
+                - generic [ref=e2731]:
+                  - heading "Период" [level=3] [ref=e2732]:
+                    - img [ref=e2733]
+                    - text: Период
+                  - generic [ref=e2735]:
+                    - generic [ref=e2736]:
+                      - generic [ref=e2737]: С
+                      - textbox [ref=e2738]: 2026-01-01
+                    - generic [ref=e2739]:
+                      - generic [ref=e2740]: По
+                      - textbox [ref=e2741]: 2026-01-31
+                  - generic [ref=e2742]:
+                    - button "Янв 2026" [ref=e2743]
+                    - button "Q1 2026" [ref=e2744]
+                    - button "Q4 2025" [ref=e2745]
+                    - button "2025 год" [ref=e2746]
+                    - button "2024 год" [ref=e2747]
+                - generic [ref=e2748]:
+                  - heading "Формат экспорта" [level=3] [ref=e2749]:
+                    - img [ref=e2750]
+                    - text: Формат экспорта
+                  - generic [ref=e2753]:
+                    - button "pdf" [ref=e2754]:
+                      - img [ref=e2755]
+                      - generic [ref=e2759]: pdf
+                    - button "excel" [ref=e2760]:
+                      - img [ref=e2761]
+                      - generic [ref=e2764]: excel
+                    - button "csv" [ref=e2765]:
+                      - img [ref=e2766]
+                      - generic [ref=e2769]: csv
+                  - generic [ref=e2770]:
+                    - generic [ref=e2771] [cursor=pointer]:
+                      - checkbox "Сводка (KPI)" [checked] [ref=e2772]
+                      - generic [ref=e2773]: Сводка (KPI)
+                    - generic [ref=e2774] [cursor=pointer]:
+                      - checkbox "Графики динамики" [checked] [ref=e2775]
+                      - generic [ref=e2776]: Графики динамики
+                    - generic [ref=e2777] [cursor=pointer]:
+                      - checkbox "Детализация таблицы" [checked] [ref=e2778]
+                      - generic [ref=e2779]: Детализация таблицы
+              - generic [ref=e2780]:
+                - generic [ref=e2781]:
+                  - generic [ref=e2782]:
+                    - heading "Препараты (12/12)" [level=3] [ref=e2783]:
+                      - img [ref=e2784]
+                      - text: Препараты (12/12)
+                    - generic [ref=e2787]:
+                      - button "Все" [ref=e2788]
+                      - generic [ref=e2789]: "|"
+                      - button "Снять" [ref=e2790]
+                  - generic [ref=e2791]:
+                    - generic [ref=e2792] [cursor=pointer]:
+                      - checkbox "APFECTO" [checked] [ref=e2793]
+                      - generic [ref=e2794]: APFECTO
+                    - generic [ref=e2795] [cursor=pointer]:
+                      - checkbox "ARTOXAN GEL" [checked] [ref=e2796]
+                      - generic [ref=e2797]: ARTOXAN GEL
+                    - generic [ref=e2798] [cursor=pointer]:
+                      - checkbox "ARTOXAN LYOF 20MG" [checked] [ref=e2799]
+                      - generic [ref=e2800]: ARTOXAN LYOF 20MG
+                    - generic [ref=e2801] [cursor=pointer]:
+                      - checkbox "ARTOXAN 20MG" [checked] [ref=e2802]
+                      - generic [ref=e2803]: ARTOXAN 20MG
+                    - generic [ref=e2804] [cursor=pointer]:
+                      - checkbox "CLODIFEN NEURO" [checked] [ref=e2805]
+                      - generic [ref=e2806]: CLODIFEN NEURO
+                    - generic [ref=e2807] [cursor=pointer]:
+                      - checkbox "COCARNIT" [checked] [ref=e2808]
+                      - generic [ref=e2809]: COCARNIT
+                    - generic [ref=e2810] [cursor=pointer]:
+                      - checkbox "DORAMYCIN" [checked] [ref=e2811]
+                      - generic [ref=e2812]: DORAMYCIN
+                    - generic [ref=e2813] [cursor=pointer]:
+                      - checkbox "DRASTOP ADVANCE" [checked] [ref=e2814]
+                      - generic [ref=e2815]: DRASTOP ADVANCE
+                    - generic [ref=e2816] [cursor=pointer]:
+                      - checkbox "LIMENDA" [checked] [ref=e2817]
+                      - generic [ref=e2818]: LIMENDA
+                    - generic [ref=e2819] [cursor=pointer]:
+                      - checkbox "ORCIPOL" [checked] [ref=e2820]
+                      - generic [ref=e2821]: ORCIPOL
+                    - generic [ref=e2822] [cursor=pointer]:
+                      - checkbox "RONOCIT" [checked] [ref=e2823]
+                      - generic [ref=e2824]: RONOCIT
+                    - generic [ref=e2825] [cursor=pointer]:
+                      - checkbox "SECNIDOX" [checked] [ref=e2826]
+                      - generic [ref=e2827]: SECNIDOX
+                - generic [ref=e2828]:
+                  - generic [ref=e2829]:
+                    - heading "Территории (6/6)" [level=3] [ref=e2830]:
+                      - img [ref=e2831]
+                      - text: Территории (6/6)
+                    - generic [ref=e2834]:
+                      - button "Все" [ref=e2835]
+                      - generic [ref=e2836]: "|"
+                      - button "Снять" [ref=e2837]
+                  - generic [ref=e2838]:
+                    - generic [ref=e2839] [cursor=pointer]:
+                      - checkbox "Республика Татарстан" [checked] [ref=e2840]
+                      - generic [ref=e2841]: Республика Татарстан
+                    - generic [ref=e2842] [cursor=pointer]:
+                      - checkbox "Самарская область" [checked] [ref=e2843]
+                      - generic [ref=e2844]: Самарская область
+                    - generic [ref=e2845] [cursor=pointer]:
+                      - checkbox "Республика Башкортостан" [checked] [ref=e2846]
+                      - generic [ref=e2847]: Республика Башкортостан
+                    - generic [ref=e2848] [cursor=pointer]:
+                      - checkbox "Нижегородская область" [checked] [ref=e2849]
+                      - generic [ref=e2850]: Нижегородская область
+                    - generic [ref=e2851] [cursor=pointer]:
+                      - checkbox "Пензенская область" [checked] [ref=e2852]
+                      - generic [ref=e2853]: Пензенская область
+                    - generic [ref=e2854] [cursor=pointer]:
+                      - checkbox "Республика Мордовия" [checked] [ref=e2855]
+                      - generic [ref=e2856]: Республика Мордовия
+            - generic [ref=e2857]:
+              - generic [ref=e2858]:
+                - heading "Конфигурация отчёта" [level=3] [ref=e2859]:
+                  - img [ref=e2860]
+                  - text: Конфигурация отчёта
+                - generic [ref=e2863]:
+                  - generic [ref=e2864]:
+                    - paragraph [ref=e2865]: Ежемесячный отчёт
+                    - paragraph [ref=e2866]: 2026-01-01 — 2026-01-31
+                  - generic [ref=e2867]:
+                    - generic [ref=e2868]:
+                      - generic [ref=e2869]: Препараты
+                      - generic [ref=e2870]: Все препараты (12)
+                    - generic [ref=e2871]:
+                      - generic [ref=e2872]: Формат
+                      - generic [ref=e2873]: EXCEL
+                    - generic [ref=e2874]:
+                      - generic [ref=e2875]: Разделы
+                      - generic [ref=e2876]:
+                        - generic [ref=e2877]: KPI
+                        - generic [ref=e2878]: График
+                        - generic [ref=e2879]: Таблица
+              - button "Сформировать отчёт" [ref=e2881]:
+                - img [ref=e2882]
+                - text: Сформировать отчёт
+  - generic [ref=e885]: "65"
