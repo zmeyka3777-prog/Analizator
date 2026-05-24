@@ -110,9 +110,13 @@ export function setSalesDataFromMdlp(
   }
   SALES_DATA.length = 0;
   SALES_DATA.push(...mapped);
+  // Перестраиваем индексы после каждой загрузки — даёт O(1) lookup для
+  // (year+month+productId) и других частых комбинаций. Перестроение
+  // линейное по числу записей, для 313K ~ 20-50 мс.
+  rebuildIndexes();
   if (import.meta.env.DEV) {
     const priceSrc = dbPrices.length > 0 ? `${dbPrices.length} цен из БД` : 'fallback на PRODUCTS';
-    console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length} (${priceSrc})`);
+    console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length} (${priceSrc}), индексы перестроены`);
   }
 }
 
@@ -147,6 +151,41 @@ export interface SalesData {
 // Mock-генератор удалён — данные только из реальных загрузок пользователя.
 export const SALES_DATA: SalesData[] = [];
 
+// ==================== ИНДЕКСЫ ДЛЯ БЫСТРОГО ПОИСКА ====================
+// Раньше getSalesData делал full-scan по 313K записей на каждом вызове.
+// При смене фильтра месяцев — 12 препаратов × 14 регионов × 313K итераций.
+// Индексы превращают это в O(1) lookup для типовых запросов.
+//
+// Перестраиваются в конце setSalesDataFromMdlp.
+const INDEX_BY_YEAR_MONTH_PRODUCT = new Map<string, SalesData[]>();
+const INDEX_BY_YEAR_PRODUCT = new Map<string, SalesData[]>();
+const INDEX_BY_YEAR_TERRITORY = new Map<string, SalesData[]>();
+const INDEX_BY_YEAR = new Map<number, SalesData[]>();
+
+function rebuildIndexes(): void {
+  INDEX_BY_YEAR_MONTH_PRODUCT.clear();
+  INDEX_BY_YEAR_PRODUCT.clear();
+  INDEX_BY_YEAR_TERRITORY.clear();
+  INDEX_BY_YEAR.clear();
+
+  for (const d of SALES_DATA) {
+    const ymp = `${d.year}-${d.month}-${d.productId}`;
+    if (!INDEX_BY_YEAR_MONTH_PRODUCT.has(ymp)) INDEX_BY_YEAR_MONTH_PRODUCT.set(ymp, []);
+    INDEX_BY_YEAR_MONTH_PRODUCT.get(ymp)!.push(d);
+
+    const yp = `${d.year}-${d.productId}`;
+    if (!INDEX_BY_YEAR_PRODUCT.has(yp)) INDEX_BY_YEAR_PRODUCT.set(yp, []);
+    INDEX_BY_YEAR_PRODUCT.get(yp)!.push(d);
+
+    const yt = `${d.year}-${d.territory}`;
+    if (!INDEX_BY_YEAR_TERRITORY.has(yt)) INDEX_BY_YEAR_TERRITORY.set(yt, []);
+    INDEX_BY_YEAR_TERRITORY.get(yt)!.push(d);
+
+    if (!INDEX_BY_YEAR.has(d.year)) INDEX_BY_YEAR.set(d.year, []);
+    INDEX_BY_YEAR.get(d.year)!.push(d);
+  }
+}
+
 export function getSalesData(filters?: {
   productId?: string;
   territory?: string;
@@ -155,24 +194,33 @@ export function getSalesData(filters?: {
   /** Массив месяцев (1-12) — для глобального фильтра по месяцам. Пустой/undefined = все. */
   months?: number[];
 }): SalesData[] {
-  let filtered = SALES_DATA;
-
-  if (filters?.productId) {
-    filtered = filtered.filter(d => d.productId === filters.productId);
+  // Быстрые пути через индексы для типичных запросов.
+  if (filters?.year && filters?.month && filters?.productId && !filters?.territory && !filters?.months) {
+    return INDEX_BY_YEAR_MONTH_PRODUCT.get(`${filters.year}-${filters.month}-${filters.productId}`) || [];
+  }
+  if (filters?.year && filters?.productId && !filters?.month && !filters?.territory) {
+    let base = INDEX_BY_YEAR_PRODUCT.get(`${filters.year}-${filters.productId}`) || [];
+    if (filters?.months && filters.months.length > 0) {
+      const monthSet = new Set(filters.months);
+      base = base.filter(d => monthSet.has(d.month));
+    }
+    return base;
+  }
+  if (filters?.year && filters?.territory && !filters?.productId && !filters?.month) {
+    let base = INDEX_BY_YEAR_TERRITORY.get(`${filters.year}-${filters.territory}`) || [];
+    if (filters?.months && filters.months.length > 0) {
+      const monthSet = new Set(filters.months);
+      base = base.filter(d => monthSet.has(d.month));
+    }
+    return base;
   }
 
-  if (filters?.territory) {
-    filtered = filtered.filter(d => d.territory === filters.territory);
-  }
+  // Общий случай: full scan с фильтрами. Используется редко.
+  let filtered: SalesData[] = filters?.year ? (INDEX_BY_YEAR.get(filters.year) || []) : SALES_DATA;
 
-  if (filters?.year) {
-    filtered = filtered.filter(d => d.year === filters.year);
-  }
-
-  if (filters?.month) {
-    filtered = filtered.filter(d => d.month === filters.month);
-  }
-
+  if (filters?.productId) filtered = filtered.filter(d => d.productId === filters.productId);
+  if (filters?.territory) filtered = filtered.filter(d => d.territory === filters.territory);
+  if (filters?.month) filtered = filtered.filter(d => d.month === filters.month);
   if (filters?.months && filters.months.length > 0) {
     const monthSet = new Set(filters.months);
     filtered = filtered.filter(d => monthSet.has(d.month));
