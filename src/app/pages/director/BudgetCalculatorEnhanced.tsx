@@ -1,7 +1,7 @@
 // ==================== УЛУЧШЕННЫЙ КАЛЬКУЛЯТОР БЮДЖЕТА ДИРЕКТОРА ====================
 // Поддержка всех федеральных округов России, сценарии, экспорт данных
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Button } from '@/app/components/ui/button';
 import {
   Calculator,
@@ -29,6 +29,8 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 import { PRODUCTS, aggregateByProduct } from '@/data/salesData';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
+import { useSharedData } from '@/context/SharedDataContext';
 import { getAllDistricts, updateDistrict, addTerritory, updateTerritory, deleteTerritory, addDistrict, deleteDistrict, updateBudget2026 } from '@/data/districtsManager';
 import { FederalDistrict, Territory, getTotalRussiaBudget2025, getDistrictStats } from '@/data/federalDistricts';
 import { getAllProducts } from '@/data/productsManager';
@@ -49,6 +51,10 @@ const formatCurrency = (num: number): string => {
 };
 
 export default function BudgetCalculatorEnhanced() {
+  // Глобальные фильтры — месяцы влияют на агрегацию по препаратам.
+  const { selectedMonths } = useGlobalFilters();
+  const { wmRussiaData } = useSharedData();
+
   // Загрузка округов (с учетом возможных изменений)
   const [FEDERAL_DISTRICTS] = useState(() => getAllDistricts());
   
@@ -324,7 +330,10 @@ export default function BudgetCalculatorEnhanced() {
 
   const COLORS = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#ef4444', '#3b82f6', '#14b8a6'];
 
-  const productsData2025 = aggregateByProduct(2025);
+  const productsData2025 = useMemo(
+    () => aggregateByProduct(2025, selectedMonths),
+    [selectedMonths, wmRussiaData],
+  );
 
   // Статистика по округам
   const districtStats = getDistrictStats();

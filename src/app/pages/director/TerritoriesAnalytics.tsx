@@ -170,25 +170,26 @@ export default function TerritoriesAnalytics() {
   }, [wmRussiaData, selectedMonths, currentYear]);
 
   // ==================== АНАЛИТИКА ПО РЕГИОНАМ ВЫБРАННОГО ОКРУГА ====================
-  // wmRussiaData в deps — пересчитываем после загрузки файла.
+  // wmRussiaData + selectedMonths в deps — пересчёт после загрузки и при фильтре.
   const selectedDistrictTerritoriesAnalytics = useMemo(() => {
     if (!selectedDistrict) return [];
-    
-    // Для ПФО используем реальные данные
+
+    // Для ПФО используем реальные данные. Для прочих ФО реальных данных
+    // у нас нет (закрыт BUG #3) — возвращаем нули, чтобы карточки были честными.
     if (selectedDistrict.id === 'pfo') {
       return selectedDistrict.territories.map(terr => {
-        const data2025 = getSalesData({ territory: terr.name, year: 2025 });
-        const data2024 = getSalesData({ territory: terr.name, year: 2024 });
-        const data2026 = getSalesData({ territory: terr.name, year: 2026 });
+        const dataCurrent = getSalesData({ territory: terr.name, year: currentYear, months: selectedMonths });
+        const dataPrev = getSalesData({ territory: terr.name, year: prevYear, months: selectedMonths });
+        const dataNext = getSalesData({ territory: terr.name, year: nextYear, months: selectedMonths });
 
-        const revenue2025 = data2025.reduce((sum, d) => sum + d.revenue, 0);
-        const revenue2024 = data2024.reduce((sum, d) => sum + d.revenue, 0);
-        const revenue2026 = data2026.reduce((sum, d) => sum + d.revenue, 0);
-        const units2025 = data2025.reduce((sum, d) => sum + d.units, 0);
+        const revenueCurrent = dataCurrent.reduce((sum, d) => sum + d.revenue, 0);
+        const revenuePrev = dataPrev.reduce((sum, d) => sum + d.revenue, 0);
+        const revenueNext = dataNext.reduce((sum, d) => sum + d.revenue, 0);
+        const unitsCurrent = dataCurrent.reduce((sum, d) => sum + d.units, 0);
 
         // Топ-3 препарата по выручке
         const productSales = PRODUCTS.map(product => {
-          const productData = data2025.filter(d => d.productId === product.id);
+          const productData = dataCurrent.filter(d => d.productId === product.id);
           const productRevenue = productData.reduce((sum, d) => sum + d.revenue, 0);
           return { product, revenue: productRevenue };
         }).sort((a, b) => b.revenue - a.revenue).slice(0, 3);
@@ -196,45 +197,31 @@ export default function TerritoriesAnalytics() {
         return {
           territory: terr.name,
           territoryObj: terr,
-          revenue2025,
-          revenue2024,
-          revenue2026,
-          units2025,
-          growth: revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0,
-          forecast2026: revenue2025 > 0 ? ((revenue2026 - revenue2025) / revenue2025) * 100 : 0,
+          // имена полей сохранены для совместимости с рендером, но кладём текущий год
+          revenue2025: revenueCurrent,
+          revenue2024: revenuePrev,
+          revenue2026: revenueNext,
+          units2025: unitsCurrent,
+          growth: revenuePrev > 0 ? ((revenueCurrent - revenuePrev) / revenuePrev) * 100 : 0,
+          forecast2026: revenueCurrent > 0 ? ((revenueNext - revenueCurrent) / revenueCurrent) * 100 : 0,
           topProducts: productSales,
         };
       });
     }
 
-    // Для других округов - синтетические данные
-    return selectedDistrict.territories.map(terr => {
-      const budget = terr.budget2025 * 1000;
-      const revenue2025 = budget * (0.7 + Math.random() * 0.3);
-      const revenue2024 = revenue2025 * 0.85;
-      const revenue2026 = revenue2025 * 1.18;
-      const avgPrice = 3500;
-      const units2025 = Math.round(revenue2025 / avgPrice);
-
-      // Топ-3 препарата
-      const productSales = PRODUCTS.map(product => ({
-        product,
-        revenue: Math.random() * revenue2025 * 0.3,
-      })).sort((a, b) => b.revenue - a.revenue).slice(0, 3);
-
-      return {
-        territory: terr.name,
-        territoryObj: terr,
-        revenue2025,
-        revenue2024,
-        revenue2026,
-        units2025,
-        growth: revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0,
-        forecast2026: revenue2025 > 0 ? ((revenue2026 - revenue2025) / revenue2025) * 100 : 0,
-        topProducts: productSales,
-      };
-    });
-  }, [selectedDistrict, wmRussiaData]);
+    // Для других округов реальных данных нет — нули без random.
+    return selectedDistrict.territories.map(terr => ({
+      territory: terr.name,
+      territoryObj: terr,
+      revenue2025: 0,
+      revenue2024: 0,
+      revenue2026: 0,
+      units2025: 0,
+      growth: 0,
+      forecast2026: 0,
+      topProducts: [],
+    }));
+  }, [selectedDistrict, wmRussiaData, selectedMonths, currentYear, prevYear, nextYear]);
 
   // ==================== СОРТИРОВКА РЕГИОНОВ ВЫБРАННОГО ОКРУГА ====================
   const sortedSelectedDistrictTerritories = useMemo(() => {

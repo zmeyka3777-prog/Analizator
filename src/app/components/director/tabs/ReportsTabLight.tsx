@@ -19,6 +19,7 @@ import {
   getSalesData,
 } from '@/data/salesData';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
 // ==================== ТИПЫ ====================
 
@@ -134,16 +135,23 @@ const formatGrowth = (n: number) => (n >= 0 ? `+${n.toFixed(1)}%` : `${n.toFixed
 
 // ==================== ГЕНЕРАЦИЯ ДАННЫХ ОТЧЁТА ====================
 
-function computeReportData(config: ReportConfig): GeneratedReport {
+function computeReportData(config: ReportConfig, globalMonths: number[] = []): GeneratedReport {
   const startYear = parseInt(config.periodStart.split('-')[0]);
   const startMonth = parseInt(config.periodStart.split('-')[1]);
   const endMonth = parseInt(config.periodEnd.split('-')[1]);
   const endYear = parseInt(config.periodEnd.split('-')[0]);
   // Используем год начала периода (для простоты — внутри одного года)
   const year = startYear;
-  const monthsCount = endYear === startYear
-    ? endMonth - startMonth + 1
-    : 12 - startMonth + 1 + endMonth;
+  // Пересечение периода отчёта и глобального фильтра месяцев. Если фильтр
+  // пустой — берём весь период; иначе только пересечение.
+  const periodMonths: number[] = [];
+  for (let m = startMonth; m <= endMonth; m++) periodMonths.push(m);
+  const effectiveMonths = globalMonths.length === 0
+    ? periodMonths
+    : periodMonths.filter(m => globalMonths.includes(m));
+  const monthsCount = effectiveMonths.length > 0
+    ? effectiveMonths.length
+    : (endYear === startYear ? endMonth - startMonth + 1 : 12 - startMonth + 1 + endMonth);
 
   const activeProductIds = config.selectedProducts;
   const activeProducts = PRODUCTS.filter(p => activeProductIds.includes(p.id));
@@ -151,12 +159,14 @@ function computeReportData(config: ReportConfig): GeneratedReport {
     ? config.selectedTerritories
     : TERRITORIES;
 
+  const inEffectiveMonth = (m: number) => effectiveMonths.length === 0 ? (m >= startMonth && m <= endMonth) : effectiveMonths.includes(m);
+
   // ---- Строки по препаратам ----
   const productRows: ProductRow[] = activeProducts.map(product => {
     const currentSales = getSalesData({ productId: product.id, year })
-      .filter(d => d.month >= startMonth && d.month <= endMonth);
+      .filter(d => inEffectiveMonth(d.month));
     const prevSales = getSalesData({ productId: product.id, year: year - 1 })
-      .filter(d => d.month >= startMonth && d.month <= endMonth);
+      .filter(d => inEffectiveMonth(d.month));
 
     const revenue = currentSales.reduce((sum, d) => sum + d.revenue, 0);
     const units = currentSales.reduce((sum, d) => sum + d.units, 0);
@@ -184,16 +194,19 @@ function computeReportData(config: ReportConfig): GeneratedReport {
   const totalForShare = productRows.reduce((sum, r) => sum + r.revenue, 0);
   const territoryRows: TerritoryRow[] = activeTerritories.map(territory => {
     const currentSales = getSalesData({ territory, year })
-      .filter(d => d.month >= startMonth && d.month <= endMonth)
+      .filter(d => inEffectiveMonth(d.month))
       .filter(d => activeProductIds.includes(d.productId));
     const revenue = currentSales.reduce((sum, d) => sum + d.revenue, 0);
     const units = currentSales.reduce((sum, d) => sum + d.units, 0);
     return { territory, revenue, units, share: totalForShare > 0 ? (revenue / totalForShare) * 100 : 0 };
   }).sort((a, b) => b.revenue - a.revenue);
 
-  // ---- Помесячная динамика ----
+  // ---- Помесячная динамика (исключаем месяцы вне глобального фильтра) ----
   const monthlyData: MonthlyRow[] = MONTH_NAMES.map((monthName, idx) => {
     const monthNum = idx + 1;
+    if (globalMonths.length > 0 && !globalMonths.includes(monthNum)) {
+      return { month: monthName, revenue: 0, prevRevenue: 0, units: 0 };
+    }
     const cur = getSalesData({ year, month: monthNum })
       .filter(d => activeProductIds.includes(d.productId));
     const prev = getSalesData({ year: year - 1, month: monthNum })
@@ -1090,6 +1103,8 @@ export default function ReportsTabLight() {
   // Подписка на единый источник — после загрузки файла компонент пере-рендерится,
   // и при следующей генерации отчёта данные будут актуальные.
   const { wmRussiaData } = useSharedData();
+  // Глобальные фильтры месяцев — пересекаются с периодом отчёта в computeReportData.
+  const { selectedMonths } = useGlobalFilters();
 
   const [view, setView] = useState<ReportsView>('builder');
   // Дефолтный период — текущий год полностью (раньше был хардкод "Янв 2026"
@@ -1168,7 +1183,7 @@ export default function ReportsTabLight() {
             generateIntervalRef.current = null;
           }
           try {
-            const data = computeReportData(config);
+            const data = computeReportData(config, selectedMonths);
             setGeneratedReport(data);
             setView('preview');
           } catch {

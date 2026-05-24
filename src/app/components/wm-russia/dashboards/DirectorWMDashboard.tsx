@@ -70,6 +70,8 @@ import TerritoriesAnalytics from '@/app/pages/director/TerritoriesAnalytics';
 import EmployeesAnalytics from '@/app/pages/director/EmployeesAnalytics';
 import { initializeUploadedMonths, isMonthUploaded, getLastUploadedMonth } from '@/data/dataUploadManager';
 import { getSalesData } from '@/data/salesData';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
+import { useSharedData } from '@/context/SharedDataContext';
 import { AIAnalyst } from '@/app/components/ai/AIAnalyst';
 import ProductManagementModal from '@/app/components/modals/ProductManagementModal';
 import TerritoryManagementModal from '@/app/components/modals/TerritoryManagementModal';
@@ -177,9 +179,17 @@ const DashboardView = () => {
     initializeUploadedMonths();
   }, []);
 
-  const stats2024 = getTotalStats(2024);
-  const stats2025 = getTotalStats(2025);
-  const stats2026 = getTotalStats(2026);
+  // Глобальные фильтры (месяцы + метрика) — общие для всей системы.
+  // wmRussiaData нужен в depsах useMemo чтобы дашборд пересчитывался после
+  // загрузки файла без перезагрузки страницы.
+  const { selectedMonths } = useGlobalFilters();
+  const { wmRussiaData } = useSharedData();
+
+  // Все стат-расчёты пересчитываются при изменении фильтра месяцев и при
+  // загрузке новых данных.
+  const stats2024 = useMemo(() => getTotalStats(2024, selectedMonths), [selectedMonths, wmRussiaData]);
+  const stats2025 = useMemo(() => getTotalStats(2025, selectedMonths), [selectedMonths, wmRussiaData]);
+  const stats2026 = useMemo(() => getTotalStats(2026, selectedMonths), [selectedMonths, wmRussiaData]);
 
   const growthPercent = stats2024.totalRevenue > 0 ? ((stats2025.totalRevenue - stats2024.totalRevenue) / stats2024.totalRevenue) * 100 : 0;
   const growth2026Percent = stats2025.totalRevenue > 0 ? ((stats2026.totalRevenue - stats2025.totalRevenue) / stats2025.totalRevenue) * 100 : 0;
@@ -269,9 +279,9 @@ const DashboardView = () => {
 
   const aiForecast = generateAIForecast();
 
-  const productsData2025 = aggregateByProduct(2025);
-  const productsData2024 = aggregateByProduct(2024);
-  const productsData2026 = aggregateByProduct(2026);
+  const productsData2025 = useMemo(() => aggregateByProduct(2025, selectedMonths), [selectedMonths, wmRussiaData]);
+  const productsData2024 = useMemo(() => aggregateByProduct(2024, selectedMonths), [selectedMonths, wmRussiaData]);
+  const productsData2026 = useMemo(() => aggregateByProduct(2026, selectedMonths), [selectedMonths, wmRussiaData]);
 
   const topMedicines2026 = productsData2026.map(current => {
     const product = current.product;

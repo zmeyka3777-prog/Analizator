@@ -58,6 +58,11 @@ export function setSalesDataFromMdlp(records: Array<{
     'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4, 'Июнь': 6,
     'Июль': 7, 'Август': 8, 'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12,
   };
+  // Кэш цен по productId для расчёта revenue когда МДЛП-выгрузка не содержит сумм
+  // (типичная ситуация: МДЛП отдаёт только quantity, amount=0).
+  const PRICE_BY_ID: Record<string, number> = {};
+  for (const p of PRODUCTS) PRICE_BY_ID[p.id] = p.price || 0;
+
   const mapped: SalesData[] = [];
   for (const r of records) {
     const productId = matchDrugToProductId(r.drug || '');
@@ -70,14 +75,12 @@ export function setSalesDataFromMdlp(records: Array<{
     if (typeof r.month === 'number') month = r.month;
     else if (typeof r.month === 'string') month = MONTH_RU_TO_NUM[r.month] || 0;
     if (!month) continue;
-    mapped.push({
-      productId,
-      territory,
-      year,
-      month,
-      units: Number(r.packages) || 0,
-      revenue: Number(r.sales) || 0,
-    });
+    const units = Number(r.packages) || 0;
+    // Revenue из МДЛП обычно = 0 (выгрузка содержит только упаковки).
+    // Вычисляем revenue = units * цена из каталога PRODUCTS как fallback.
+    const rawRevenue = Number(r.sales) || 0;
+    const revenue = rawRevenue > 0 ? rawRevenue : units * (PRICE_BY_ID[productId] || 0);
+    mapped.push({ productId, territory, year, month, units, revenue });
   }
   SALES_DATA.length = 0;
   SALES_DATA.push(...mapped);
@@ -251,20 +254,20 @@ export function getMonthlyDynamicsUnits(productId?: string, territory?: string):
   });
 }
 
-export function getTotalStats(year: number): {
+export function getTotalStats(year: number, months?: number[]): {
   totalRevenue: number;
   totalUnits: number;
   avgCheck: number;
   territoryCount: number;
 } {
-  const yearData = getSalesData({ year });
+  const yearData = getSalesData({ year, months });
   const totalRevenue = yearData.reduce((sum, d) => sum + d.revenue, 0);
   const totalUnits = yearData.reduce((sum, d) => sum + d.units, 0);
 
   return {
     totalRevenue,
     totalUnits,
-    avgCheck: totalRevenue / totalUnits,
+    avgCheck: totalUnits > 0 ? totalRevenue / totalUnits : 0,
     territoryCount: TERRITORIES.length,
   };
 }
