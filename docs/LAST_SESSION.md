@@ -1,25 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-25 01:39
+**Дата:** 2026-05-25 01:43
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-.playwright-mcp/page-2026-05-24T22-37-33-820Z.yml
-.playwright-mcp/page-2026-05-24T22-38-02-758Z.yml
-.playwright-mcp/page-2026-05-24T22-38-15-850Z.yml
-.playwright-mcp/page-2026-05-24T22-38-31-376Z.yml
+нет изменений
 ```
 
 ## Последние 5 коммитов
 
 ```
+c9066a0 Auto-save at end of session
 402968f perf(phase-7): индексы для getSalesData — O(1) lookup для частых запросов
 d7d557d fix(phase-5): AuthContext.login правильно парсит плоский ответ сервера
 d670bc3 feat(phase-4): фильтр месяцев работает в MedRep и TerritoryManager
 3eadaf9 feat(phase-3): revenue из drug_prices БД (с fallback на PRODUCTS.price)
-f76aa7d fix(phase-2): единый MONTH map + toast при ошибках + pulse animation
 ```
 
 ## Для нового Claude (инструкции)
