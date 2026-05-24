@@ -333,35 +333,47 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
   }, []);
 
   const transformMdlpToWmRussia = useCallback((mdlpRecords: MDLPSaleRecord[]): MedRepData[] => {
-    const grouped: Record<string, { 
-      region: string; 
+    const grouped: Record<string, {
+      region: string;
       district: WMFederalDistrict;
       products: Record<string, { plan: number; fact: number }>;
       totalMoney: number;
+      // Помесячная разбивка по региону: month (1-12) → { packages, money }
+      monthlyFact: Record<number, { packages: number; money: number }>;
     }> = {};
 
     mdlpRecords.forEach(record => {
       const district = record.federalDistrict as WMFederalDistrict || getDistrictFromRegion(record.region);
       const regionKey = `${record.region || 'Unknown'}_${district}`;
-      
+
       if (!grouped[regionKey]) {
         grouped[regionKey] = {
           region: record.region || 'Unknown',
           district,
           products: {},
           totalMoney: 0,
+          monthlyFact: {},
         };
         WM_PRODUCTS.forEach(p => {
           grouped[regionKey].products[p.key] = { plan: 0, fact: 0 };
         });
       }
-      
+
       const productKey = getWmProductKey(record.drug);
       if (productKey && grouped[regionKey].products[productKey]) {
         grouped[regionKey].products[productKey].fact += record.packages || 0;
         grouped[regionKey].products[productKey].plan += Math.round((record.packages || 0) * 1.1);
       }
       grouped[regionKey].totalMoney += record.sales || 0;
+
+      // Помесячная разбивка для глобального фильтра (Phase 4).
+      const monthNum = typeof record.month === 'number' ? record.month : undefined;
+      if (monthNum && monthNum >= 1 && monthNum <= 12) {
+        const mf = grouped[regionKey].monthlyFact;
+        if (!mf[monthNum]) mf[monthNum] = { packages: 0, money: 0 };
+        mf[monthNum].packages += record.packages || 0;
+        mf[monthNum].money += record.sales || 0;
+      }
     });
 
     return Object.entries(grouped).map(([key, data], index) => {
@@ -401,6 +413,7 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         totalPackagesFact: totalFact,
         totalMoneyPlan: Math.round(data.totalMoney * 1.1),
         totalMoneyFact: data.totalMoney,
+        monthlyFact: data.monthlyFact,
       };
     });
   }, []);

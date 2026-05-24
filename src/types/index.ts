@@ -276,10 +276,16 @@ export interface MedRepData {
   totalPackagesFact: number;
   totalMoneyPlan: number;
   totalMoneyFact: number;
-  
+
   // Period info
   month?: number;
   year?: number;
+
+  // Помесячная разбивка фактов — для глобального фильтра месяцев.
+  // Заполняется в transformMdlpToWmRussia. Если фильтр пустой — используем
+  // totalPackagesFact/totalMoneyFact. Если выбраны месяцы — суммируем нужные.
+  // Ключ: номер месяца 1-12.
+  monthlyFact?: Record<number, { packages: number; money: number }>;
 }
 
 // WM User with role and territory bindings

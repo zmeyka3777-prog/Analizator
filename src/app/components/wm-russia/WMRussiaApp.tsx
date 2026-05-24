@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { WMUser, WMUserRole } from '@/types';
-import { wmMockUsers, mergeMedRepData } from '@/data/wmRussiaData';
+import { wmMockUsers, mergeMedRepData, applyMonthsFilter } from '@/data/wmRussiaData';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 import { ChevronDown, Globe, Filter } from 'lucide-react';
 import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
@@ -46,6 +47,9 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
   // Get shared data from context (synced from MDLP uploads)
   const { wmRussiaData, dataLoaded: sharedDataLoaded } = useSharedData();
+  // Глобальный фильтр месяцев — применяется к MedRep/TM dashboards через
+  // applyMonthsFilter (использует monthlyFact из MedRepData).
+  const { selectedMonths } = useGlobalFilters();
 
   // Используем только загруженные данные из SharedDataContext (без моков)
   const salesData = wmRussiaData;
@@ -337,10 +341,12 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
   const renderDashboard = () => {
     switch (currentUser.role) {
       case 'medrep': {
-        // Агрегируем отфильтрованные данные в одну запись
-        const medRepData = mergeMedRepData(
+        // Агрегируем отфильтрованные данные в одну запись + применяем
+        // глобальный фильтр месяцев через monthlyFact.
+        const merged = mergeMedRepData(
           filteredSalesData.length > 0 ? filteredSalesData : []
         );
+        const medRepData = applyMonthsFilter(merged, selectedMonths);
         medRepData.name = currentUser.name;
         const ranking = filteredSalesData.length > 0
           ? { position: 1, total: filteredSalesData.length }
@@ -349,11 +355,14 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
       }
 
       case 'territory_manager': {
+        // Применяем фильтр месяцев к каждому регион-record (totalPackagesFact/
+        // totalMoneyFact пересчитываются по monthlyFact для выбранных месяцев).
+        const filteredByMonths = filteredSalesData.map(r => applyMonthsFilter(r, selectedMonths));
         return (
           <TerritoryManagerDashboard
             territory={selectedTerritories.length === 0 ? 'Все территории' : selectedTerritories.join(', ')}
             district={currentUser.district || 'ПФО'}
-            medReps={filteredSalesData}
+            medReps={filteredByMonths}
             activeSection={activeSection}
           />
         );

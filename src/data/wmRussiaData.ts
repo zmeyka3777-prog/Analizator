@@ -124,37 +124,50 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
       totalPackagesPlan: 0, totalPackagesFact: 0, totalMoneyPlan: 0, totalMoneyFact: 0,
     };
   }
-  return reps.reduce<MedRepData>((acc, rep) => ({
-    ...acc,
-    kokarnitPlan: acc.kokarnitPlan + rep.kokarnitPlan,
-    kokarnitFact: acc.kokarnitFact + rep.kokarnitFact,
-    artoxanPlan: acc.artoxanPlan + rep.artoxanPlan,
-    artoxanFact: acc.artoxanFact + rep.artoxanFact,
-    artoxanTablPlan: acc.artoxanTablPlan + rep.artoxanTablPlan,
-    artoxanTablFact: acc.artoxanTablFact + rep.artoxanTablFact,
-    artoxanGelPlan: acc.artoxanGelPlan + rep.artoxanGelPlan,
-    artoxanGelFact: acc.artoxanGelFact + rep.artoxanGelFact,
-    seknidoxPlan: acc.seknidoxPlan + rep.seknidoxPlan,
-    seknidoxFact: acc.seknidoxFact + rep.seknidoxFact,
-    klodifenPlan: acc.klodifenPlan + rep.klodifenPlan,
-    klodifenFact: acc.klodifenFact + rep.klodifenFact,
-    drastopPlan: acc.drastopPlan + rep.drastopPlan,
-    drastopFact: acc.drastopFact + rep.drastopFact,
-    ortsepolPlan: acc.ortsepolPlan + rep.ortsepolPlan,
-    ortsepolFact: acc.ortsepolFact + rep.ortsepolFact,
-    limendaPlan: acc.limendaPlan + rep.limendaPlan,
-    limendaFact: acc.limendaFact + rep.limendaFact,
-    ronocitPlan: acc.ronocitPlan + rep.ronocitPlan,
-    ronocitFact: acc.ronocitFact + rep.ronocitFact,
-    doramitcinPlan: acc.doramitcinPlan + rep.doramitcinPlan,
-    doramitcinFact: acc.doramitcinFact + rep.doramitcinFact,
-    alfectoPlan: acc.alfectoPlan + rep.alfectoPlan,
-    alfectoFact: acc.alfectoFact + rep.alfectoFact,
-    totalPackagesPlan: acc.totalPackagesPlan + rep.totalPackagesPlan,
-    totalPackagesFact: acc.totalPackagesFact + rep.totalPackagesFact,
-    totalMoneyPlan: acc.totalMoneyPlan + rep.totalMoneyPlan,
-    totalMoneyFact: acc.totalMoneyFact + rep.totalMoneyFact,
-  }), {
+  const merged = reps.reduce<MedRepData>((acc, rep) => {
+    // Сливаем monthlyFact: складываем packages/money по каждому месяцу
+    const accMonthly = acc.monthlyFact || {};
+    if (rep.monthlyFact) {
+      for (const [monthStr, val] of Object.entries(rep.monthlyFact)) {
+        const m = Number(monthStr);
+        if (!accMonthly[m]) accMonthly[m] = { packages: 0, money: 0 };
+        accMonthly[m].packages += val.packages;
+        accMonthly[m].money += val.money;
+      }
+    }
+    return {
+      ...acc,
+      kokarnitPlan: acc.kokarnitPlan + rep.kokarnitPlan,
+      kokarnitFact: acc.kokarnitFact + rep.kokarnitFact,
+      artoxanPlan: acc.artoxanPlan + rep.artoxanPlan,
+      artoxanFact: acc.artoxanFact + rep.artoxanFact,
+      artoxanTablPlan: acc.artoxanTablPlan + rep.artoxanTablPlan,
+      artoxanTablFact: acc.artoxanTablFact + rep.artoxanTablFact,
+      artoxanGelPlan: acc.artoxanGelPlan + rep.artoxanGelPlan,
+      artoxanGelFact: acc.artoxanGelFact + rep.artoxanGelFact,
+      seknidoxPlan: acc.seknidoxPlan + rep.seknidoxPlan,
+      seknidoxFact: acc.seknidoxFact + rep.seknidoxFact,
+      klodifenPlan: acc.klodifenPlan + rep.klodifenPlan,
+      klodifenFact: acc.klodifenFact + rep.klodifenFact,
+      drastopPlan: acc.drastopPlan + rep.drastopPlan,
+      drastopFact: acc.drastopFact + rep.drastopFact,
+      ortsepolPlan: acc.ortsepolPlan + rep.ortsepolPlan,
+      ortsepolFact: acc.ortsepolFact + rep.ortsepolFact,
+      limendaPlan: acc.limendaPlan + rep.limendaPlan,
+      limendaFact: acc.limendaFact + rep.limendaFact,
+      ronocitPlan: acc.ronocitPlan + rep.ronocitPlan,
+      ronocitFact: acc.ronocitFact + rep.ronocitFact,
+      doramitcinPlan: acc.doramitcinPlan + rep.doramitcinPlan,
+      doramitcinFact: acc.doramitcinFact + rep.doramitcinFact,
+      alfectoPlan: acc.alfectoPlan + rep.alfectoPlan,
+      alfectoFact: acc.alfectoFact + rep.alfectoFact,
+      totalPackagesPlan: acc.totalPackagesPlan + rep.totalPackagesPlan,
+      totalPackagesFact: acc.totalPackagesFact + rep.totalPackagesFact,
+      totalMoneyPlan: acc.totalMoneyPlan + rep.totalMoneyPlan,
+      totalMoneyFact: acc.totalMoneyFact + rep.totalMoneyFact,
+      monthlyFact: accMonthly,
+    };
+  }, {
     id: 'merged',
     name: reps.length === 1 ? reps[0].name : 'Выбранные территории',
     territory: reps.length === 1 ? reps[0].territory : 'Несколько территорий',
@@ -166,7 +179,32 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
     limendaPlan: 0, limendaFact: 0, ronocitPlan: 0, ronocitFact: 0,
     doramitcinPlan: 0, doramitcinFact: 0, alfectoPlan: 0, alfectoFact: 0,
     totalPackagesPlan: 0, totalPackagesFact: 0, totalMoneyPlan: 0, totalMoneyFact: 0,
+    monthlyFact: {},
   });
+  return merged;
+}
+
+/**
+ * Применить фильтр месяцев к merged MedRepData. Если selectedMonths пуст —
+ * возвращает rep без изменений. Иначе пересчитывает totalPackagesFact и
+ * totalMoneyFact как сумму monthlyFact по выбранным месяцам.
+ */
+export function applyMonthsFilter(rep: MedRepData, selectedMonths: number[]): MedRepData {
+  if (!selectedMonths || selectedMonths.length === 0) return rep;
+  const mf = rep.monthlyFact || {};
+  let packages = 0;
+  let money = 0;
+  for (const m of selectedMonths) {
+    if (mf[m]) {
+      packages += mf[m].packages;
+      money += mf[m].money;
+    }
+  }
+  return {
+    ...rep,
+    totalPackagesFact: packages,
+    totalMoneyFact: money,
+  };
 }
 
 export function aggregateTerritoryData(medReps: MedRepData[]): {
