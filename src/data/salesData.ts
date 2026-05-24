@@ -45,23 +45,47 @@ function matchDrugToProductId(drugName: string): string | null {
  * Заполняет SALES_DATA из MDLP-записей (сырые продажи из БД).
  * Вызывается SharedDataProvider при загрузке данных.
  */
-export function setSalesDataFromMdlp(records: Array<{
-  drug?: string;
-  region?: string;
-  year?: number;
-  month?: number | string;
-  packages?: number;
-  sales?: number;
-}>): void {
+/**
+ * @param records — сырые строки из БД (compact_rows)
+ * @param drugPrices — опциональный прайс-лист из БД (drug_prices). Если задан,
+ *   revenue считается по нему через findDrugPrice (поиск по drug_pattern).
+ *   Если пуст или не задан — fallback на PRODUCTS.price из каталога.
+ */
+export function setSalesDataFromMdlp(
+  records: Array<{
+    drug?: string;
+    region?: string;
+    year?: number;
+    month?: number | string;
+    packages?: number;
+    sales?: number;
+  }>,
+  drugPrices?: Array<{ drug_pattern: string; price_per_unit: string }>,
+): void {
   // MONTH_RU_TO_NUM импортируется из @/utils/months (единый источник).
-  // Кэш цен по productId для расчёта revenue когда МДЛП-выгрузка не содержит сумм
-  // (типичная ситуация: МДЛП отдаёт только quantity, amount=0).
+  // Цена по productId — fallback из каталога PRODUCTS. Используется когда
+  // прайс-лист в БД пуст или препарат там не найден.
   const PRICE_BY_ID: Record<string, number> = {};
   for (const p of PRODUCTS) PRICE_BY_ID[p.id] = p.price || 0;
 
+  // Парсим прайс-лист из БД один раз — потом ищем по drug_pattern.
+  const dbPrices: Array<{ pattern: string; price: number }> = (drugPrices || [])
+    .map(p => ({ pattern: (p.drug_pattern || '').toLowerCase().trim(), price: parseFloat(p.price_per_unit) }))
+    .filter(p => p.pattern && Number.isFinite(p.price) && p.price > 0);
+
+  const findPriceFromDb = (drugName: string): number | null => {
+    if (!dbPrices.length) return null;
+    const lower = drugName.toLowerCase().trim();
+    for (const p of dbPrices) {
+      if (lower.includes(p.pattern)) return p.price;
+    }
+    return null;
+  };
+
   const mapped: SalesData[] = [];
   for (const r of records) {
-    const productId = matchDrugToProductId(r.drug || '');
+    const drugName = r.drug || '';
+    const productId = matchDrugToProductId(drugName);
     if (!productId) continue;
     const territory = r.region || '';
     if (!territory) continue;
@@ -72,16 +96,23 @@ export function setSalesDataFromMdlp(records: Array<{
     else if (typeof r.month === 'string') month = MONTH_RU_TO_NUM[r.month] || 0;
     if (!month) continue;
     const units = Number(r.packages) || 0;
-    // Revenue из МДЛП обычно = 0 (выгрузка содержит только упаковки).
-    // Вычисляем revenue = units * цена из каталога PRODUCTS как fallback.
+    // Приоритет: 1) МДЛП-выгрузка сама содержит сумму; 2) прайс из БД;
+    // 3) хардкод-каталог PRODUCTS как последний fallback.
     const rawRevenue = Number(r.sales) || 0;
-    const revenue = rawRevenue > 0 ? rawRevenue : units * (PRICE_BY_ID[productId] || 0);
+    let revenue: number;
+    if (rawRevenue > 0) {
+      revenue = rawRevenue;
+    } else {
+      const dbPrice = findPriceFromDb(drugName);
+      revenue = units * (dbPrice ?? PRICE_BY_ID[productId] ?? 0);
+    }
     mapped.push({ productId, territory, year, month, units, revenue });
   }
   SALES_DATA.length = 0;
   SALES_DATA.push(...mapped);
   if (import.meta.env.DEV) {
-    console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length}`);
+    const priceSrc = dbPrices.length > 0 ? `${dbPrices.length} цен из БД` : 'fallback на PRODUCTS';
+    console.log(`[SalesData] Заполнено из MDLP: ${mapped.length} записей из ${records.length} (${priceSrc})`);
   }
 }
 

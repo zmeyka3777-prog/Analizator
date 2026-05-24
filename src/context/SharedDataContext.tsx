@@ -465,6 +465,21 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
     }
     if (!userId) return;
 
+    // Параллельно подгружаем прайс-лист из БД. Если /api/drug-prices пуст —
+    // setSalesDataFromMdlp использует fallback PRODUCTS.price из каталога.
+    // Когда админ заполнит прайс через UI, цены подхватятся автоматически
+    // при следующем reloadFromServer (или login другим юзером).
+    let drugPrices: Array<{ drug_pattern: string; price_per_unit: string }> = [];
+    try {
+      const pricesRes = await fetch('/api/drug-prices', {
+        headers: { 'Authorization': `Bearer ${token}` },
+      });
+      if (pricesRes.ok) {
+        const arr = await pricesRes.json();
+        if (Array.isArray(arr)) drugPrices = arr;
+      }
+    } catch { /* prices опциональны — fallback сработает */ }
+
     try {
       const res = await fetch(`/api/yearly-data/${userId}/9999`, {
         headers: { 'Authorization': `Bearer ${token}` },
@@ -502,9 +517,11 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       });
       // Синхронизируем SALES_DATA — чтобы getSalesData()/getTotalStats()/
       // aggregateByProduct() в DirectorWMDashboard возвращали реальные данные.
-      setSalesDataFromMdlp(mdlpRecords);
+      // Передаём drugPrices — setSalesDataFromMdlp использует БД-прайс
+      // если есть, иначе fallback на PRODUCTS.price из каталога.
+      setSalesDataFromMdlp(mdlpRecords, drugPrices);
       if (import.meta.env.DEV) {
-        console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
+        console.log(`[SharedData] Обновлено из БД: ${rows.length} строк, ${drugPrices.length} цен`);
       }
     } catch (err: any) {
       console.warn('[SharedData] Не удалось подгрузить данные из БД:', err);
