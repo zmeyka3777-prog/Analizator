@@ -289,52 +289,48 @@ bash scripts/save-session.sh "описание изменений"
 ## Начало каждой сессии (ОБЯЗАТЕЛЬНО)
 
 1. Прочитай `docs/LAST_SESSION.md` — что делали в прошлый раз, какие файлы менялись
-2. Прочитай `docs/SESSION_LOG.md` — полная история сессий
-3. Прочитай `docs/ERRORS_LOG.md` — известные ошибки, что НЕ делать
-4. Проверь текущий статус в секции "Что сделано / что осталось" ниже
+2. Прочитай `docs/ROADMAP.md` — цель проекта, что сделано, что осталось
+3. Прочитай `docs/RULES.md` — правила работы (что НЕ делать)
+4. Прочитай `docs/ERRORS_LOG.md` — журнал ошибок с уроками
+5. Прочитай `docs/SESSION_LOG.md` — полная история сессий
+6. Проверь `memory/MEMORY.md` (если доступна) — частный быстрый статус
 
 ## В конце каждой сессии (ОБЯЗАТЕЛЬНО)
 
 1. Обнови `docs/SESSION_LOG.md` — добавь запись о текущей сессии
 2. Обнови `docs/ERRORS_LOG.md` — добавь новые ошибки если нашёл
-3. Stop-хук автоматически запустит `scripts/save-session.sh` → git push
+3. Обнови `docs/ROADMAP.md` если изменился список «что осталось»
+4. Stop-хук автоматически запустит `scripts/save-session.sh` → git push
 
 ---
 
-## Текущий статус проекта (обновлено 2026-03-19)
+## Текущий статус проекта (обновлено 2026-05-03)
+
+**ПОЛНЫЙ СПИСОК** — см. `docs/ROADMAP.md`. Краткий обзор:
 
 ### Что сделано ✅
-
-- [x] Система авторизации (JWT, роли, 5 демо-аккаунтов)
-- [x] **Кабинет директора** — 6 вкладок, AppLayout (верхняя навигация), светлая тема, Figma-дизайн
-  - Дашборд: KPI, графики, топ-регионы
-  - Калькулятор бюджета
-  - По препаратам (ProductsAnalyticsWithEdit)
-  - По территориям (TerritoriesAnalytics)
-  - Сотрудники (EmployeesAnalytics)
-  - **Отчёты: 3-вкладочная навигация (Конструктор/Просмотр/Архив), реальные данные, Excel/CSV/PDF**
-- [x] **Кабинет администратора** — 7 вкладок, CRUD пользователей
-- [x] **Региональный менеджер** — 3 вкладки
-- [x] **Территориальный менеджер** — 4 вкладки
-- [x] **Медпред** — 3 вкладки (продажи, динамика, KPI)
-- [x] Навигация sidebar ↔ вкладки (useEffect + SECTION_MAP) — все 5 кабинетов
-- [x] Загрузка CSV/Excel файлов
-- [x] Экспорт Excel (xlsx, 4 листа), CSV (papaparse + BOM), PDF (браузерная печать — кириллица ✓)
-- [x] PostgreSQL + Drizzle ORM (Timeweb Cloud, IP 45.8.96.5, база analizator2)
-- [x] Светлая тема везде, тёмная тема удалена
+- 5 кабинетов работают, единая «Панель директора WM» (старая удалена)
+- **Единый источник данных:** `SharedDataProvider` слушает события `mdlp-data-updated` и `user-changed`, подтягивает реальные данные из БД, заполняет `SALES_DATA` через `setSalesDataFromMdlp()` — все графики работают от реальных загрузок пользователя
+- **Изоляция per-user:** все запросы фильтруются по `user_id` из JWT
+- Безопасность (этапы 1-9): xlsx CVE закрыт, bcrypt 12, JWT 24h + blacklist, zod, TLS, CSP без `unsafe-eval`
+- ~4500 строк mock-кода удалено
+- Деплой работает: VPS 85.193.86.69, nginx + PM2 + Timeweb managed PG
+- **Cron `/root/restore-grants.sh`** — автовосстановление GRANT'ов которые Timeweb периодически сбрасывает (см. `memory/ops_timeweb_grants.md`)
 
 ### Что осталось ⏳
-
-- [ ] **Деплой** на VPS 85.193.86.69 (nginx + PM2 настроены, нужно залить билд)
-- [ ] **Интеграция backend API** — сейчас mock + localStorage, нужно подключить PostgreSQL
-- [ ] **Email-уведомления** — не реализованы
+- UI-аудит через Playwright MCP (подключён 2026-05-03, нужен перезапуск Claude Code)
+- Тех долг: `strictNullChecks`, убрать `any`, стабильные React keys, money в копейках
+- Refresh JWT-токены + persistent blacklist (сейчас in-memory)
+- ISO-неделя через `EXTRACT(WEEK FROM document_date)` — нужна schema migration
+- Полное разделение `salesAmount` / `salesQuantity` в UI (переключатель метрики)
+- Email-уведомления, шаблоны отчётов, расписание автоотчётов
 
 ### Известные особенности
-
 - PDF работает через браузерную печать (`Blob + URL.createObjectURL`), НЕ через jspdf
 - Директор использует AppLayout (верхняя навигация), остальные роли — WMRussiaSidebar (боковая)
 - WMRussiaApp.tsx — ранний возврат для `role === 'director'` (обходит сайдбар)
-- `figma_auth_user` localStorage синхронизируется при входе через WMRussiaApp
+- AppLayout читает user из `localStorage('mdlp_user')` как fallback (AuthProvider не смонтирован)
+- nginx должен использовать `127.0.0.1:5000` НЕ `localhost` (IPv6-ловушка)
 
 ---
 
@@ -342,9 +338,14 @@ bash scripts/save-session.sh "описание изменений"
 
 | Файл | Назначение |
 |------|-----------|
+| `docs/ROADMAP.md` | **Цель проекта, что сделано, что осталось** (главный документ для нового чата) |
+| `docs/RULES.md` | **Все правила работы — что НЕ делать, конвенции кодирования, инциденты** |
+| `docs/ERRORS_LOG.md` | Журнал ошибок с уроками (Top-7 часто повторяющихся) |
 | `docs/SESSION_LOG.md` | История всех сессий, что делали, что осталось |
-| `docs/ERRORS_LOG.md` | Все ошибки и решения, правила "что НЕ делать" |
 | `docs/LAST_SESSION.md` | Автоматически генерируется Stop-хуком — список изменённых файлов |
+| `memory/MEMORY.md` | Частная память Claude (per-project), не в git — быстрый статус |
+| `memory/ops_timeweb_grants.md` | Решение про GRANT'ы Timeweb (cron) |
+| `memory/project_deploy.md` | Деплой VPS, пароли, nginx-конфиг |
 | `scripts/save-session.sh` | Обновляет LAST_SESSION.md + git add + commit + push |
 | `.claude/settings.json` | Stop-хук: автоматически запускает save-session.sh |
 
