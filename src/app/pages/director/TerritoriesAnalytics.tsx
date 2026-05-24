@@ -10,6 +10,7 @@ import { getSalesData } from '@/data/salesData';
 import { PRODUCTS } from '@/data/salesData';
 import { getPlanByTerritory } from '@/data/regionalPlansManager';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 import {
   TrendingUp,
   TrendingDown,
@@ -119,29 +120,38 @@ export default function TerritoriesAnalytics() {
   // Реактивная подписка на единый источник — при загрузке файла все useMemo
   // пересчитают благодаря изменению ссылки wmRussiaData.
   const { wmRussiaData } = useSharedData();
+  // Глобальные фильтры (месяцы + метрика) — общие для всех страниц.
+  const { selectedMonths, metric } = useGlobalFilters();
+  // Актуальный год — для отображения «Выручка / упак.» в карточках. Раньше
+  // был хардкод 2025, из-за чего карточки оставались нулевыми когда данные
+  // загружались за 2026.
+  const currentYear = new Date().getFullYear();
+  const prevYear = currentYear - 1;
+  const nextYear = currentYear + 1;
 
   // ==================== АНАЛИТИКА ПО ОКРУГАМ ====================
   const districtsAnalytics = useMemo(() => {
     return getFederalDistricts().map(district => {
       // Для ПФО используем реальные данные продаж
       if (district.id === 'pfo') {
-        const data2025 = getSalesData({ year: 2025 });
-        const data2024 = getSalesData({ year: 2024 });
-        const data2026 = getSalesData({ year: 2026 });
+        const dataCurrent = getSalesData({ year: currentYear, months: selectedMonths });
+        const dataPrev = getSalesData({ year: prevYear, months: selectedMonths });
+        const dataNext = getSalesData({ year: nextYear, months: selectedMonths });
 
-        const revenue2025 = data2025.reduce((sum, d) => sum + d.revenue, 0);
-        const revenue2024 = data2024.reduce((sum, d) => sum + d.revenue, 0);
-        const revenue2026 = data2026.reduce((sum, d) => sum + d.revenue, 0);
-        const units2025 = data2025.reduce((sum, d) => sum + d.units, 0);
+        const revenueCurrent = dataCurrent.reduce((sum, d) => sum + d.revenue, 0);
+        const revenuePrev = dataPrev.reduce((sum, d) => sum + d.revenue, 0);
+        const revenueNext = dataNext.reduce((sum, d) => sum + d.revenue, 0);
+        const unitsCurrent = dataCurrent.reduce((sum, d) => sum + d.units, 0);
 
         return {
           district,
-          revenue2025,
-          revenue2024,
-          revenue2026,
-          units2025,
-          growth: revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0,
-          forecast2026: revenue2025 > 0 ? ((revenue2026 - revenue2025) / revenue2025) * 100 : 0,
+          // Сохраняем имена полей для совместимости с остальным кодом, но кладём актуальный год
+          revenue2025: revenueCurrent,
+          revenue2024: revenuePrev,
+          revenue2026: revenueNext,
+          units2025: unitsCurrent,
+          growth: revenuePrev > 0 ? ((revenueCurrent - revenuePrev) / revenuePrev) * 100 : 0,
+          forecast2026: revenueCurrent > 0 ? ((revenueNext - revenueCurrent) / revenueCurrent) * 100 : 0,
         };
       }
 
@@ -157,7 +167,7 @@ export default function TerritoriesAnalytics() {
         forecast2026: 0,
       };
     });
-  }, [wmRussiaData]);
+  }, [wmRussiaData, selectedMonths, currentYear]);
 
   // ==================== АНАЛИТИКА ПО РЕГИОНАМ ВЫБРАННОГО ОКРУГА ====================
   // wmRussiaData в deps — пересчитываем после загрузки файла.
