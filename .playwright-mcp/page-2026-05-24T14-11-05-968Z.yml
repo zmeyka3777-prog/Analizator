@@ -1,0 +1,345 @@
+- generic [ref=e1]:
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e54]:
+        - button "На главную" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]:
+            - generic [ref=e59]: WM
+            - generic [ref=e60]:
+              - heading "World Medicine" [level=1] [ref=e61]
+              - paragraph [ref=e62]: MDLP Analytics Pro
+        - navigation [ref=e64]:
+          - button "Дашборд" [ref=e65]:
+            - img
+            - text: Дашборд
+          - button "Калькулятор бюджета" [ref=e66]:
+            - img
+            - text: Калькулятор бюджета
+          - button "По препаратам" [active] [ref=e67]:
+            - img
+            - text: По препаратам
+          - button "По территориям" [ref=e68]:
+            - img
+            - text: По территориям
+          - button "Сотрудники" [ref=e69]:
+            - img
+            - text: Сотрудники
+          - button "Отчёты" [ref=e70]:
+            - img
+            - text: Отчёты
+        - button "Д Директор WM Генеральный директор" [ref=e73]:
+          - generic [ref=e74]: Д
+          - generic [ref=e75]:
+            - paragraph [ref=e76]: Директор WM
+            - paragraph [ref=e77]: Генеральный директор
+          - img [ref=e78]
+    - main [ref=e80]:
+      - generic [ref=e81]:
+        - button "Вернуться в анализатор МДЛП" [ref=e82]:
+          - img [ref=e83]
+          - text: Вернуться в анализатор МДЛП
+        - generic [ref=e85]:
+          - generic [ref=e86]:
+            - img [ref=e88]
+            - generic [ref=e91]:
+              - heading "Панель директора" [level=1] [ref=e92]
+              - paragraph [ref=e93]: Аналитика и планирование продаж
+          - generic [ref=e94]:
+            - button "Управление препаратами" [ref=e95]:
+              - img
+              - text: Управление препаратами
+            - button "Управление территориями" [ref=e96]:
+              - img
+              - text: Управление территориями
+        - generic [ref=e684]:
+          - generic [ref=e685]:
+            - generic [ref=e686]:
+              - heading "Анализ по препаратам" [level=2] [ref=e687]
+              - paragraph [ref=e688]: Детальная аналитика продаж с возможностью редактирования
+            - generic [ref=e689]:
+              - button "Добавить препарат" [ref=e690]:
+                - img
+                - text: Добавить препарат
+              - button "Экспорт" [ref=e691]:
+                - img
+                - text: Экспорт
+          - generic [ref=e692]:
+            - generic [ref=e693]:
+              - generic [ref=e694]:
+                - paragraph [ref=e695]: Общая выручка 2026
+                - img [ref=e696]
+              - paragraph [ref=e698]: 0 ₽
+            - generic [ref=e699]:
+              - generic [ref=e700]:
+                - paragraph [ref=e701]: Продано упаковок
+                - img [ref=e702]
+              - paragraph [ref=e706]: 54 792
+            - generic [ref=e707]:
+              - generic [ref=e708]:
+                - paragraph [ref=e709]: Рост к 2025
+                - img [ref=e710]
+              - paragraph [ref=e713]: 0.0%
+          - generic [ref=e715]:
+            - generic [ref=e716]:
+              - img [ref=e717]
+              - textbox "Поиск по названию препарата..." [ref=e720]
+            - combobox [ref=e721]:
+              - option "Все категории" [selected]
+            - combobox [ref=e722]:
+              - option "По выручке" [selected]
+              - option "По росту"
+              - option "По названию"
+          - generic [ref=e723]:
+            - generic [ref=e724]:
+              - button [ref=e725]:
+                - img [ref=e726]
+              - generic [ref=e728] [cursor=pointer]:
+                - generic [ref=e729]:
+                  - generic [ref=e730]:
+                    - heading "APFECTO" [level=3] [ref=e731]
+                    - paragraph
+                  - img [ref=e733]
+                - generic [ref=e737]:
+                  - generic [ref=e738]:
+                    - paragraph [ref=e739]: Выручка 2026
+                    - paragraph [ref=e740]: 0 ₽
+                  - generic [ref=e741]:
+                    - paragraph [ref=e742]: Продано упак.
+                    - paragraph [ref=e743]: "149"
+                - generic [ref=e744]:
+                  - generic [ref=e745]:
+                    - img [ref=e746]
+                    - generic [ref=e749]: 0.0%
+                  - generic [ref=e750]: vs 2025
+            - generic [ref=e751]:
+              - button [ref=e752]:
+                - img [ref=e753]
+              - generic [ref=e755] [cursor=pointer]:
+                - generic [ref=e756]:
+                  - generic [ref=e757]:
+                    - heading "ARTOXAN GEL" [level=3] [ref=e758]
+                    - paragraph
+                  - img [ref=e760]
+                - generic [ref=e764]:
+                  - generic [ref=e765]:
+                    - paragraph [ref=e766]: Выручка 2026
+                    - paragraph [ref=e767]: 0 ₽
+                  - generic [ref=e768]:
+                    - paragraph [ref=e769]: Продано упак.
+                    - paragraph [ref=e770]: 4 876
+                - generic [ref=e771]:
+                  - generic [ref=e772]:
+                    - img [ref=e773]
+                    - generic [ref=e776]: 0.0%
+                  - generic [ref=e777]: vs 2025
+            - generic [ref=e778]:
+              - button [ref=e779]:
+                - img [ref=e780]
+              - generic [ref=e782] [cursor=pointer]:
+                - generic [ref=e783]:
+                  - generic [ref=e784]:
+                    - heading "ARTOXAN LYOF 20MG" [level=3] [ref=e785]
+                    - paragraph
+                  - img [ref=e787]
+                - generic [ref=e791]:
+                  - generic [ref=e792]:
+                    - paragraph [ref=e793]: Выручка 2026
+                    - paragraph [ref=e794]: 0 ₽
+                  - generic [ref=e795]:
+                    - paragraph [ref=e796]: Продано упак.
+                    - paragraph [ref=e797]: 17 902
+                - generic [ref=e798]:
+                  - generic [ref=e799]:
+                    - img [ref=e800]
+                    - generic [ref=e803]: 0.0%
+                  - generic [ref=e804]: vs 2025
+            - generic [ref=e805]:
+              - button [ref=e806]:
+                - img [ref=e807]
+              - generic [ref=e809] [cursor=pointer]:
+                - generic [ref=e810]:
+                  - generic [ref=e811]:
+                    - heading "ARTOXAN 20MG" [level=3] [ref=e812]
+                    - paragraph
+                  - img [ref=e814]
+                - generic [ref=e818]:
+                  - generic [ref=e819]:
+                    - paragraph [ref=e820]: Выручка 2026
+                    - paragraph [ref=e821]: 0 ₽
+                  - generic [ref=e822]:
+                    - paragraph [ref=e823]: Продано упак.
+                    - paragraph [ref=e824]: 7 142
+                - generic [ref=e825]:
+                  - generic [ref=e826]:
+                    - img [ref=e827]
+                    - generic [ref=e830]: 0.0%
+                  - generic [ref=e831]: vs 2025
+            - generic [ref=e832]:
+              - button [ref=e833]:
+                - img [ref=e834]
+              - generic [ref=e836] [cursor=pointer]:
+                - generic [ref=e837]:
+                  - generic [ref=e838]:
+                    - heading "CLODIFEN NEURO" [level=3] [ref=e839]
+                    - paragraph
+                  - img [ref=e841]
+                - generic [ref=e845]:
+                  - generic [ref=e846]:
+                    - paragraph [ref=e847]: Выручка 2026
+                    - paragraph [ref=e848]: 0 ₽
+                  - generic [ref=e849]:
+                    - paragraph [ref=e850]: Продано упак.
+                    - paragraph [ref=e851]: 1 557
+                - generic [ref=e852]:
+                  - generic [ref=e853]:
+                    - img [ref=e854]
+                    - generic [ref=e857]: 0.0%
+                  - generic [ref=e858]: vs 2025
+            - generic [ref=e859]:
+              - button [ref=e860]:
+                - img [ref=e861]
+              - generic [ref=e863] [cursor=pointer]:
+                - generic [ref=e864]:
+                  - generic [ref=e865]:
+                    - heading "COCARNIT" [level=3] [ref=e866]
+                    - paragraph
+                  - img [ref=e868]
+                - generic [ref=e872]:
+                  - generic [ref=e873]:
+                    - paragraph [ref=e874]: Выручка 2026
+                    - paragraph [ref=e875]: 0 ₽
+                  - generic [ref=e876]:
+                    - paragraph [ref=e877]: Продано упак.
+                    - paragraph [ref=e878]: 10 824
+                - generic [ref=e879]:
+                  - generic [ref=e880]:
+                    - img [ref=e881]
+                    - generic [ref=e884]: 0.0%
+                  - generic [ref=e885]: vs 2025
+            - generic [ref=e886]:
+              - button [ref=e887]:
+                - img [ref=e888]
+              - generic [ref=e890] [cursor=pointer]:
+                - generic [ref=e891]:
+                  - generic [ref=e892]:
+                    - heading "DORAMYCIN" [level=3] [ref=e893]
+                    - paragraph
+                  - img [ref=e895]
+                - generic [ref=e899]:
+                  - generic [ref=e900]:
+                    - paragraph [ref=e901]: Выручка 2026
+                    - paragraph [ref=e902]: 0 ₽
+                  - generic [ref=e903]:
+                    - paragraph [ref=e904]: Продано упак.
+                    - paragraph [ref=e905]: "874"
+                - generic [ref=e906]:
+                  - generic [ref=e907]:
+                    - img [ref=e908]
+                    - generic [ref=e911]: 0.0%
+                  - generic [ref=e912]: vs 2025
+            - generic [ref=e913]:
+              - button [ref=e914]:
+                - img [ref=e915]
+              - generic [ref=e917] [cursor=pointer]:
+                - generic [ref=e918]:
+                  - generic [ref=e919]:
+                    - heading "DRASTOP ADVANCE" [level=3] [ref=e920]
+                    - paragraph
+                  - img [ref=e922]
+                - generic [ref=e926]:
+                  - generic [ref=e927]:
+                    - paragraph [ref=e928]: Выручка 2026
+                    - paragraph [ref=e929]: 0 ₽
+                  - generic [ref=e930]:
+                    - paragraph [ref=e931]: Продано упак.
+                    - paragraph [ref=e932]: "0"
+                - generic [ref=e933]:
+                  - generic [ref=e934]:
+                    - img [ref=e935]
+                    - generic [ref=e938]: 0.0%
+                  - generic [ref=e939]: vs 2025
+            - generic [ref=e940]:
+              - button [ref=e941]:
+                - img [ref=e942]
+              - generic [ref=e944] [cursor=pointer]:
+                - generic [ref=e945]:
+                  - generic [ref=e946]:
+                    - heading "LIMENDA" [level=3] [ref=e947]
+                    - paragraph
+                  - img [ref=e949]
+                - generic [ref=e953]:
+                  - generic [ref=e954]:
+                    - paragraph [ref=e955]: Выручка 2026
+                    - paragraph [ref=e956]: 0 ₽
+                  - generic [ref=e957]:
+                    - paragraph [ref=e958]: Продано упак.
+                    - paragraph [ref=e959]: 3 779
+                - generic [ref=e960]:
+                  - generic [ref=e961]:
+                    - img [ref=e962]
+                    - generic [ref=e965]: 0.0%
+                  - generic [ref=e966]: vs 2025
+            - generic [ref=e967]:
+              - button [ref=e968]:
+                - img [ref=e969]
+              - generic [ref=e971] [cursor=pointer]:
+                - generic [ref=e972]:
+                  - generic [ref=e973]:
+                    - heading "ORCIPOL" [level=3] [ref=e974]
+                    - paragraph
+                  - img [ref=e976]
+                - generic [ref=e980]:
+                  - generic [ref=e981]:
+                    - paragraph [ref=e982]: Выручка 2026
+                    - paragraph [ref=e983]: 0 ₽
+                  - generic [ref=e984]:
+                    - paragraph [ref=e985]: Продано упак.
+                    - paragraph [ref=e986]: 3 802
+                - generic [ref=e987]:
+                  - generic [ref=e988]:
+                    - img [ref=e989]
+                    - generic [ref=e992]: 0.0%
+                  - generic [ref=e993]: vs 2025
+            - generic [ref=e994]:
+              - button [ref=e995]:
+                - img [ref=e996]
+              - generic [ref=e998] [cursor=pointer]:
+                - generic [ref=e999]:
+                  - generic [ref=e1000]:
+                    - heading "RONOCIT" [level=3] [ref=e1001]
+                    - paragraph
+                  - img [ref=e1003]
+                - generic [ref=e1007]:
+                  - generic [ref=e1008]:
+                    - paragraph [ref=e1009]: Выручка 2026
+                    - paragraph [ref=e1010]: 0 ₽
+                  - generic [ref=e1011]:
+                    - paragraph [ref=e1012]: Продано упак.
+                    - paragraph [ref=e1013]: 2 149
+                - generic [ref=e1014]:
+                  - generic [ref=e1015]:
+                    - img [ref=e1016]
+                    - generic [ref=e1019]: 0.0%
+                  - generic [ref=e1020]: vs 2025
+            - generic [ref=e1021]:
+              - button [ref=e1022]:
+                - img [ref=e1023]
+              - generic [ref=e1025] [cursor=pointer]:
+                - generic [ref=e1026]:
+                  - generic [ref=e1027]:
+                    - heading "SECNIDOX" [level=3] [ref=e1028]
+                    - paragraph
+                  - img [ref=e1030]
+                - generic [ref=e1034]:
+                  - generic [ref=e1035]:
+                    - paragraph [ref=e1036]: Выручка 2026
+                    - paragraph [ref=e1037]: 0 ₽
+                  - generic [ref=e1038]:
+                    - paragraph [ref=e1039]: Продано упак.
+                    - paragraph [ref=e1040]: 1 738
+                - generic [ref=e1041]:
+                  - generic [ref=e1042]:
+                    - img [ref=e1043]
+                    - generic [ref=e1046]: 0.0%
+                  - generic [ref=e1047]: vs 2025
+  - generic [ref=e662]: "60000"
