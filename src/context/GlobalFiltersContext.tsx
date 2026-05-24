@@ -11,18 +11,12 @@
 //   const value = metric === 'rubles' ? record.revenue : record.units;
 
 import React, { createContext, useContext, useState, useCallback, useMemo, useEffect, ReactNode } from 'react';
+import { MONTH_NUM_TO_RU, toMonthNum } from '@/utils/months';
 
 export type Metric = 'rubles' | 'packages';
 
-export const MONTH_NUM_TO_RU: Record<number, string> = {
-  1: 'Январь', 2: 'Февраль', 3: 'Март', 4: 'Апрель', 5: 'Май', 6: 'Июнь',
-  7: 'Июль', 8: 'Август', 9: 'Сентябрь', 10: 'Октябрь', 11: 'Ноябрь', 12: 'Декабрь',
-};
-
-export const MONTH_SHORT_TO_NUM: Record<string, number> = {
-  'Янв': 1, 'Фев': 2, 'Мар': 3, 'Апр': 4, 'Май': 5, 'Июн': 6,
-  'Июл': 7, 'Авг': 8, 'Сен': 9, 'Окт': 10, 'Ноя': 11, 'Дек': 12,
-};
+// Реэкспорт для совместимости со старыми импортами (GlobalFilterControls).
+export { MONTH_NUM_TO_RU };
 
 interface GlobalFiltersContextType {
   /** Выбранные месяцы (1-12). Пустой массив = все месяцы. */
@@ -84,12 +78,8 @@ export function GlobalFiltersProvider({ children }: { children: ReactNode }) {
 
   const isMonthSelected = useCallback((month: number | string | undefined): boolean => {
     if (selectedMonths.length === 0) return true; // фильтр пустой = все
-    if (month == null) return false;
-    let num: number;
-    if (typeof month === 'number') num = month;
-    else if (typeof month === 'string') num = MONTH_SHORT_TO_NUM[month] ?? parseInt(month, 10);
-    else return false;
-    if (!Number.isFinite(num) || num < 1 || num > 12) return false;
+    const num = toMonthNum(month);
+    if (num == null) return false;
     return selectedMonths.includes(num);
   }, [selectedMonths]);
 

@@ -1,5 +1,6 @@
 import { PRODUCTS, Product } from '@/types/sales.types';
 import { getAllYears, getActiveYears } from './yearsManager';
+import { MONTH_RU_TO_NUM } from '@/utils/months';
 
 // Реэкспортируем PRODUCTS для совместимости с существующим кодом
 export { PRODUCTS } from '@/types/sales.types';
@@ -52,12 +53,7 @@ export function setSalesDataFromMdlp(records: Array<{
   packages?: number;
   sales?: number;
 }>): void {
-  const MONTH_RU_TO_NUM: Record<string, number> = {
-    'Янв': 1, 'Фев': 2, 'Мар': 3, 'Апр': 4, 'Май': 5, 'Июн': 6,
-    'Июл': 7, 'Авг': 8, 'Сен': 9, 'Окт': 10, 'Ноя': 11, 'Дек': 12,
-    'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4, 'Июнь': 6,
-    'Июль': 7, 'Август': 8, 'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12,
-  };
+  // MONTH_RU_TO_NUM импортируется из @/utils/months (единый источник).
   // Кэш цен по productId для расчёта revenue когда МДЛП-выгрузка не содержит сумм
   // (типичная ситуация: МДЛП отдаёт только quantity, amount=0).
   const PRICE_BY_ID: Record<string, number> = {};

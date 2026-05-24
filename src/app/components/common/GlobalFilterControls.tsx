@@ -11,6 +11,19 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Calendar, Banknote, Package, ChevronDown, Check } from 'lucide-react';
 import { useGlobalFilters, MONTH_NUM_TO_RU } from '@/context/GlobalFiltersContext';
 
+/** Хук: возвращает true на короткое время после каждого изменения value — для pulse animation. */
+function useChangePulse<T>(value: T, durationMs = 600): boolean {
+  const [pulsing, setPulsing] = useState(false);
+  const firstRender = useRef(true);
+  useEffect(() => {
+    if (firstRender.current) { firstRender.current = false; return; }
+    setPulsing(true);
+    const t = setTimeout(() => setPulsing(false), durationMs);
+    return () => clearTimeout(t);
+  }, [value, durationMs]);
+  return pulsing;
+}
+
 interface Props {
   /** Светлая тема (для AppLayout директора) или тёмная (опционально) */
   variant?: 'light' | 'dark';
@@ -22,6 +35,10 @@ export function GlobalFilterControls({ variant = 'light', compact = false }: Pro
   const { selectedMonths, toggleMonth, setSelectedMonths, metric, setMetric } = useGlobalFilters();
   const [monthsOpen, setMonthsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  // Pulse при изменении значения — визуальная обратная связь что фильтр сработал.
+  const monthsKey = selectedMonths.join(',');
+  const monthsPulse = useChangePulse(monthsKey);
+  const metricPulse = useChangePulse(metric);
 
   // Закрытие dropdown при клике вне
   useEffect(() => {
@@ -59,7 +76,7 @@ export function GlobalFilterControls({ variant = 'light', compact = false }: Pro
         <button
           type="button"
           onClick={() => setMonthsOpen(o => !o)}
-          className={`flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm rounded-lg border transition-all ${baseBtn}`}
+          className={`flex items-center gap-2 px-3 py-1.5 text-xs sm:text-sm rounded-lg border transition-all ${baseBtn} ${monthsPulse ? 'ring-2 ring-cyan-400 ring-opacity-50' : ''}`}
         >
           <Calendar size={14} className="text-cyan-600" />
           {!compact && <span>{monthsLabel}</span>}
@@ -119,7 +136,7 @@ export function GlobalFilterControls({ variant = 'light', compact = false }: Pro
       </div>
 
       {/* Toggle Рубли / Упаковки */}
-      <div className={`inline-flex rounded-lg border overflow-hidden ${variant === 'dark' ? 'border-white/20' : 'border-slate-200'}`}>
+      <div className={`inline-flex rounded-lg border overflow-hidden transition-shadow ${variant === 'dark' ? 'border-white/20' : 'border-slate-200'} ${metricPulse ? 'ring-2 ring-emerald-400 ring-opacity-50' : ''}`}>
         <button
           type="button"
           onClick={() => setMetric('rubles')}

@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { MedRepData, WMFederalDistrict } from '../types';
 import { setSalesDataFromMdlp } from '@/data/salesData';
+import { toMonthNum as monthToNum } from '@/utils/months';
 
 export interface MDLPSaleRecord {
   drug: string;
@@ -476,20 +477,8 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         setMdlpDataState([]);
         return;
       }
-      // Маппинг месяца: API отдаёт строку ("Мар", "Янв" и т.д.) — раньше код
-      // ставил undefined для строк, что приводило к скипу всех записей в
-      // setSalesDataFromMdlp. Теперь явно преобразуем RU-строку в число.
-      const RU_MONTH: Record<string, number> = {
-        'Янв': 1, 'Фев': 2, 'Мар': 3, 'Апр': 4, 'Май': 5, 'Июн': 6,
-        'Июл': 7, 'Авг': 8, 'Сен': 9, 'Окт': 10, 'Ноя': 11, 'Дек': 12,
-        'Январь': 1, 'Февраль': 2, 'Март': 3, 'Апрель': 4, 'Июнь': 6,
-        'Июль': 7, 'Август': 8, 'Сентябрь': 9, 'Октябрь': 10, 'Ноябрь': 11, 'Декабрь': 12,
-      };
-      const toMonthNum = (m: unknown): number | undefined => {
-        if (typeof m === 'number') return m;
-        if (typeof m === 'string') return RU_MONTH[m] ?? undefined;
-        return undefined;
-      };
+      // Маппинг месяца: API отдаёт строку ("Мар", "Янв" и т.д.). Используем
+      // единый toMonthNum из @/utils/months (один источник правды).
       const mdlpRecords: MDLPSaleRecord[] = rows.map(r => ({
         drug: r.drug || r.complexDrugName || '',
         region: r.region || '',
@@ -498,7 +487,7 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         sales: Number(r.amount) || 0,
         packages: Number(r.quantity) || 0,
         year: r.year != null ? Number(r.year) : undefined,
-        month: toMonthNum(r.month),
+        month: monthToNum(r.month),
         week: r.week != null ? Number(r.week) : undefined,
         disposalType: r.disposalType || undefined,
         receiverType: r.receiverType || undefined,
@@ -517,8 +506,13 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       if (import.meta.env.DEV) {
         console.log(`[SharedData] Обновлено из БД: ${rows.length} строк`);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.warn('[SharedData] Не удалось подгрузить данные из БД:', err);
+      // Показываем пользователю — раньше ошибки молчали в console и юзер
+      // думал что просто нет данных.
+      window.dispatchEvent(new CustomEvent('app-error', {
+        detail: { message: `Не удалось загрузить данные из БД: ${err?.message || 'неизвестная ошибка'}` }
+      }));
     }
   }, [transformMdlpToWmRussia]);
 
