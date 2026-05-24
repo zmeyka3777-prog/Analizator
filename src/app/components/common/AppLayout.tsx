@@ -12,6 +12,7 @@ import {
   ChevronDown,
   RefreshCw,
 } from 'lucide-react';
+import { GlobalFilterControls } from './GlobalFilterControls';
 
 // Логотип. Если передан onClick — становится кликабельной кнопкой → возврат на главный дашборд.
 const Logo = ({ size = 'normal', onClick }: { size?: 'small' | 'normal'; onClick?: () => void }) => {
@@ -98,7 +99,13 @@ export default function AppLayout({ children, navigation, onLogout, onLogoClick 
             </div>
 
             {/* User Menu */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              {/* Глобальные фильтры (месяцы + метрика) — применяются ко всем
+                  страницам и графикам через GlobalFiltersContext. */}
+              <div className="hidden lg:flex">
+                <GlobalFilterControls variant="light" />
+              </div>
+
               {/* User Profile */}
               <div className="relative">
                 <button

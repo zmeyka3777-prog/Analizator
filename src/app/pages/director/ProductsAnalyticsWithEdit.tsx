@@ -32,6 +32,7 @@ import { getAllProducts, updateProduct, addProduct, deleteProduct } from '@/data
 import EditModal from '@/app/components/modals/EditModal';
 import { useDateContext } from '@/contexts/DateContext';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
 // Форматирование
 const formatNumber = (num: number): string => new Intl.NumberFormat('ru-RU').format(Math.round(num));
@@ -55,6 +56,8 @@ export default function ProductsAnalyticsWithEdit() {
   const { dateSettings } = useDateContext();
   // Подписываемся на единый источник — после загрузки файла useMemo пересчитает.
   const { wmRussiaData } = useSharedData();
+  // Глобальные фильтры (месяцы + метрика) — общие для всех страниц.
+  const { selectedMonths, metric } = useGlobalFilters();
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -100,19 +103,19 @@ export default function ProductsAnalyticsWithEdit() {
   ];
 
   // Получение данных — используем актуальный год из DateContext (а не хардкод 2025).
-  // wmRussiaData в зависимостях — useMemo пересчитает после загрузки файла МДЛП
-  // (SharedDataProvider обновит wmRussiaData → useSharedData вернёт новую ссылку).
+  // wmRussiaData + selectedMonths в зависимостях: пересчёт после загрузки файла
+  // и при смене глобального фильтра по месяцам.
   const productsDataCurrent = useMemo(
-    () => aggregateByProduct(dateSettings.currentYear),
-    [products, dateSettings.currentYear, wmRussiaData],
+    () => aggregateByProduct(dateSettings.currentYear, selectedMonths),
+    [products, dateSettings.currentYear, wmRussiaData, selectedMonths],
   );
   const productsDataPrev = useMemo(
-    () => aggregateByProduct(dateSettings.previousYear),
-    [products, dateSettings.previousYear, wmRussiaData],
+    () => aggregateByProduct(dateSettings.previousYear, selectedMonths),
+    [products, dateSettings.previousYear, wmRussiaData, selectedMonths],
   );
   const productsDataNext = useMemo(
-    () => aggregateByProduct(dateSettings.nextYear),
-    [products, dateSettings.nextYear, wmRussiaData],
+    () => aggregateByProduct(dateSettings.nextYear, selectedMonths),
+    [products, dateSettings.nextYear, wmRussiaData, selectedMonths],
   );
 
   // Объединение данных
@@ -204,17 +207,23 @@ export default function ProductsAnalyticsWithEdit() {
       <div className="grid grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-cyan-100">Общая выручка {dateSettings.currentYear}</p>
-            <DollarSign className="w-8 h-8 text-white/30" />
+            <p className="text-cyan-100">
+              {metric === 'rubles' ? `Общая выручка ${dateSettings.currentYear}` : `Всего упаковок ${dateSettings.currentYear}`}
+            </p>
+            {metric === 'rubles' ? <DollarSign className="w-8 h-8 text-white/30" /> : <Package className="w-8 h-8 text-white/30" />}
           </div>
-          <p className="text-3xl font-bold">{formatCurrency(totalStats.totalRevenue)}</p>
+          <p className="text-3xl font-bold">
+            {metric === 'rubles' ? formatCurrency(totalStats.totalRevenue) : formatNumber(totalStats.totalUnits)}
+          </p>
         </div>
         <div className="bg-gradient-to-br from-blue-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-blue-100">Продано упаковок</p>
-            <Package className="w-8 h-8 text-white/30" />
+            <p className="text-blue-100">{metric === 'rubles' ? 'Продано упаковок' : 'Выручка'}</p>
+            {metric === 'rubles' ? <Package className="w-8 h-8 text-white/30" /> : <DollarSign className="w-8 h-8 text-white/30" />}
           </div>
-          <p className="text-3xl font-bold">{formatNumber(totalStats.totalUnits)}</p>
+          <p className="text-3xl font-bold">
+            {metric === 'rubles' ? formatNumber(totalStats.totalUnits) : formatCurrency(totalStats.totalRevenue)}
+          </p>
         </div>
         <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">

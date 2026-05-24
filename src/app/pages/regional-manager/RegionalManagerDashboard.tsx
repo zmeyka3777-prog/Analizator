@@ -9,6 +9,7 @@ import { EMPLOYEES, getSubordinates } from '@/data/employees';
 import { ProductsTab } from './ProductsTab';
 import { EmployeesTabNew } from './EmployeesTabNew';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 
@@ -27,9 +28,11 @@ function OverviewTab() {
   const year = new Date().getFullYear();
   // Подписка на единый источник — после загрузки файла useMemo пересчитают.
   const { wmRussiaData } = useSharedData();
+  // Глобальные фильтры (месяцы + метрика) — общие для всех страниц.
+  const { selectedMonths, metric } = useGlobalFilters();
 
-  // KPI: общие продажи за год
-  const yearData = useMemo(() => getSalesData({ year }), [year, wmRussiaData]);
+  // KPI: общие продажи за год с учётом фильтра месяцев
+  const yearData = useMemo(() => getSalesData({ year, months: selectedMonths }), [year, wmRussiaData, selectedMonths]);
 
   const totalUnits = useMemo(
     () => yearData.reduce((sum, d) => sum + d.units, 0),
@@ -61,26 +64,33 @@ function OverviewTab() {
   // Продажи по территориям (pie chart)
   const territoryData = useMemo(() => {
     return TERRITORIES.map((territory, i) => {
-      const tData = getSalesData({ territory, year });
-      const units = tData.reduce((s, d) => s + d.units, 0);
-      return { name: territory, value: units, color: COLORS[i % COLORS.length] };
+      const tData = getSalesData({ territory, year, months: selectedMonths });
+      const value = metric === 'rubles'
+        ? tData.reduce((s, d) => s + d.revenue, 0)
+        : tData.reduce((s, d) => s + d.units, 0);
+      return { name: territory, value, color: COLORS[i % COLORS.length] };
     });
-  }, [year, wmRussiaData]);
+  }, [year, wmRussiaData, selectedMonths, metric]);
 
-  // Помесячная динамика (bar chart)
+  // Помесячная динамика (bar chart) — фильтр месяцев применяется к ВЫБРАННЫМ
+  // месяцам (остальные показываем как 0). Так график остаётся 12-месячным,
+  // но видим вклад только нужных месяцев.
   const monthlyData = useMemo(() => {
     return MONTHS.map((month, idx) => {
-      const mData = getSalesData({ year, month: idx + 1 });
+      const monthNum = idx + 1;
+      const inFilter = selectedMonths.length === 0 || selectedMonths.includes(monthNum);
+      if (!inFilter) return { month, units: 0, revenue: 0 };
+      const mData = getSalesData({ year, month: monthNum });
       const units = mData.reduce((s, d) => s + d.units, 0);
       const revenue = mData.reduce((s, d) => s + d.revenue, 0);
       return { month, units, revenue: Math.round(revenue / 1000) };
     });
-  }, [year, wmRussiaData]);
+  }, [year, wmRussiaData, selectedMonths]);
 
   // Топ-5 препаратов
   const topProducts = useMemo(() => {
     return PRODUCTS.map(product => {
-      const pData = getSalesData({ productId: product.id, year });
+      const pData = getSalesData({ productId: product.id, year, months: selectedMonths });
       const units = pData.reduce((s, d) => s + d.units, 0);
       const plan = product.quota2025;
       const pct = plan > 0 ? Math.round((units / plan) * 100) : 0;
@@ -88,7 +98,7 @@ function OverviewTab() {
     })
       .sort((a, b) => b.units - a.units)
       .slice(0, 5);
-  }, [year, wmRussiaData]);
+  }, [year, wmRussiaData, selectedMonths]);
 
   return (
     <div className="space-y-6">

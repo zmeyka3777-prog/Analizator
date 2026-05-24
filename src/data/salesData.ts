@@ -120,6 +120,8 @@ export function getSalesData(filters?: {
   territory?: string;
   year?: number;
   month?: number;
+  /** Массив месяцев (1-12) — для глобального фильтра по месяцам. Пустой/undefined = все. */
+  months?: number[];
 }): SalesData[] {
   let filtered = SALES_DATA;
 
@@ -139,10 +141,15 @@ export function getSalesData(filters?: {
     filtered = filtered.filter(d => d.month === filters.month);
   }
 
+  if (filters?.months && filters.months.length > 0) {
+    const monthSet = new Set(filters.months);
+    filtered = filtered.filter(d => monthSet.has(d.month));
+  }
+
   return filtered;
 }
 
-export function aggregateByProduct(year: number): Array<{
+export function aggregateByProduct(year: number, months?: number[]): Array<{
   product: Product;
   totalUnits: number;
   totalRevenue: number;
@@ -150,7 +157,7 @@ export function aggregateByProduct(year: number): Array<{
   avgMonthlyRevenue: number;
 }> {
   return PRODUCTS.map(product => {
-    const productData = getSalesData({ productId: product.id, year });
+    const productData = getSalesData({ productId: product.id, year, months });
     const totalUnits = productData.reduce((sum, d) => sum + d.units, 0);
     const totalRevenue = productData.reduce((sum, d) => sum + d.revenue, 0);
 

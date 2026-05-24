@@ -22,13 +22,24 @@ export const FEDERAL_DISTRICTS: FederalDistrict[] = [
     shortName: 'ПФО',
     color: '#06b6d4',
     icon: '🌊',
+    // Полный состав ПФО — 14 регионов. Раньше было только 6, из-за чего
+    // данные по «Кировская область», «Пермский край» и др. не попадали
+    // в агрегацию ПФО.
     territories: [
-      { id: 'tatarstan', name: 'Республика Татарстан', budget2025: 162400 },
-      { id: 'samara', name: 'Самарская область', budget2025: 127600 },
       { id: 'bashkortostan', name: 'Республика Башкортостан', budget2025: 110200 },
-      { id: 'nizhny-novgorod', name: 'Нижегородская область', budget2025: 92800 },
-      { id: 'penza', name: 'Пензенская область', budget2025: 52200 },
+      { id: 'mariy-el', name: 'Республика Марий Эл', budget2025: 30000 },
       { id: 'mordovia', name: 'Республика Мордовия', budget2025: 34800 },
+      { id: 'tatarstan', name: 'Республика Татарстан', budget2025: 162400 },
+      { id: 'udmurtia', name: 'Удмуртская Республика', budget2025: 50000 },
+      { id: 'chuvashia', name: 'Чувашская Республика', budget2025: 40000 },
+      { id: 'kirov', name: 'Кировская область', budget2025: 45000 },
+      { id: 'nizhny-novgorod', name: 'Нижегородская область', budget2025: 92800 },
+      { id: 'orenburg', name: 'Оренбургская область', budget2025: 55000 },
+      { id: 'penza', name: 'Пензенская область', budget2025: 52200 },
+      { id: 'perm-krai', name: 'Пермский край', budget2025: 75000 },
+      { id: 'samara', name: 'Самарская область', budget2025: 127600 },
+      { id: 'saratov', name: 'Саратовская область', budget2025: 60000 },
+      { id: 'ulyanovsk', name: 'Ульяновская область', budget2025: 40000 },
     ],
   },
   {

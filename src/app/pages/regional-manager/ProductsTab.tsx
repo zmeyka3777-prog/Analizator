@@ -6,6 +6,7 @@ import {
 import { PRODUCTS } from '@/data/salesData';
 import { getSalesData, TERRITORIES } from '@/data/salesData';
 import { useSharedData } from '@/context/SharedDataContext';
+import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
 const MONTHS_SHORT = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 const MONTHS_FULL = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -20,13 +21,14 @@ export function ProductsTab() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   // Берём актуальный год — раньше был хардкод 2025 и все KPI = 0 при данных за 2026.
   const year = new Date().getFullYear();
-  // Реактивность на загрузку файла.
+  // Реактивность на загрузку файла + глобальные фильтры (месяцы).
   const { wmRussiaData } = useSharedData();
+  const { selectedMonths } = useGlobalFilters();
 
   // Сводка по всем продуктам
   const productSummary = useMemo(() => {
     return PRODUCTS.map((product, i) => {
-      const pData = getSalesData({ productId: product.id, year });
+      const pData = getSalesData({ productId: product.id, year, months: selectedMonths });
       const totalUnits = pData.reduce((s, d) => s + d.units, 0);
       const totalRevenue = pData.reduce((s, d) => s + d.revenue, 0);
       const plan = product.quota2025;
@@ -42,7 +44,7 @@ export function ProductsTab() {
         budget2025: product.budget2025,
       };
     }).sort((a, b) => b.totalUnits - a.totalUnits);
-  }, [year, wmRussiaData]);
+  }, [year, wmRussiaData, selectedMonths]);
 
   // Данные выбранного продукта: план-факт по месяцам
   const selectedDetail = useMemo(() => {

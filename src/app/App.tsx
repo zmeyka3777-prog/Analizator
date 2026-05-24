@@ -26,6 +26,8 @@ import { ThemeProvider } from '../contexts/ThemeContext';
 // DirectorDashboard (старая mock-панель) удалена — используется DirectorWMDashboard через appMode='wm-russia'
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import { useSharedData, MDLPSaleRecord } from '../context/SharedDataContext';
+import { useGlobalFilters } from '../context/GlobalFiltersContext';
+import { GlobalFilterControls } from './components/common/GlobalFilterControls';
 import { DrugPriceEntry, findDrugPrice, convertToMoney, formatMoney, formatMoneyFull, formatPackages, formatValue, convertTotal, convertDrugBreakdownToRubles, formatDual, calcRublesRatio } from '../lib/priceUtils';
 // wmMockUsers удалены из App.tsx — пользователь строится напрямую из currentUser
 import type { WMUser, WMUserRole } from '../types';
@@ -3779,6 +3781,12 @@ export default function MDLPAnalyzerPro() {
                     placeholder="Период"
                     className="border-blue-300 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700"
                   />
+                </div>
+
+                {/* Глобальные фильтры: месяцы (чекбоксы) + метрика Рубли/Упаковки.
+                    Применяются ко всем дашбордам через GlobalFiltersContext. */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <GlobalFilterControls variant="light" />
                 </div>
               </div>
 
