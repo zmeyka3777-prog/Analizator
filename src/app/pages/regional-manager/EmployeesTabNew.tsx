@@ -29,7 +29,8 @@ export function EmployeesTabNew() {
     [subordinateTMs],
   );
 
-  const year = 2025;
+  // Актуальный год — раньше был хардкод 2025 и факт по МП всегда был 0.
+  const year = new Date().getFullYear();
 
   const [expandedTM, setExpandedTM] = useState<string | null>(null);
   const [selectedMP, setSelectedMP] = useState<Employee | null>(null);

@@ -17,7 +17,8 @@ const COLORS = [
 
 export function ProductsTab() {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
-  const year = 2025;
+  // Берём актуальный год — раньше был хардкод 2025 и все KPI = 0 при данных за 2026.
+  const year = new Date().getFullYear();
 
   // Сводка по всем продуктам
   const productSummary = useMemo(() => {

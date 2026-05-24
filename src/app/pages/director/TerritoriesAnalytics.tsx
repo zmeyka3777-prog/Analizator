@@ -141,22 +141,16 @@ export default function TerritoriesAnalytics() {
         };
       }
 
-      // Для остальных округов - синтетические данные на основе бюджета
-      const budget = district.totalBudget2025 || 0;
-      const revenue2025 = budget * 1000 * (0.7 + Math.random() * 0.3); // 70-100% от бюджета
-      const revenue2024 = revenue2025 * 0.85;
-      const revenue2026 = revenue2025 * 1.18;
-      const avgPrice = 3500; // средняя цена препарата
-      const units2025 = Math.round(revenue2025 / avgPrice);
-
+      // Для остальных округов реальных данных нет — показываем нули вместо
+      // синтетических чисел (раньше Math.random выдавал фейковые +17.6% для всех 7 ФО).
       return {
         district,
-        revenue2025,
-        revenue2024,
-        revenue2026,
-        units2025,
-        growth: revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0,
-        forecast2026: revenue2025 > 0 ? ((revenue2026 - revenue2025) / revenue2025) * 100 : 0,
+        revenue2025: 0,
+        revenue2024: 0,
+        revenue2026: 0,
+        units2025: 0,
+        growth: 0,
+        forecast2026: 0,
       };
     });
   }, []);

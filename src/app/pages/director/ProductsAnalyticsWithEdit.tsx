@@ -96,16 +96,26 @@ export default function ProductsAnalyticsWithEdit() {
     { name: 'budget2025', label: 'Бюджет 2025 (руб.)', type: 'number' as const },
   ];
 
-  // Получение данных
-  const productsData2025 = useMemo(() => aggregateByProduct(2025), [products]);
-  const productsData2024 = useMemo(() => aggregateByProduct(2024), [products]);
-  const productsData2026 = useMemo(() => aggregateByProduct(2026), [products]);
+  // Получение данных — используем актуальный год из DateContext (а не хардкод 2025).
+  // Раньше aggregateByProduct(2025) возвращало нули потому что реальные данные за 2026.
+  const productsDataCurrent = useMemo(
+    () => aggregateByProduct(dateSettings.currentYear),
+    [products, dateSettings.currentYear],
+  );
+  const productsDataPrev = useMemo(
+    () => aggregateByProduct(dateSettings.previousYear),
+    [products, dateSettings.previousYear],
+  );
+  const productsDataNext = useMemo(
+    () => aggregateByProduct(dateSettings.nextYear),
+    [products, dateSettings.nextYear],
+  );
 
   // Объединение данных
   const enrichedData = useMemo(() => {
-    return productsData2025.map(current => {
-      const prev = productsData2024.find(p => p.product.id === current.product.id);
-      const next = productsData2026.find(p => p.product.id === current.product.id);
+    return productsDataCurrent.map(current => {
+      const prev = productsDataPrev.find(p => p.product.id === current.product.id);
+      const next = productsDataNext.find(p => p.product.id === current.product.id);
       return {
         product: current.product,
         totalRevenue: current.totalRevenue,
@@ -116,7 +126,7 @@ export default function ProductsAnalyticsWithEdit() {
         nextYearUnits: next?.totalUnits || 0,
       };
     });
-  }, [productsData2025, productsData2024, productsData2026]);
+  }, [productsDataCurrent, productsDataPrev, productsDataNext]);
 
   // Категории
   const categories = useMemo(() => {
@@ -190,7 +200,7 @@ export default function ProductsAnalyticsWithEdit() {
       <div className="grid grid-cols-3 gap-6">
         <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-cyan-100">Общая выручка 2025</p>
+            <p className="text-cyan-100">Общая выручка {dateSettings.currentYear}</p>
             <DollarSign className="w-8 h-8 text-white/30" />
           </div>
           <p className="text-3xl font-bold">{formatCurrency(totalStats.totalRevenue)}</p>
@@ -204,7 +214,7 @@ export default function ProductsAnalyticsWithEdit() {
         </div>
         <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-emerald-100">Рост к 2024</p>
+            <p className="text-emerald-100">Рост к {dateSettings.previousYear}</p>
             <TrendingUp className="w-8 h-8 text-white/30" />
           </div>
           <p className="text-3xl font-bold">{formatPercent(totalStats.growth)}</p>

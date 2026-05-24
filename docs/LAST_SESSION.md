@@ -1,44 +1,32 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-24 14:08
+**Дата:** 2026-05-24 15:06
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-.playwright-mcp/page-2026-05-24T10-20-41-271Z.yml
-.playwright-mcp/page-2026-05-24T10-21-10-406Z.yml
-.playwright-mcp/page-2026-05-24T10-21-19-861Z.yml
-.playwright-mcp/page-2026-05-24T10-24-00-885Z.yml
-.playwright-mcp/page-2026-05-24T10-25-44-038Z.yml
-.playwright-mcp/page-2026-05-24T10-26-15-476Z.yml
-.playwright-mcp/page-2026-05-24T10-26-51-112Z.yml
-.playwright-mcp/page-2026-05-24T10-27-18-950Z.yml
-.playwright-mcp/page-2026-05-24T10-27-46-032Z.yml
-.playwright-mcp/page-2026-05-24T10-28-05-154Z.yml
-.playwright-mcp/page-2026-05-24T10-28-48-862Z.yml
-.playwright-mcp/page-2026-05-24T10-29-15-679Z.yml
-.playwright-mcp/page-2026-05-24T10-29-22-721Z.yml
-.playwright-mcp/page-2026-05-24T10-29-42-741Z.yml
-.playwright-mcp/page-2026-05-24T10-33-17-811Z.yml
-.playwright-mcp/page-2026-05-24T10-33-35-692Z.yml
-.playwright-mcp/page-2026-05-24T10-33-42-645Z.yml
-.playwright-mcp/page-2026-05-24T10-35-39-202Z.yml
-.playwright-mcp/page-2026-05-24T10-37-44-232Z.yml
-.playwright-mcp/page-2026-05-24T10-38-00-573Z.yml
-.playwright-mcp/page-2026-05-24T10-39-04-003Z.yml
-.playwright-mcp/page-2026-05-24T10-39-20-883Z.yml
-.playwright-mcp/page-2026-05-24T10-39-32-048Z.yml
+src/app/App.tsx
+src/app/components/wm-russia/WMRussiaApp.tsx
+src/app/components/wm-russia/WMRussiaSidebar.tsx
+src/app/pages/admin/AdminDashboard.tsx
+src/app/pages/director/EmployeesAnalytics.tsx
+src/app/pages/director/ProductsAnalyticsWithEdit.tsx
+src/app/pages/director/TerritoriesAnalytics.tsx
+src/app/pages/regional-manager/EmployeesTabNew.tsx
+src/app/pages/regional-manager/ProductsTab.tsx
+src/app/pages/regional-manager/RegionalManagerDashboard.tsx
+src/data/salesData.ts
 ```
 
 ## Последние 5 коммитов
 
 ```
+bbb9781 Auto-save at end of session
 4972e2f Auto-save at end of session
 d80fb0d docs: добавить ROADMAP.md, RULES.md, обновить ERRORS_LOG.md и CLAUDE.md
 d19da58 Auto-save at end of session
 ffc8f45 Auto-save at end of session
-5d8b754 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)

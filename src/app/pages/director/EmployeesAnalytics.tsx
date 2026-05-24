@@ -341,7 +341,7 @@ function DistrictsView({
                     </div>
                     
                     <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-slate-600">Выпо��нение</span>
+                      <span className="text-xs font-bold text-slate-600">Выполнение</span>
                       <span 
                         className={`text-sm font-bold ${
                           performanceColor === 'green'

@@ -78,16 +78,14 @@ const ROLE_OPTIONS: { value: Role; label: string; color: string }[] = [
 
 // ==================== КОМПОНЕНТ ====================
 
-// Маппинг sidebar section → внутренняя вкладка
+// Маппинг sidebar section → внутренняя вкладка.
+// Удалены дублирующие/немые кнопки: 'system-settings', 'upload', 'db-stats'.
 const ADMIN_SECTION_MAP: Record<string, AdminTab> = {
   'admin-panel': 'overview',
   'user-management': 'users',
   'employee-management': 'employees',
   'data-management': 'data',
-  'system-settings': 'overview',
-  'upload': 'data',
   'activity-log': 'logs',
-  'db-stats': 'overview',
 };
 
 export default function AdminDashboard({ activeSection }: { activeSection?: string }) {

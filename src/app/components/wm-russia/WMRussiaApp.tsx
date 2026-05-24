@@ -416,8 +416,8 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 <div className="flex items-center gap-4">
                   <h1 className="text-xl font-semibold text-slate-800">
                     {currentUser.role === 'admin' && 'Панель администратора'}
-                    {currentUser.role === 'manager' && `Округ: ${currentUser.district}`}
-                    {currentUser.role === 'territory_manager' && `Территория: ${currentUser.territory}`}
+                    {currentUser.role === 'manager' && `Округ: ${currentUser.district || 'ПФО'}`}
+                    {currentUser.role === 'territory_manager' && `Территория: ${currentUser.territory || (selectedTerritories.length === 1 ? selectedTerritories[0] : 'Все территории')}`}
                     {currentUser.role === 'medrep' && 'Личный кабинет'}
                   </h1>
 

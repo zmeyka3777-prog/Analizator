@@ -2441,7 +2441,19 @@ export default function MDLPAnalyzerPro() {
   ];
   
   // Combined navigation items
-  const navItems = [...mdlpNavItems];
+  // Фильтр по ролям: medrep/territory_manager/manager не нуждаются в полном
+  // MDLP-сайдбаре (ABC-анализ, Сезонность, Прогноз и т.д. — это директорские
+  // и админские инструменты). Им оставляем только базовые пункты.
+  const role = currentUser?.role;
+  const ROLE_MDLP_WHITELIST: Record<string, string[]> = {
+    medrep: ['dashboard'],
+    territory_manager: ['dashboard', 'territory', 'compare'],
+    manager: ['dashboard', 'territory', 'compare', 'reports', 'archive'],
+  };
+  const allowedIds = role && ROLE_MDLP_WHITELIST[role];
+  const navItems = allowedIds
+    ? mdlpNavItems.filter(item => allowedIds.includes(item.id))
+    : [...mdlpNavItems];
 
   const getStatusColor = (growth) => {
     if (growth >= 18) return 'text-emerald-600 bg-emerald-50';

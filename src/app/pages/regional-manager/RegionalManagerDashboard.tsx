@@ -21,7 +21,9 @@ type Tab = 'overview' | 'products' | 'employees';
 
 // ==================== OverviewTab ====================
 function OverviewTab() {
-  const year = 2025;
+  // Берём актуальный год из реальной даты — раньше был хардкод 2025 и все KPI
+  // показывали 0 потому что данные за 2026 в БД.
+  const year = new Date().getFullYear();
 
   // KPI: общие продажи за год
   const yearData = useMemo(() => getSalesData({ year }), [year]);
