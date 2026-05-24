@@ -47,8 +47,16 @@ function OverviewTab() {
   );
   const completion = totalPlan > 0 ? Math.round((totalUnits / totalPlan) * 100) : 0;
 
-  // Количество сотрудников
-  const employeeCount = EMPLOYEES.filter(e => e.status === 'active').length;
+  // Количество сотрудников: только подчинённые текущего регионального менеджера ПФО
+  // (4 ТМ + их МП — обычно 13). Раньше показывали EMPLOYEES.filter(active) = 74
+  // (всех в системе), что давало рассинхрон с вкладкой "Все медпреды".
+  const employeeCount = useMemo(() => {
+    const currentRM = EMPLOYEES.find(e => e.role === 'regional_manager' && e.territory === 'Приволжский ФО');
+    if (!currentRM) return 0;
+    const tms = getSubordinates(currentRM.id);
+    const mps = tms.flatMap(tm => getSubordinates(tm.id));
+    return [...tms, ...mps].filter(e => e.status === 'active').length;
+  }, []);
 
   // Продажи по территориям (pie chart)
   const territoryData = useMemo(() => {

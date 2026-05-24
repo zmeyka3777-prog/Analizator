@@ -553,7 +553,7 @@ export function MedRepDashboard({ medRepData, ranking, activeSection }: MedRepDa
             </svg>
           </div>
           <p className="text-white font-semibold">Нет данных для отображения</p>
-          <p className="text-gray-400 text-sm">Перейдите в раздел <span className="text-cyan-400 font-medium">«Загрузка»</span> в боковом меню и загрузите файл выгрузки МДЛП</p>
+          <p className="text-gray-400 text-sm">Данные за ваш период ещё не загружены администратором или директором. После загрузки выгрузки МДЛП показатели появятся автоматически — обновлять страницу не нужно.</p>
         </div>
       </div>
     );

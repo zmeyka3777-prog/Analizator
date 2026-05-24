@@ -1,7 +1,8 @@
 // ==================== УПРАВЛЕНИЕ ДАТАМИ И ПЕРИОДАМИ ====================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { loadFromStorage, saveToStorage, STORAGE_KEYS } from '@/utils/storage';
+import { useSharedData } from '@/context/SharedDataContext';
 import { Button } from '@/app/components/ui/button';
 import {
   CalendarDays,
@@ -68,7 +69,34 @@ export default function DateManagement() {
     setHasChanges(true);
   };
 
-  const uploadedMonths = loadFromStorage<UploadedMonth[]>(STORAGE_KEYS.UPLOADED_MONTHS, []);
+  // Загруженные месяцы: предпочитаем реальные данные из БД через SharedDataProvider
+  // (mdlpData содержит все строки текущего юзера со year/month). Fallback на
+  // localStorage если данные ещё не подгрузились или используется в другом контексте.
+  const { mdlpData } = useSharedData();
+  const uploadedMonths = useMemo<UploadedMonth[]>(() => {
+    if (mdlpData && mdlpData.length > 0) {
+      const groups = new Map<string, { year: number; month: number; count: number }>();
+      for (const row of mdlpData) {
+        const y = row.year;
+        const m = row.month;
+        if (!y || !m) continue;
+        const key = `${y}-${m}`;
+        const existing = groups.get(key);
+        if (existing) existing.count += 1;
+        else groups.set(key, { year: y, month: m, count: 1 });
+      }
+      return Array.from(groups.values())
+        .sort((a, b) => a.year === b.year ? a.month - b.month : a.year - b.year)
+        .map(g => ({
+          year: g.year,
+          month: g.month,
+          uploadedAt: '',
+          recordCount: g.count,
+          status: 'complete' as const,
+        }));
+    }
+    return loadFromStorage<UploadedMonth[]>(STORAGE_KEYS.UPLOADED_MONTHS, []);
+  }, [mdlpData]);
 
   return (
     <div className="space-y-6">

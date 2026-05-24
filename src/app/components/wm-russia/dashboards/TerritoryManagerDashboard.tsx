@@ -117,7 +117,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
             </svg>
           </div>
           <p className="text-white font-semibold">Нет данных по территории</p>
-          <p className="text-gray-400 text-sm">Перейдите в раздел <span className="text-cyan-400 font-medium">«Загрузка»</span> в боковом меню и загрузите файл выгрузки МДЛП</p>
+          <p className="text-gray-400 text-sm">Данные за вашу территорию ещё не загружены администратором или директором. После загрузки выгрузки МДЛП аналитика появится автоматически — обновлять страницу не нужно.</p>
         </div>
       </div>
     );

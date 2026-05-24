@@ -1668,6 +1668,16 @@ export default function MDLPAnalyzerPro() {
       // Оповещаем SharedDataProvider что сменился пользователь → очистить/перезагрузить данные
       window.dispatchEvent(new Event('user-changed'));
 
+      // Auto-routing по роли: director/manager/territory_manager/medrep идут сразу
+      // в свой персональный кабинет (WMRussiaApp), а не в MDLP-аналитику с её
+      // 13-пунктным сайдбаром. Admin остаётся в MDLP (там у него своя панель
+      // через "Управление WM"). Это убирает "лишний клик" после login для
+      // всех бизнес-ролей.
+      if (response.role === 'director' || response.role === 'manager' ||
+          response.role === 'territory_manager' || response.role === 'medrep') {
+        setAppMode('wm-russia');
+      }
+
       loadSavedYearlyData(response.id);
     } catch (error: any) {
       console.error('[Login] Ошибка авторизации:', error);

@@ -1,29 +1,26 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-24 16:09
+**Дата:** 2026-05-24 16:36
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-src/app/components/director/tabs/ReportsTabLight.tsx
-src/app/components/wm-russia/WMRussiaSidebar.tsx
-src/app/pages/admin/AdminDashboard.tsx
-src/app/pages/director/ProductsAnalyticsWithEdit.tsx
-src/app/pages/director/TerritoriesAnalytics.tsx
-src/app/pages/regional-manager/EmployeesTabNew.tsx
-src/app/pages/regional-manager/ProductsTab.tsx
+src/app/App.tsx
+src/app/components/wm-russia/dashboards/MedRepDashboard.tsx
+src/app/components/wm-russia/dashboards/TerritoryManagerDashboard.tsx
+src/app/pages/admin/DateManagement.tsx
 src/app/pages/regional-manager/RegionalManagerDashboard.tsx
 ```
 
 ## Последние 5 коммитов
 
 ```
+c6e923b Auto-save at end of session
 a9e18c8 Auto-save at end of session
 bbb9781 Auto-save at end of session
 4972e2f Auto-save at end of session
 d80fb0d docs: добавить ROADMAP.md, RULES.md, обновить ERRORS_LOG.md и CLAUDE.md
-d19da58 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
