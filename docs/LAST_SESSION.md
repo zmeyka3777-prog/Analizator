@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-25 01:43
+**Дата:** 2026-05-25 10:16
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+fe7fed1 Auto-save at end of session
 c9066a0 Auto-save at end of session
 402968f perf(phase-7): индексы для getSalesData — O(1) lookup для частых запросов
 d7d557d fix(phase-5): AuthContext.login правильно парсит плоский ответ сервера
 d670bc3 feat(phase-4): фильтр месяцев работает в MedRep и TerritoryManager
-3eadaf9 feat(phase-3): revenue из drug_prices БД (с fallback на PRODUCTS.price)
 ```
 
 ## Для нового Claude (инструкции)
