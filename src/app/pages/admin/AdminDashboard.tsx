@@ -84,6 +84,8 @@ const ADMIN_SECTION_MAP: Record<string, AdminTab> = {
   'admin-panel': 'overview',
   'user-management': 'users',
   'employee-management': 'employees',
+  'products-management': 'products',
+  'territories-management': 'territories',
   'data-management': 'data',
   'system-settings': 'settings',
   'upload': 'upload',

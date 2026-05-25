@@ -35,11 +35,22 @@ interface WMRussiaAppProps {
   mdlpUserId?: number;
   initialUser?: WMUser;
   onLogoutToMain?: () => void;
+  /** Начальная активная вкладка. Используется когда App.tsx admin-sidebar
+   *  переключает в wm-russia mode и хочет сразу открыть конкретный экран. */
+  initialSection?: string;
 }
 
-export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToMain }: WMRussiaAppProps) {
+export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToMain, initialSection }: WMRussiaAppProps) {
   const [currentUser, setCurrentUser] = useState<WMUser | null>(initialUser || null);
-  const [activeSection, setActiveSection] = useState<string>(initialUser ? getDefaultSectionStatic(initialUser.role) : '');
+  const [activeSection, setActiveSection] = useState<string>(
+    initialSection || (initialUser ? getDefaultSectionStatic(initialUser.role) : '')
+  );
+
+  // Если initialSection меняется снаружи (юзер кликает другой админ-пункт в App.tsx
+  // sidebar) — переключаемся на новую вкладку без полного перемонтирования.
+  useEffect(() => {
+    if (initialSection) setActiveSection(initialSection);
+  }, [initialSection]);
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
   const [loginError, setLoginError] = useState('');

@@ -212,6 +212,10 @@ export default function MDLPAnalyzerPro() {
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [registerName, setRegisterName] = useState('');
   
+  // Целевая админ-вкладка при переключении из объединённого admin sidebar
+  // в wm-russia mode. Используется как initialSection для WMRussiaApp.
+  const [adminTargetSection, setAdminTargetSection] = useState<string | null>(null);
+
   // Фильтры (массивы для мульти-выбора, пустой массив = все)
   const [selectedYears, setSelectedYears] = useState<string[]>([]);
   const [selectedPeriods, setSelectedPeriods] = useState<string[]>([]);
@@ -2431,7 +2435,7 @@ export default function MDLPAnalyzerPro() {
   const mdlpNavItems = [
     { id: 'upload', icon: Upload, label: 'Загрузка' },
     { id: 'dashboard', icon: Home, label: 'Дашборд', requiresData: true },
-    { id: 'datamanager', icon: Database, label: 'Управление данными', requiresData: true },
+    { id: 'datamanager', icon: Database, label: 'Управление файлами', requiresData: true },
     { id: 'problems', icon: AlertTriangle, label: 'Проблемные зоны', requiresData: true },
     { id: 'compare', icon: BarChart3, label: 'Сравнение периодов', requiresData: true },
     { id: 'territory', icon: MapIcon, label: 'Территории', requiresData: true },
@@ -3425,7 +3429,9 @@ export default function MDLPAnalyzerPro() {
         <WMRussiaApp
           initialUser={mappedUser}
           mdlpUserId={Number(currentUser.id)}
+          initialSection={adminTargetSection || undefined}
           onBackToMDLP={() => {
+            setAdminTargetSection(null);
             // Если сессия МДЛП не активна — восстановить из WM Russia сессии
             if (!currentUser) {
               try {
@@ -3556,6 +3562,114 @@ export default function MDLPAnalyzerPro() {
         </div>
         
         <nav className="flex-1 p-2 space-y-1 overflow-y-auto">
+          {/* Объединённый admin sidebar: три группы вместо обычных трёх секций.
+              Каждая Управление/Система кнопка переключает appMode в wm-russia
+              и устанавливает adminTargetSection — WMRussiaApp откроет нужный
+              экран сразу. Аналитика-кнопки работают как обычные mdlpNavItems. */}
+          {currentUser?.role === 'admin' ? (
+            <>
+              {/* АНАЛИТИКА */}
+              {!sidebarCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-cyan-400 uppercase tracking-wider">Аналитика</div>
+              )}
+              {([
+                { id: 'dashboard', icon: Home, label: 'Дашборд', requiresData: true },
+                { id: 'territory', icon: MapIcon, label: 'По территориям', requiresData: true },
+                { id: 'reports', icon: FileText, label: 'Отчёты', requiresData: true },
+              ] as const).map(item => {
+                const isDisabled = item.requiresData && !dataLoaded;
+                const isActive = appMode === 'mdlp' && activeTab === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => { if (!isDisabled) { setAdminTargetSection(null); navigateTo(item.id); } }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm relative overflow-hidden group ${
+                      isActive
+                        ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 shadow-lg shadow-cyan-500/20 border border-cyan-500/30'
+                        : isDisabled
+                        ? 'text-slate-600 cursor-not-allowed opacity-50'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-[1.02]'
+                    }`}
+                  >
+                    <item.icon size={18} className="flex-shrink-0" />
+                    {!sidebarCollapsed && <span className="flex-1 text-left font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+
+              {/* УПРАВЛЕНИЕ */}
+              <div className="my-3 border-t border-slate-700/50" />
+              {!sidebarCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-emerald-400 uppercase tracking-wider">Управление</div>
+              )}
+              {([
+                { id: 'admin-panel', icon: Activity, label: 'Панель управления' },
+                { id: 'user-management', icon: User, label: 'Пользователи' },
+                { id: 'employee-management', icon: Users, label: 'Сотрудники' },
+                { id: 'products-management', icon: Package, label: 'Препараты' },
+                { id: 'territories-management', icon: MapIcon, label: 'Территории' },
+                { id: 'data-management', icon: Calendar, label: 'Управление периодами' },
+                { id: 'upload', icon: Upload, label: 'Загрузка файлов МДЛП', mdlp: true },
+              ] as const).map(item => {
+                const isActiveAdmin = appMode === 'wm-russia' && adminTargetSection === item.id;
+                const isActiveMdlp = (item as any).mdlp && appMode === 'mdlp' && activeTab === item.id;
+                const isActive = isActiveAdmin || isActiveMdlp;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      if ((item as any).mdlp) {
+                        setAdminTargetSection(null);
+                        navigateTo(item.id);
+                      } else {
+                        setAdminTargetSection(item.id);
+                        setAppMode('wm-russia');
+                      }
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm ${
+                      isActive
+                        ? 'bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 text-emerald-400 border border-emerald-500/30'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <item.icon size={18} className="flex-shrink-0" />
+                    {!sidebarCollapsed && <span className="flex-1 text-left font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+
+              {/* СИСТЕМА */}
+              <div className="my-3 border-t border-slate-700/50" />
+              {!sidebarCollapsed && (
+                <div className="px-3 py-2 text-xs font-semibold text-purple-400 uppercase tracking-wider">Система</div>
+              )}
+              {([
+                { id: 'activity-log', icon: FileText, label: 'Журнал активности' },
+                { id: 'system-settings', icon: Settings, label: 'Настройки системы' },
+                { id: 'db-stats', icon: Database, label: 'Статистика БД' },
+              ] as const).map(item => {
+                const isActive = appMode === 'wm-russia' && adminTargetSection === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => {
+                      setAdminTargetSection(item.id);
+                      setAppMode('wm-russia');
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm ${
+                      isActive
+                        ? 'bg-gradient-to-r from-purple-500/20 to-pink-500/10 text-purple-400 border border-purple-500/30'
+                        : 'text-slate-300 hover:text-white hover:bg-slate-700/50'
+                    }`}
+                  >
+                    <item.icon size={18} className="flex-shrink-0" />
+                    {!sidebarCollapsed && <span className="flex-1 text-left font-medium">{item.label}</span>}
+                  </button>
+                );
+              })}
+            </>
+          ) : (
+          <>
           {/* MDLP Analytics Section */}
           {!sidebarCollapsed && (
             <div className="px-3 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider">
@@ -3569,10 +3683,10 @@ export default function MDLPAnalyzerPro() {
                 key={item.id}
                 onClick={() => { if (!isDisabled) navigateTo(item.id); }}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-sm relative overflow-hidden group ${
-                  activeTab === item.id 
-                    ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 shadow-lg shadow-cyan-500/20 border border-cyan-500/30' 
-                    : isDisabled 
-                    ? 'text-slate-600 cursor-not-allowed opacity-50' 
+                  activeTab === item.id
+                    ? 'bg-gradient-to-r from-cyan-500/20 to-blue-500/20 text-cyan-400 shadow-lg shadow-cyan-500/20 border border-cyan-500/30'
+                    : isDisabled
+                    ? 'text-slate-600 cursor-not-allowed opacity-50'
                     : 'text-slate-300 hover:text-white hover:bg-slate-700/50 hover:scale-[1.02]'
                 }`}
               >
@@ -3587,10 +3701,10 @@ export default function MDLPAnalyzerPro() {
               </button>
             );
           })}
-          
+
           {/* WM Russia Section Divider */}
           <div className="my-3 border-t border-slate-700/50" />
-          
+
           {!sidebarCollapsed && (
             <div className="px-3 py-2 text-xs font-semibold text-blue-400 uppercase tracking-wider flex items-center gap-2">
               <span className="w-2 h-2 rounded-full bg-blue-400" />
@@ -3620,8 +3734,8 @@ export default function MDLPAnalyzerPro() {
             );
           })}
           
-          {/* Personal WM Cabinet — for all WM roles */}
-          {currentUser && wmRoles.includes(currentUser.role) && (
+          {/* Personal WM Cabinet — для не-admin (admin имеет свой combined sidebar выше) */}
+          {currentUser && wmRoles.includes(currentUser.role) && currentUser.role !== 'admin' && (
             <>
               <div className="my-3 border-t border-slate-700/50" />
               {!sidebarCollapsed && (
@@ -3660,6 +3774,8 @@ export default function MDLPAnalyzerPro() {
               {/* Кнопка «Аналитика директора» удалена — её функционал полностью перенесён
                   в «Панель директора WM» (appMode='wm-russia'). */}
             </>
+          )}
+          </>
           )}
 
         </nav>
