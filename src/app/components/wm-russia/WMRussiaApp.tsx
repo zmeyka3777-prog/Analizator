@@ -3,6 +3,7 @@ import { WMUser, WMUserRole } from '@/types';
 import { wmMockUsers, mergeMedRepData, applyMonthsFilter } from '@/data/wmRussiaData';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
+import { AdminCombinedSidebar } from '@/app/components/common/AdminCombinedSidebar';
 import { ChevronDown, Globe, Filter } from 'lucide-react';
 import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
@@ -31,7 +32,9 @@ function getDefaultSectionStatic(role: WMUserRole): string {
 }
 
 interface WMRussiaAppProps {
-  onBackToMDLP?: () => void;
+  /** Переключение обратно в MDLP. Опциональный mdlpSection — куда сразу
+   *  навигировать (используется AdminCombinedSidebar для пункта Аналитика). */
+  onBackToMDLP?: (mdlpSection?: string) => void;
   mdlpUserId?: number;
   initialUser?: WMUser;
   onLogoutToMain?: () => void;
@@ -417,14 +420,30 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
 
   return (
     <div className="wm-app min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-cyan-50 flex">
-      <WMRussiaSidebar
-        userRole={currentUser.role}
-        userName={currentUser.name}
-        activeSection={activeSection}
-        onNavigate={setActiveSection}
-        onLogout={handleLogout}
-        onBackToMDLP={onBackToMDLP}
-      />
+      {currentUser.role === 'admin' ? (
+        // Объединённый sidebar (АНАЛИТИКА/УПРАВЛЕНИЕ/СИСТЕМА) — один и тот же
+        // как в MDLP-mode, так и в WM-Russia-mode для admin. Клик «Аналитика»
+        // → onBackToMDLP(id) → App.tsx переключается в mdlp + navigateTo(id).
+        <AdminCombinedSidebar
+          userName={currentUser.name}
+          userAvatar={currentUser.avatar}
+          currentMode="wm-russia"
+          currentAdminSection={activeSection}
+          onAnalyticsClick={(mdlpId) => onBackToMDLP?.(mdlpId)}
+          onAdminClick={(sectionId) => setActiveSection(sectionId)}
+          onUploadClick={() => onBackToMDLP?.('upload')}
+          onLogout={handleLogout}
+        />
+      ) : (
+        <WMRussiaSidebar
+          userRole={currentUser.role}
+          userName={currentUser.name}
+          activeSection={activeSection}
+          onNavigate={setActiveSection}
+          onLogout={handleLogout}
+          onBackToMDLP={() => onBackToMDLP?.()}
+        />
+      )}
 
       <main className="flex-1 lg:ml-64 min-h-screen">
         {activeSection === 'admin-panel' && currentUser.role !== 'admin' ? (

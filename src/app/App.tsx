@@ -3430,8 +3430,13 @@ export default function MDLPAnalyzerPro() {
           initialUser={mappedUser}
           mdlpUserId={Number(currentUser.id)}
           initialSection={adminTargetSection || undefined}
-          onBackToMDLP={() => {
+          onBackToMDLP={(targetMdlpSection) => {
             setAdminTargetSection(null);
+            // Если sidebar передал mdlpSection (AdminCombinedSidebar клик
+            // «Аналитика»/«Загрузка») — сразу переходим на нужный экран.
+            if (targetMdlpSection) {
+              navigateTo(targetMdlpSection);
+            }
             // Если сессия МДЛП не активна — восстановить из WM Russia сессии
             if (!currentUser) {
               try {
