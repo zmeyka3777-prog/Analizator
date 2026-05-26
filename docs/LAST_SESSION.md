@@ -1,22 +1,27 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-25 10:16
+**Дата:** 2026-05-26 11:14
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-нет изменений
+.playwright-mcp/page-2026-05-26T08-08-16-651Z.yml
+.playwright-mcp/page-2026-05-26T08-11-42-419Z.yml
+.playwright-mcp/page-2026-05-26T08-12-10-671Z.yml
+.playwright-mcp/page-2026-05-26T08-12-19-194Z.yml
+.playwright-mcp/page-2026-05-26T08-12-53-944Z.yml
+.playwright-mcp/page-2026-05-26T08-13-24-547Z.yml
 ```
 
 ## Последние 5 коммитов
 
 ```
+558a656 feat(admin-ui): один combined sidebar в обоих режимах (MDLP + WM)
+e90d5a4 feat(admin-ui): объединённый sidebar — Аналитика / Управление / Система
+d0b8a2d Auto-save at end of session
 fe7fed1 Auto-save at end of session
 c9066a0 Auto-save at end of session
-402968f perf(phase-7): индексы для getSalesData — O(1) lookup для частых запросов
-d7d557d fix(phase-5): AuthContext.login правильно парсит плоский ответ сервера
-d670bc3 feat(phase-4): фильтр месяцев работает в MedRep и TerritoryManager
 ```
 
 ## Для нового Claude (инструкции)

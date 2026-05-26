@@ -1,0 +1,142 @@
+- generic [ref=e442]:
+  - complementary [ref=e443]:
+    - generic [ref=e444]:
+      - generic [ref=e446]:
+        - generic [ref=e449]: WM
+        - heading "World Medicine" [level=1] [ref=e451]
+      - generic [ref=e452]:
+        - generic [ref=e453]: 👤
+        - generic [ref=e454]:
+          - paragraph [ref=e455]: Администратор
+          - paragraph [ref=e456]: admin
+    - navigation [ref=e457]:
+      - generic [ref=e458]: Аналитика
+      - button "Дашборд" [ref=e459]:
+        - img [ref=e460]
+        - generic [ref=e463]: Дашборд
+      - button "По территориям" [ref=e464]:
+        - img [ref=e465]
+        - generic [ref=e467]: По территориям
+      - button "Отчёты" [ref=e468]:
+        - img [ref=e469]
+        - generic [ref=e472]: Отчёты
+      - generic [ref=e474]: Управление
+      - button "Панель управления" [ref=e475]:
+        - img [ref=e476]
+        - generic [ref=e478]: Панель управления
+      - button "Пользователи" [ref=e479]:
+        - img [ref=e480]
+        - generic [ref=e483]: Пользователи
+      - button "Сотрудники" [ref=e484]:
+        - img [ref=e485]
+        - generic [ref=e490]: Сотрудники
+      - button "Препараты" [ref=e491]:
+        - img [ref=e492]
+        - generic [ref=e496]: Препараты
+      - button "Территории" [ref=e497]:
+        - img [ref=e498]
+        - generic [ref=e500]: Территории
+      - button "Управление периодами" [ref=e501]:
+        - img [ref=e502]
+        - generic [ref=e504]: Управление периодами
+      - button "Загрузка файлов МДЛП" [ref=e505]:
+        - img [ref=e506]
+        - generic [ref=e509]: Загрузка файлов МДЛП
+      - generic [ref=e511]: Система
+      - button "Журнал активности" [ref=e512]:
+        - img [ref=e513]
+        - generic [ref=e516]: Журнал активности
+      - button "Настройки системы" [ref=e517]:
+        - img [ref=e518]
+        - generic [ref=e521]: Настройки системы
+      - button "Статистика БД" [ref=e522]:
+        - img [ref=e523]
+        - generic [ref=e527]: Статистика БД
+    - button "Выход" [ref=e529]:
+      - img [ref=e530]
+      - generic [ref=e533]: Выход
+    - button [ref=e534]:
+      - img [ref=e535]
+  - main [ref=e537]:
+    - generic [ref=e538]:
+      - button "К загрузке" [ref=e539]:
+        - img [ref=e540]
+        - generic [ref=e542]: К загрузке
+      - generic [ref=e543]:
+        - heading "Обзор продаж" [level=2] [ref=e544]
+        - combobox [ref=e546]:
+          - generic [ref=e547]: Все
+          - img
+      - generic [ref=e548]:
+        - generic [ref=e551]:
+          - generic [ref=e552]:
+            - img [ref=e554]
+            - paragraph [ref=e558]: Всего продаж
+          - generic [ref=e559]:
+            - paragraph [ref=e561]: —
+            - paragraph [ref=e563]: —
+        - generic [ref=e566] [cursor=pointer]:
+          - generic [ref=e567]:
+            - img [ref=e569]
+            - paragraph [ref=e573]: Выполнение плана
+          - paragraph [ref=e574]: —
+      - generic [ref=e575]:
+        - generic [ref=e578] [cursor=pointer]:
+          - generic [ref=e579]:
+            - img [ref=e581]
+            - paragraph [ref=e584]: Регионов
+          - paragraph [ref=e585]: —
+        - generic [ref=e588] [cursor=pointer]:
+          - generic [ref=e589]:
+            - img [ref=e591]
+            - paragraph [ref=e596]: Контрагентов
+          - paragraph [ref=e597]: —
+        - generic [ref=e600] [cursor=pointer]:
+          - generic [ref=e601]:
+            - img [ref=e603]
+            - paragraph [ref=e606]: Препаратов
+          - paragraph [ref=e607]: —
+      - generic [ref=e608]:
+        - generic [ref=e609]:
+          - heading "Динамика продаж (упаковки)" [level=3] [ref=e610]: Динамика продаж (упаковки)
+          - generic [ref=e612]:
+            - img [ref=e613]
+            - paragraph [ref=e615]: Нет данных
+            - paragraph [ref=e616]: Загрузите файл с данными в разделе "Загрузка файлов"
+        - generic [ref=e617]:
+          - heading "Динамика продаж (рубли)" [level=3] [ref=e618]: Динамика продаж (рубли)
+          - generic [ref=e620]:
+            - img [ref=e621]
+            - paragraph [ref=e623]: Нет данных
+            - paragraph [ref=e624]: Загрузите файл с данными в разделе "Загрузка файлов"
+      - generic [ref=e625]:
+        - generic [ref=e626]:
+          - heading "Доля препаратов (упаковки)" [level=3] [ref=e627]: Доля препаратов (упаковки)
+          - generic [ref=e629]:
+            - img [ref=e630]
+            - paragraph [ref=e632]: Нет данных
+            - paragraph [ref=e633]: Загрузите файл с данными в разделе "Загрузка файлов"
+        - generic [ref=e634]:
+          - heading "Доля препаратов (рубли)" [level=3] [ref=e635]: Доля препаратов (рубли)
+          - generic [ref=e637]:
+            - img [ref=e638]
+            - paragraph [ref=e640]: Нет данных
+            - paragraph [ref=e641]: Загрузите файл с данными в разделе "Загрузка файлов"
+      - generic [ref=e642]:
+        - heading "Регионы" [level=3] [ref=e644]: Регионы
+        - heading "Топ контрагенты" [level=3] [ref=e647]: Топ контрагенты
+        - generic [ref=e649]:
+          - heading "Быстрые действия" [level=3] [ref=e650]: Быстрые действия
+          - generic [ref=e652]:
+            - button "Управление данными" [ref=e653]:
+              - img [ref=e654]
+              - text: Управление данными
+            - button "Проблемные зоны" [ref=e658]:
+              - img [ref=e659]
+              - text: Проблемные зоны
+            - button "Детализация региона" [ref=e661]:
+              - img [ref=e662]
+              - text: Детализация региона
+            - button "Создать отчёт" [ref=e664]:
+              - img [ref=e665]
+              - text: Создать отчёт
