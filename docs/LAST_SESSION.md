@@ -1,26 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-27 18:01
+**Дата:** 2026-05-27 18:05
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-.playwright-mcp/page-2026-05-27T14-57-53-527Z.yml
-.playwright-mcp/page-2026-05-27T14-59-56-611Z.yml
-.playwright-mcp/page-2026-05-27T15-00-29-128Z.yml
-.playwright-mcp/page-2026-05-27T15-00-48-525Z.yml
-.playwright-mcp/page-2026-05-27T15-01-07-360Z.yml
+нет изменений
 ```
 
 ## Последние 5 коммитов
 
 ```
+44e5e82 Auto-save at end of session
 34e24ae feat(employees): иерархический список сотрудников + загрузка 107 из CRM xlsx
 e4fd1fd Auto-save at end of session
 558a656 feat(admin-ui): один combined sidebar в обоих режимах (MDLP + WM)
 e90d5a4 feat(admin-ui): объединённый sidebar — Аналитика / Управление / Система
-d0b8a2d Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
