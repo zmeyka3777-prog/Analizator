@@ -111,12 +111,26 @@ export function createAdminRouter(
 
   // ==================== EMPLOYEE MANAGEMENT ====================
 
-  // Get all employees
+  // Get all employees — иерархический список с группировкой по CRM-группе.
+  // Возвращает все поля (включая position, crm_group, city, email, hierarchy_level)
+  // отсортированные так, чтобы внутри одной CRM-группы шли: РМ → ТМ → МП.
   router.get('/employees', authMiddleware, requireMinRole('manager'), async (req: AuthRequest, res: Response) => {
     try {
       const result = await safeQuery(
-        `SELECT id, employee_name, role, manager_name, regions
-         FROM world_medicine.employees_data ORDER BY role, employee_name`
+        `SELECT id, employee_name, role, manager_name, regions,
+                crm_group, position, city, email, hierarchy_level
+         FROM world_medicine.employees_data
+         ORDER BY
+           COALESCE(hierarchy_level, 9) ASC,
+           COALESCE(crm_group, 'zz') ASC,
+           CASE
+             WHEN role = 'director' THEN 0
+             WHEN role = 'regional_manager' THEN 1
+             WHEN role = 'territory_manager' THEN 2
+             WHEN role = 'medrep' THEN 3
+             ELSE 9
+           END ASC,
+           employee_name ASC`
       );
       res.json({ employees: result.rows });
     } catch (error: any) {
