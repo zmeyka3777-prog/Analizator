@@ -31,6 +31,7 @@ import {
 import { PRODUCTS, aggregateByProduct } from '@/data/salesData';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 import { useSharedData } from '@/context/SharedDataContext';
+import { DirectorPlansSummary } from './DirectorPlansSummary';
 import { getAllDistricts, updateDistrict, addTerritory, updateTerritory, deleteTerritory, addDistrict, deleteDistrict, updateBudget2026 } from '@/data/districtsManager';
 import { FederalDistrict, Territory, getTotalRussiaBudget2025, getDistrictStats } from '@/data/federalDistricts';
 import { getAllProducts } from '@/data/productsManager';
@@ -352,6 +353,9 @@ export default function BudgetCalculatorEnhanced() {
             <Calculator className="w-12 h-12 opacity-20" />
           </div>
         </div>
+
+        {/* ==================== ПЛАНЫ ОТ РМ (Phase 4 — live из БД) ==================== */}
+        <DirectorPlansSummary />
 
         {/* ==================== ОБЩИЙ КАЛЬКУЛЯТОР ПО РОССИИ ==================== */}
         <RussiaCalculator />
