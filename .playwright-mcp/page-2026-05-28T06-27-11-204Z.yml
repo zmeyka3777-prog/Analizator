@@ -1,0 +1,30 @@
+- generic [ref=e252]:
+  - generic [ref=e254]:
+    - img "Analytics" [ref=e255]
+    - generic [ref=e258]:
+      - heading "Мощная аналитика" [level=3] [ref=e259]
+      - paragraph [ref=e260]: Полный контроль над продажами лекарственных препаратов в режиме реального времени
+  - generic [ref=e261]:
+    - generic [ref=e262]:
+      - generic [ref=e269]: WM
+      - heading "Анализатор продаж" [level=1] [ref=e270]
+      - paragraph [ref=e271]: World Medicine · MDLP Analytics Pro
+    - generic [ref=e275]:
+      - heading "Авторизация" [level=2] [ref=e276]
+      - generic [ref=e277]:
+        - generic [ref=e278]:
+          - generic [ref=e279]: Электронная почта
+          - textbox "email@example.com" [ref=e280]
+        - generic [ref=e281]:
+          - generic [ref=e282]: Пароль
+          - generic [ref=e283]:
+            - textbox "••••••••" [ref=e284]
+            - button "Показать пароль" [ref=e285]:
+              - img [ref=e286]
+        - button "Войти в систему" [ref=e289]:
+          - img [ref=e291]
+          - text: Войти в систему
+        - button "Забыли пароль?" [ref=e295]
+      - generic [ref=e296]:
+        - paragraph [ref=e297]: Введите email и пароль для входа
+        - button "Нет аккаунта? Зарегистрироваться" [ref=e298]

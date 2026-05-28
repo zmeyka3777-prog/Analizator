@@ -1,0 +1,623 @@
+- generic [ref=e1]:
+  - generic [ref=e299]:
+    - banner [ref=e300]:
+      - generic [ref=e302]:
+        - button "На главную" [ref=e303] [cursor=pointer]:
+          - generic [ref=e304]:
+            - generic [ref=e307]: WM
+            - generic [ref=e308]:
+              - heading "World Medicine" [level=1] [ref=e309]
+              - paragraph [ref=e310]: MDLP Analytics Pro
+        - navigation [ref=e312]:
+          - button "Дашборд" [ref=e313]:
+            - img
+            - text: Дашборд
+          - button "Калькулятор бюджета" [active] [ref=e314]:
+            - img
+            - text: Калькулятор бюджета
+          - button "По препаратам" [ref=e315]:
+            - img
+            - text: По препаратам
+          - button "По территориям" [ref=e316]:
+            - img
+            - text: По территориям
+          - button "Сотрудники" [ref=e317]:
+            - img
+            - text: Сотрудники
+          - button "Отчёты" [ref=e318]:
+            - img
+            - text: Отчёты
+        - generic [ref=e319]:
+          - generic [ref=e321]:
+            - button "Без фильтра" [ref=e323]:
+              - img [ref=e324]
+              - generic [ref=e326]: Без фильтра
+              - img [ref=e327]
+            - generic [ref=e329]:
+              - button "Рубли" [ref=e330]:
+                - img [ref=e331]
+                - generic [ref=e334]: Рубли
+              - button "Упаковки" [ref=e335]:
+                - img [ref=e336]
+                - generic [ref=e340]: Упаковки
+          - button "Д Директор WM Генеральный директор" [ref=e342]:
+            - generic [ref=e343]: Д
+            - generic [ref=e344]:
+              - paragraph [ref=e345]: Директор WM
+              - paragraph [ref=e346]: Генеральный директор
+            - img [ref=e347]
+    - main [ref=e349]:
+      - generic [ref=e350]:
+        - button "Вернуться в анализатор МДЛП" [ref=e351]:
+          - img [ref=e352]
+          - text: Вернуться в анализатор МДЛП
+        - generic [ref=e354]:
+          - generic [ref=e355]:
+            - img [ref=e357]
+            - generic [ref=e360]:
+              - heading "Панель директора" [level=1] [ref=e361]
+              - paragraph [ref=e362]: Аналитика и планирование продаж
+          - generic [ref=e363]:
+            - button "Управление препаратами" [ref=e364]:
+              - img
+              - text: Управление препаратами
+            - button "Управление территориями" [ref=e365]:
+              - img
+              - text: Управление территориями
+        - generic [ref=e1332]:
+          - generic [ref=e1334]:
+            - generic [ref=e1335]:
+              - heading "Калькулятор бюджета" [level=2] [ref=e1336]
+              - paragraph [ref=e1337]: Планирование бюджета по всей России и отдельным округам
+            - img [ref=e1338]
+          - generic [ref=e1340]:
+            - generic [ref=e1342] [cursor=pointer]:
+              - generic [ref=e1343]:
+                - img [ref=e1345]
+                - generic [ref=e1349]:
+                  - heading "📊 Общий калькулятор по России" [level=3] [ref=e1350]
+                  - paragraph [ref=e1351]: Планирование бюджета по всем препаратам на 2026 год
+              - generic [ref=e1352]:
+                - button "Экспорт" [ref=e1353]:
+                  - img
+                  - text: Экспорт
+                - img [ref=e1354]
+            - generic [ref=e1356]:
+              - generic [ref=e1357]:
+                - generic [ref=e1358]:
+                  - generic [ref=e1359]:
+                    - paragraph [ref=e1360]: Всего упаковок
+                    - img [ref=e1361]
+                  - heading "787 750" [level=4] [ref=e1365]
+                  - paragraph [ref=e1366]: План на 2026 год
+                - generic [ref=e1367]:
+                  - generic [ref=e1368]:
+                    - paragraph [ref=e1369]: Общая выручка
+                    - img [ref=e1370]
+                  - heading "530 276 500 ₽" [level=4] [ref=e1373]
+                  - paragraph [ref=e1374]: Планируемый доход
+                - generic [ref=e1375]:
+                  - generic [ref=e1376]:
+                    - paragraph [ref=e1377]: Средняя цена
+                    - img [ref=e1378]
+                  - heading "673 ₽" [level=4] [ref=e1382]
+                  - paragraph [ref=e1383]: За одну упаковку
+              - table [ref=e1386]:
+                - rowgroup [ref=e1387]:
+                  - row "№ Препарат Категория Количество (уп.) Цена (₽/уп.) Выручка (₽) Доля (%)" [ref=e1388]:
+                    - columnheader "№" [ref=e1389]
+                    - columnheader "Препарат" [ref=e1390]
+                    - columnheader "Категория" [ref=e1391]
+                    - columnheader "Количество (уп.)" [ref=e1392]
+                    - columnheader "Цена (₽/уп.)" [ref=e1393]
+                    - columnheader "Выручка (₽)" [ref=e1394]
+                    - columnheader "Доля (%)" [ref=e1395]
+                - rowgroup [ref=e1396]:
+                  - row "1 APFECTO APFECTO EYE DROPS, SUSPENSION 0.1% 5ML №1 57500 400 23 000 000 ₽ 4.3%" [ref=e1397]:
+                    - cell "1" [ref=e1398]:
+                      - generic [ref=e1399]: "1"
+                    - cell "APFECTO APFECTO EYE DROPS, SUSPENSION 0.1% 5ML №1" [ref=e1400]:
+                      - generic [ref=e1401]:
+                        - paragraph [ref=e1402]: APFECTO
+                        - paragraph [ref=e1403]: APFECTO EYE DROPS, SUSPENSION 0.1% 5ML №1
+                    - cell [ref=e1404]
+                    - cell "57500" [ref=e1406]:
+                      - generic [ref=e1407]:
+                        - button [ref=e1408]:
+                          - img
+                        - spinbutton [ref=e1409]: "57500"
+                        - button [ref=e1410]:
+                          - img
+                    - cell "400" [ref=e1411]:
+                      - generic [ref=e1412]:
+                        - button [ref=e1413]:
+                          - img
+                        - spinbutton [ref=e1414]: "400"
+                        - button [ref=e1415]:
+                          - img
+                    - cell "23 000 000 ₽" [ref=e1416]:
+                      - paragraph [ref=e1417]: 23 000 000 ₽
+                    - cell "4.3%" [ref=e1418]:
+                      - generic [ref=e1420]: 4.3%
+                  - row "2 ARTOXAN GEL ARTOXAN GEL 1% 45G TUBE №1 69000 400 27 600 000 ₽ 5.2%" [ref=e1423]:
+                    - cell "2" [ref=e1424]:
+                      - generic [ref=e1425]: "2"
+                    - cell "ARTOXAN GEL ARTOXAN GEL 1% 45G TUBE №1" [ref=e1426]:
+                      - generic [ref=e1427]:
+                        - paragraph [ref=e1428]: ARTOXAN GEL
+                        - paragraph [ref=e1429]: ARTOXAN GEL 1% 45G TUBE №1
+                    - cell [ref=e1430]
+                    - cell "69000" [ref=e1432]:
+                      - generic [ref=e1433]:
+                        - button [ref=e1434]:
+                          - img
+                        - spinbutton [ref=e1435]: "69000"
+                        - button [ref=e1436]:
+                          - img
+                    - cell "400" [ref=e1437]:
+                      - generic [ref=e1438]:
+                        - button [ref=e1439]:
+                          - img
+                        - spinbutton [ref=e1440]: "400"
+                        - button [ref=e1441]:
+                          - img
+                    - cell "27 600 000 ₽" [ref=e1442]:
+                      - paragraph [ref=e1443]: 27 600 000 ₽
+                    - cell "5.2%" [ref=e1444]:
+                      - generic [ref=e1446]: 5.2%
+                  - row "3 ARTOXAN LYOF 20MG ARTOXAN LYOF.POWD.FOR INJ. 20MG 3 VIAL+ 3 SOLVENT 80500 650 52 325 000 ₽ 9.9%" [ref=e1449]:
+                    - cell "3" [ref=e1450]:
+                      - generic [ref=e1451]: "3"
+                    - cell "ARTOXAN LYOF 20MG ARTOXAN LYOF.POWD.FOR INJ. 20MG 3 VIAL+ 3 SOLVENT" [ref=e1452]:
+                      - generic [ref=e1453]:
+                        - paragraph [ref=e1454]: ARTOXAN LYOF 20MG
+                        - paragraph [ref=e1455]: ARTOXAN LYOF.POWD.FOR INJ. 20MG 3 VIAL+ 3 SOLVENT
+                    - cell [ref=e1456]
+                    - cell "80500" [ref=e1458]:
+                      - generic [ref=e1459]:
+                        - button [ref=e1460]:
+                          - img
+                        - spinbutton [ref=e1461]: "80500"
+                        - button [ref=e1462]:
+                          - img
+                    - cell "650" [ref=e1463]:
+                      - generic [ref=e1464]:
+                        - button [ref=e1465]:
+                          - img
+                        - spinbutton [ref=e1466]: "650"
+                        - button [ref=e1467]:
+                          - img
+                    - cell "52 325 000 ₽" [ref=e1468]:
+                      - paragraph [ref=e1469]: 52 325 000 ₽
+                    - cell "9.9%" [ref=e1470]:
+                      - generic [ref=e1472]: 9.9%
+                  - row "4 ARTOXAN 20MG ARTOXAN TABLETS 20MG №10 92000 320 29 440 000 ₽ 5.6%" [ref=e1475]:
+                    - cell "4" [ref=e1476]:
+                      - generic [ref=e1477]: "4"
+                    - cell "ARTOXAN 20MG ARTOXAN TABLETS 20MG №10" [ref=e1478]:
+                      - generic [ref=e1479]:
+                        - paragraph [ref=e1480]: ARTOXAN 20MG
+                        - paragraph [ref=e1481]: ARTOXAN TABLETS 20MG №10
+                    - cell [ref=e1482]
+                    - cell "92000" [ref=e1484]:
+                      - generic [ref=e1485]:
+                        - button [ref=e1486]:
+                          - img
+                        - spinbutton [ref=e1487]: "92000"
+                        - button [ref=e1488]:
+                          - img
+                    - cell "320" [ref=e1489]:
+                      - generic [ref=e1490]:
+                        - button [ref=e1491]:
+                          - img
+                        - spinbutton [ref=e1492]: "320"
+                        - button [ref=e1493]:
+                          - img
+                    - cell "29 440 000 ₽" [ref=e1494]:
+                      - paragraph [ref=e1495]: 29 440 000 ₽
+                    - cell "5.6%" [ref=e1496]:
+                      - generic [ref=e1498]: 5.6%
+                  - row "5 CLODIFEN NEURO CLODIFEN NEURO CAPSULES №30 74750 540 40 365 000 ₽ 7.6%" [ref=e1501]:
+                    - cell "5" [ref=e1502]:
+                      - generic [ref=e1503]: "5"
+                    - cell "CLODIFEN NEURO CLODIFEN NEURO CAPSULES №30" [ref=e1504]:
+                      - generic [ref=e1505]:
+                        - paragraph [ref=e1506]: CLODIFEN NEURO
+                        - paragraph [ref=e1507]: CLODIFEN NEURO CAPSULES №30
+                    - cell [ref=e1508]
+                    - cell "74750" [ref=e1510]:
+                      - generic [ref=e1511]:
+                        - button [ref=e1512]:
+                          - img
+                        - spinbutton [ref=e1513]: "74750"
+                        - button [ref=e1514]:
+                          - img
+                    - cell "540" [ref=e1515]:
+                      - generic [ref=e1516]:
+                        - button [ref=e1517]:
+                          - img
+                        - spinbutton [ref=e1518]: "540"
+                        - button [ref=e1519]:
+                          - img
+                    - cell "40 365 000 ₽" [ref=e1520]:
+                      - paragraph [ref=e1521]: 40 365 000 ₽
+                    - cell "7.6%" [ref=e1522]:
+                      - generic [ref=e1524]: 7.6%
+                  - row "6 COCARNIT COCARNIT LYOF.POWD.FOR INJ. 3 VIAL + 3 SOLVENT 86250 740 63 825 000 ₽ 12.0%" [ref=e1527]:
+                    - cell "6" [ref=e1528]:
+                      - generic [ref=e1529]: "6"
+                    - cell "COCARNIT COCARNIT LYOF.POWD.FOR INJ. 3 VIAL + 3 SOLVENT" [ref=e1530]:
+                      - generic [ref=e1531]:
+                        - paragraph [ref=e1532]: COCARNIT
+                        - paragraph [ref=e1533]: COCARNIT LYOF.POWD.FOR INJ. 3 VIAL + 3 SOLVENT
+                    - cell [ref=e1534]
+                    - cell "86250" [ref=e1536]:
+                      - generic [ref=e1537]:
+                        - button [ref=e1538]:
+                          - img
+                        - spinbutton [ref=e1539]: "86250"
+                        - button [ref=e1540]:
+                          - img
+                    - cell "740" [ref=e1541]:
+                      - generic [ref=e1542]:
+                        - button [ref=e1543]:
+                          - img
+                        - spinbutton [ref=e1544]: "740"
+                        - button [ref=e1545]:
+                          - img
+                    - cell "63 825 000 ₽" [ref=e1546]:
+                      - paragraph [ref=e1547]: 63 825 000 ₽
+                    - cell "12.0%" [ref=e1548]:
+                      - generic [ref=e1550]: 12.0%
+                  - row "7 DORAMYCIN DORAMYCIN TABLETS 3,0 MIU №10 46000 1100 50 600 000 ₽ 9.5%" [ref=e1553]:
+                    - cell "7" [ref=e1554]:
+                      - generic [ref=e1555]: "7"
+                    - cell "DORAMYCIN DORAMYCIN TABLETS 3,0 MIU №10" [ref=e1556]:
+                      - generic [ref=e1557]:
+                        - paragraph [ref=e1558]: DORAMYCIN
+                        - paragraph [ref=e1559]: DORAMYCIN TABLETS 3,0 MIU №10
+                    - cell [ref=e1560]
+                    - cell "46000" [ref=e1562]:
+                      - generic [ref=e1563]:
+                        - button [ref=e1564]:
+                          - img
+                        - spinbutton [ref=e1565]: "46000"
+                        - button [ref=e1566]:
+                          - img
+                    - cell "1100" [ref=e1567]:
+                      - generic [ref=e1568]:
+                        - button [ref=e1569]:
+                          - img
+                        - spinbutton [ref=e1570]: "1100"
+                        - button [ref=e1571]:
+                          - img
+                    - cell "50 600 000 ₽" [ref=e1572]:
+                      - paragraph [ref=e1573]: 50 600 000 ₽
+                    - cell "9.5%" [ref=e1574]:
+                      - generic [ref=e1576]: 9.5%
+                  - row "8 DRASTOP ADVANCE DRASTOP ADVANCE TABLETS №30 40250 1176 47 334 000 ₽ 8.9%" [ref=e1579]:
+                    - cell "8" [ref=e1580]:
+                      - generic [ref=e1581]: "8"
+                    - cell "DRASTOP ADVANCE DRASTOP ADVANCE TABLETS №30" [ref=e1582]:
+                      - generic [ref=e1583]:
+                        - paragraph [ref=e1584]: DRASTOP ADVANCE
+                        - paragraph [ref=e1585]: DRASTOP ADVANCE TABLETS №30
+                    - cell [ref=e1586]
+                    - cell "40250" [ref=e1588]:
+                      - generic [ref=e1589]:
+                        - button [ref=e1590]:
+                          - img
+                        - spinbutton [ref=e1591]: "40250"
+                        - button [ref=e1592]:
+                          - img
+                    - cell "1176" [ref=e1593]:
+                      - generic [ref=e1594]:
+                        - button [ref=e1595]:
+                          - img
+                        - spinbutton [ref=e1596]: "1176"
+                        - button [ref=e1597]:
+                          - img
+                    - cell "47 334 000 ₽" [ref=e1598]:
+                      - paragraph [ref=e1599]: 47 334 000 ₽
+                    - cell "8.9%" [ref=e1600]:
+                      - generic [ref=e1602]: 8.9%
+                  - row "9 LIMENDA LIMENDA VAG. SUPPOSITORY 750MG/200MG №7 63250 750 47 437 500 ₽ 8.9%" [ref=e1605]:
+                    - cell "9" [ref=e1606]:
+                      - generic [ref=e1607]: "9"
+                    - cell "LIMENDA LIMENDA VAG. SUPPOSITORY 750MG/200MG №7" [ref=e1608]:
+                      - generic [ref=e1609]:
+                        - paragraph [ref=e1610]: LIMENDA
+                        - paragraph [ref=e1611]: LIMENDA VAG. SUPPOSITORY 750MG/200MG №7
+                    - cell [ref=e1612]
+                    - cell "63250" [ref=e1614]:
+                      - generic [ref=e1615]:
+                        - button [ref=e1616]:
+                          - img
+                        - spinbutton [ref=e1617]: "63250"
+                        - button [ref=e1618]:
+                          - img
+                    - cell "750" [ref=e1619]:
+                      - generic [ref=e1620]:
+                        - button [ref=e1621]:
+                          - img
+                        - spinbutton [ref=e1622]: "750"
+                        - button [ref=e1623]:
+                          - img
+                    - cell "47 437 500 ₽" [ref=e1624]:
+                      - paragraph [ref=e1625]: 47 437 500 ₽
+                    - cell "8.9%" [ref=e1626]:
+                      - generic [ref=e1628]: 8.9%
+                  - row "10 ORCIPOL ORCIPOL TABLETS 500MG/500MG №10 69000 700 48 300 000 ₽ 9.1%" [ref=e1631]:
+                    - cell "10" [ref=e1632]:
+                      - generic [ref=e1633]: "10"
+                    - cell "ORCIPOL ORCIPOL TABLETS 500MG/500MG №10" [ref=e1634]:
+                      - generic [ref=e1635]:
+                        - paragraph [ref=e1636]: ORCIPOL
+                        - paragraph [ref=e1637]: ORCIPOL TABLETS 500MG/500MG №10
+                    - cell [ref=e1638]
+                    - cell "69000" [ref=e1640]:
+                      - generic [ref=e1641]:
+                        - button [ref=e1642]:
+                          - img
+                        - spinbutton [ref=e1643]: "69000"
+                        - button [ref=e1644]:
+                          - img
+                    - cell "700" [ref=e1645]:
+                      - generic [ref=e1646]:
+                        - button [ref=e1647]:
+                          - img
+                        - spinbutton [ref=e1648]: "700"
+                        - button [ref=e1649]:
+                          - img
+                    - cell "48 300 000 ₽" [ref=e1650]:
+                      - paragraph [ref=e1651]: 48 300 000 ₽
+                    - cell "9.1%" [ref=e1652]:
+                      - generic [ref=e1654]: 9.1%
+                  - row "11 RONOCIT RONOCIT ORAL SOL. 100MG/ML 10ML №10 51750 1100 56 925 000 ₽ 10.7%" [ref=e1657]:
+                    - cell "11" [ref=e1658]:
+                      - generic [ref=e1659]: "11"
+                    - cell "RONOCIT RONOCIT ORAL SOL. 100MG/ML 10ML №10" [ref=e1660]:
+                      - generic [ref=e1661]:
+                        - paragraph [ref=e1662]: RONOCIT
+                        - paragraph [ref=e1663]: RONOCIT ORAL SOL. 100MG/ML 10ML №10
+                    - cell [ref=e1664]
+                    - cell "51750" [ref=e1666]:
+                      - generic [ref=e1667]:
+                        - button [ref=e1668]:
+                          - img
+                        - spinbutton [ref=e1669]: "51750"
+                        - button [ref=e1670]:
+                          - img
+                    - cell "1100" [ref=e1671]:
+                      - generic [ref=e1672]:
+                        - button [ref=e1673]:
+                          - img
+                        - spinbutton [ref=e1674]: "1100"
+                        - button [ref=e1675]:
+                          - img
+                    - cell "56 925 000 ₽" [ref=e1676]:
+                      - paragraph [ref=e1677]: 56 925 000 ₽
+                    - cell "10.7%" [ref=e1678]:
+                      - generic [ref=e1680]: 10.7%
+                  - row "12 SECNIDOX SECNIDOX TABLETS 1000MG №2 57500 750 43 125 000 ₽ 8.1%" [ref=e1683]:
+                    - cell "12" [ref=e1684]:
+                      - generic [ref=e1685]: "12"
+                    - cell "SECNIDOX SECNIDOX TABLETS 1000MG №2" [ref=e1686]:
+                      - generic [ref=e1687]:
+                        - paragraph [ref=e1688]: SECNIDOX
+                        - paragraph [ref=e1689]: SECNIDOX TABLETS 1000MG №2
+                    - cell [ref=e1690]
+                    - cell "57500" [ref=e1692]:
+                      - generic [ref=e1693]:
+                        - button [ref=e1694]:
+                          - img
+                        - spinbutton [ref=e1695]: "57500"
+                        - button [ref=e1696]:
+                          - img
+                    - cell "750" [ref=e1697]:
+                      - generic [ref=e1698]:
+                        - button [ref=e1699]:
+                          - img
+                        - spinbutton [ref=e1700]: "750"
+                        - button [ref=e1701]:
+                          - img
+                    - cell "43 125 000 ₽" [ref=e1702]:
+                      - paragraph [ref=e1703]: 43 125 000 ₽
+                    - cell "8.1%" [ref=e1704]:
+                      - generic [ref=e1706]: 8.1%
+                - rowgroup [ref=e1709]:
+                  - 'row "ИТОГО: 787 750 673 ₽ 530 276 500 ₽ 100%" [ref=e1710]':
+                    - cell "ИТОГО:" [ref=e1711]
+                    - cell "787 750" [ref=e1712]:
+                      - paragraph [ref=e1713]: 787 750
+                    - cell "673 ₽" [ref=e1714]:
+                      - paragraph [ref=e1715]: 673 ₽
+                    - cell "530 276 500 ₽" [ref=e1716]:
+                      - paragraph [ref=e1717]: 530 276 500 ₽
+                    - cell "100%" [ref=e1718]:
+                      - paragraph [ref=e1719]: 100%
+              - generic [ref=e1720]:
+                - generic [ref=e1721]:
+                  - heading "Топ-3 по выручке" [level=4] [ref=e1722]:
+                    - img [ref=e1723]
+                    - text: Топ-3 по выручке
+                  - generic [ref=e1726]:
+                    - generic [ref=e1727]:
+                      - generic [ref=e1728]:
+                        - generic [ref=e1729]: "1"
+                        - generic [ref=e1730]: COCARNIT
+                      - generic [ref=e1731]: 63 825 000 ₽
+                    - generic [ref=e1732]:
+                      - generic [ref=e1733]:
+                        - generic [ref=e1734]: "2"
+                        - generic [ref=e1735]: RONOCIT
+                      - generic [ref=e1736]: 56 925 000 ₽
+                    - generic [ref=e1737]:
+                      - generic [ref=e1738]:
+                        - generic [ref=e1739]: "3"
+                        - generic [ref=e1740]: ARTOXAN LYOF 20MG
+                      - generic [ref=e1741]: 52 325 000 ₽
+                - generic [ref=e1742]:
+                  - heading "Топ-3 по объему" [level=4] [ref=e1743]:
+                    - img [ref=e1744]
+                    - text: Топ-3 по объему
+                  - generic [ref=e1748]:
+                    - generic [ref=e1749]:
+                      - generic [ref=e1750]:
+                        - generic [ref=e1751]: "1"
+                        - generic [ref=e1752]: ARTOXAN 20MG
+                      - generic [ref=e1753]: 92 000 уп.
+                    - generic [ref=e1754]:
+                      - generic [ref=e1755]:
+                        - generic [ref=e1756]: "2"
+                        - generic [ref=e1757]: COCARNIT
+                      - generic [ref=e1758]: 86 250 уп.
+                    - generic [ref=e1759]:
+                      - generic [ref=e1760]:
+                        - generic [ref=e1761]: "3"
+                        - generic [ref=e1762]: ARTOXAN LYOF 20MG
+                      - generic [ref=e1763]: 80 500 уп.
+          - generic [ref=e1764]:
+            - heading "Общий бюджет России" [level=3] [ref=e1765]:
+              - img [ref=e1766]
+              - text: Общий бюджет России
+            - generic [ref=e1769]:
+              - generic [ref=e1770]:
+                - paragraph [ref=e1771]: Всего округов
+                - heading "8" [level=4] [ref=e1772]
+              - generic [ref=e1773]:
+                - paragraph [ref=e1774]: Всего регионов
+                - heading "56" [level=4] [ref=e1775]
+              - generic [ref=e1776]:
+                - paragraph [ref=e1777]: Общий бюджет
+                - heading "4 404 000 000 ₽" [level=4] [ref=e1778]
+          - generic [ref=e1779]:
+            - generic [ref=e1781] [cursor=pointer]:
+              - generic [ref=e1782]:
+                - generic [ref=e1783]: 🌊
+                - generic [ref=e1784]: ПФО
+              - heading "Приволжский федеральный округ" [level=3] [ref=e1785]
+              - generic [ref=e1786]:
+                - generic [ref=e1787]:
+                  - generic [ref=e1788]: "Регионов:"
+                  - generic [ref=e1789]: "14"
+                - generic [ref=e1790]:
+                  - generic [ref=e1791]: "Бюджет:"
+                  - generic [ref=e1792]: 975 000 000 ₽
+                - generic [ref=e1793]:
+                  - generic [ref=e1794]: "Доля РФ:"
+                  - generic [ref=e1795]: 22.1%
+              - button "Открыть калькулятор" [ref=e1797]
+            - generic [ref=e1799] [cursor=pointer]:
+              - generic [ref=e1800]:
+                - generic [ref=e1801]: 🏛️
+                - generic [ref=e1802]: ЦФО
+              - heading "Центральный федеральный округ" [level=3] [ref=e1803]
+              - generic [ref=e1804]:
+                - generic [ref=e1805]:
+                  - generic [ref=e1806]: "Регионов:"
+                  - generic [ref=e1807]: "8"
+                - generic [ref=e1808]:
+                  - generic [ref=e1809]: "Бюджет:"
+                  - generic [ref=e1810]: 880 000 000 ₽
+                - generic [ref=e1811]:
+                  - generic [ref=e1812]: "Доля РФ:"
+                  - generic [ref=e1813]: 20.0%
+              - button "Открыть калькулятор" [ref=e1815]
+            - generic [ref=e1817] [cursor=pointer]:
+              - generic [ref=e1818]:
+                - generic [ref=e1819]: ⚓
+                - generic [ref=e1820]: СЗФО
+              - heading "Северо-Западный федеральный округ" [level=3] [ref=e1821]
+              - generic [ref=e1822]:
+                - generic [ref=e1823]:
+                  - generic [ref=e1824]: "Регионов:"
+                  - generic [ref=e1825]: "6"
+                - generic [ref=e1826]:
+                  - generic [ref=e1827]: "Бюджет:"
+                  - generic [ref=e1828]: 522 000 000 ₽
+                - generic [ref=e1829]:
+                  - generic [ref=e1830]: "Доля РФ:"
+                  - generic [ref=e1831]: 11.9%
+              - button "Открыть калькулятор" [ref=e1833]
+            - generic [ref=e1835] [cursor=pointer]:
+              - generic [ref=e1836]:
+                - generic [ref=e1837]: ⛰️
+                - generic [ref=e1838]: УФО
+              - heading "Уральский федеральный округ" [level=3] [ref=e1839]
+              - generic [ref=e1840]:
+                - generic [ref=e1841]:
+                  - generic [ref=e1842]: "Регионов:"
+                  - generic [ref=e1843]: "5"
+                - generic [ref=e1844]:
+                  - generic [ref=e1845]: "Бюджет:"
+                  - generic [ref=e1846]: 475 000 000 ₽
+                - generic [ref=e1847]:
+                  - generic [ref=e1848]: "Доля РФ:"
+                  - generic [ref=e1849]: 10.8%
+              - button "Открыть калькулятор" [ref=e1851]
+            - generic [ref=e1853] [cursor=pointer]:
+              - generic [ref=e1854]:
+                - generic [ref=e1855]: 🌲
+                - generic [ref=e1856]: СФО
+              - heading "Сибирский федеральный округ" [level=3] [ref=e1857]
+              - generic [ref=e1858]:
+                - generic [ref=e1859]:
+                  - generic [ref=e1860]: "Регионов:"
+                  - generic [ref=e1861]: "6"
+                - generic [ref=e1862]:
+                  - generic [ref=e1863]: "Бюджет:"
+                  - generic [ref=e1864]: 482 000 000 ₽
+                - generic [ref=e1865]:
+                  - generic [ref=e1866]: "Доля РФ:"
+                  - generic [ref=e1867]: 10.9%
+              - button "Открыть калькулятор" [ref=e1869]
+            - generic [ref=e1871] [cursor=pointer]:
+              - generic [ref=e1872]:
+                - generic [ref=e1873]: ☀️
+                - generic [ref=e1874]: ЮФО
+              - heading "Южный федеральный округ" [level=3] [ref=e1875]
+              - generic [ref=e1876]:
+                - generic [ref=e1877]:
+                  - generic [ref=e1878]: "Регионов:"
+                  - generic [ref=e1879]: "6"
+                - generic [ref=e1880]:
+                  - generic [ref=e1881]: "Бюджет:"
+                  - generic [ref=e1882]: 495 000 000 ₽
+                - generic [ref=e1883]:
+                  - generic [ref=e1884]: "Доля РФ:"
+                  - generic [ref=e1885]: 11.2%
+              - button "Открыть калькулятор" [ref=e1887]
+            - generic [ref=e1889] [cursor=pointer]:
+              - generic [ref=e1890]:
+                - generic [ref=e1891]: 🏔️
+                - generic [ref=e1892]: СКФО
+              - heading "Северо-Кавказский федеральный округ" [level=3] [ref=e1893]
+              - generic [ref=e1894]:
+                - generic [ref=e1895]:
+                  - generic [ref=e1896]: "Регионов:"
+                  - generic [ref=e1897]: "5"
+                - generic [ref=e1898]:
+                  - generic [ref=e1899]: "Бюджет:"
+                  - generic [ref=e1900]: 225 000 000 ₽
+                - generic [ref=e1901]:
+                  - generic [ref=e1902]: "Доля РФ:"
+                  - generic [ref=e1903]: 5.1%
+              - button "Открыть калькулятор" [ref=e1905]
+            - generic [ref=e1907] [cursor=pointer]:
+              - generic [ref=e1908]:
+                - generic [ref=e1909]: 🌅
+                - generic [ref=e1910]: ДФО
+              - heading "Дальневосточный федеральный округ" [level=3] [ref=e1911]
+              - generic [ref=e1912]:
+                - generic [ref=e1913]:
+                  - generic [ref=e1914]: "Регионов:"
+                  - generic [ref=e1915]: "6"
+                - generic [ref=e1916]:
+                  - generic [ref=e1917]: "Бюджет:"
+                  - generic [ref=e1918]: 350 000 000 ₽
+                - generic [ref=e1919]:
+                  - generic [ref=e1920]: "Доля РФ:"
+                  - generic [ref=e1921]: 7.9%
+              - button "Открыть калькулятор" [ref=e1923]
+  - generic [ref=e931]: "60000"
