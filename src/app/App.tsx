@@ -3432,10 +3432,12 @@ export default function MDLPAnalyzerPro() {
           initialSection={adminTargetSection || undefined}
           onBackToMDLP={(targetMdlpSection) => {
             setAdminTargetSection(null);
-            // Гарантируем безопасный старт после возврата: 'upload' не
-            // содержит charts и не пытается рендерить WM Russia виджеты,
-            // которые могут крашнуть Recharts с T.startsWith при пустых
-            // данных. Если sidebar явно передал target — используем его.
+            // Сбрасываем WM-фильтры — иначе при возврате старые wm-state
+            // могут заставить WM-виджеты рендериться с пустыми данными и
+            // крашнуть Recharts (T.startsWith).
+            setWmSelectedDistrict(null);
+            setWmSelectedProduct(null);
+            // Гарантируем безопасный старт: 'upload' не содержит charts.
             const safeTarget = targetMdlpSection || 'upload';
             navigateTo(safeTarget);
             // Если сессия МДЛП не активна — восстановить из WM Russia сессии

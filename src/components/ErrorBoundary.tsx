@@ -37,12 +37,20 @@ export class ErrorBoundary extends React.Component<Props, State> {
           <pre style={{ color: '#f87171', fontSize: '0.75rem', whiteSpace: 'pre-wrap', marginTop: '0.5rem' }}>
             {this.state.error?.stack}
           </pre>
-          <button
-            onClick={() => this.setState({ hasError: false, error: null })}
-            style={{ marginTop: '1rem', padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
-          >
-            Попробовать снова
-          </button>
+          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
+            <button
+              onClick={() => this.setState({ hasError: false, error: null })}
+              style={{ padding: '0.5rem 1rem', background: '#3b82f6', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
+            >
+              Попробовать снова
+            </button>
+            <button
+              onClick={() => window.location.reload()}
+              style={{ padding: '0.5rem 1rem', background: '#10b981', color: 'white', border: 'none', borderRadius: '0.5rem', cursor: 'pointer' }}
+            >
+              Перезагрузить страницу
+            </button>
+          </div>
         </div>
       );
     }

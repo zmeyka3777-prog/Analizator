@@ -1,0 +1,7 @@
+- generic [active] [ref=e1]:
+  - generic [ref=e2960]:
+    - heading "Ошибка рендера приложения" [level=2] [ref=e2961]
+    - generic [ref=e2962]: T.startsWith is not a function
+    - generic [ref=e2963]: "TypeError: T.startsWith is not a function at M_ (http://85.193.86.69/assets/index-BdQgg4-0.js:28:635438) at ma (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:60072) at Eu (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:74125) at kl (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:119932) at wc (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:108305) at bc (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:108233) at mc (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:108096) at ac (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:104931) at cc (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:105313) at Vo (http://85.193.86.69/assets/charts-D9o8IyRU.js:10:46454)"
+    - button "Попробовать снова" [ref=e2964] [cursor=pointer]
+  - generic [ref=e683]: "60000"
