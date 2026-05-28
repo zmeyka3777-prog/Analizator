@@ -109,13 +109,29 @@ const TEMPLATE_DESCRIPTIONS: Record<ReportTemplate, string> = {
   custom: 'Настраиваемый отчёт с произвольными фильтрами и периодом',
 };
 
-const PERIOD_PRESETS = [
-  { label: 'Янв 2026', start: '2026-01-01', end: '2026-01-31' },
-  { label: 'Q1 2026', start: '2026-01-01', end: '2026-03-31' },
-  { label: 'Q4 2025', start: '2025-10-01', end: '2025-12-31' },
-  { label: '2025 год', start: '2025-01-01', end: '2025-12-31' },
-  { label: '2024 год', start: '2024-01-01', end: '2024-12-31' },
-];
+// Динамические пресеты периодов — пересчитываются при каждом импорте файла
+// чтобы не было устаревших «Янв 2026» в 2027 году.
+const MONTH_RU = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+function buildPeriodPresets() {
+  const now = new Date();
+  const Y = now.getFullYear();
+  const M = now.getMonth() + 1; // 1-12
+  const pad = (n: number) => String(n).padStart(2, '0');
+  const lastDayOfMonth = (y: number, m: number) => new Date(y, m, 0).getDate();
+  // Текущий месяц
+  const curMonthEnd = lastDayOfMonth(Y, M);
+  // Текущий квартал
+  const qStart = Math.floor((M - 1) / 3) * 3 + 1;
+  const qEnd = qStart + 2;
+  const qEndDay = lastDayOfMonth(Y, qEnd);
+  return [
+    { label: `${MONTH_RU[M - 1]} ${Y}`, start: `${Y}-${pad(M)}-01`, end: `${Y}-${pad(M)}-${curMonthEnd}` },
+    { label: `Q${Math.ceil(M / 3)} ${Y}`, start: `${Y}-${pad(qStart)}-01`, end: `${Y}-${pad(qEnd)}-${qEndDay}` },
+    { label: `${Y} год`, start: `${Y}-01-01`, end: `${Y}-12-31` },
+    { label: `${Y - 1} год`, start: `${Y - 1}-01-01`, end: `${Y - 1}-12-31` },
+  ];
+}
+const PERIOD_PRESETS = buildPeriodPresets();
 
 const MONTH_NAMES = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 

@@ -922,15 +922,50 @@ export default function BudgetCalculatorEnhanced() {
 
 // Компонент для общего калькулятора по России
 function RussiaCalculator() {
-  // State для препаратов с планами по России
+  // State для препаратов с планами по России. Дефолтные значения — quota2025*1.15
+  // (хардкод mock). Кнопка «Заполнить из планов РМ» подменяет их на реальные
+  // суммы из БД (regional_plans).
   const [russiaProducts, setRussiaProducts] = useState(() =>
     PRODUCTS.map(prod => ({
       ...prod,
-      targetUnits: Math.round(prod.quota2025 * 1.15), // +15% к квоте 2025
+      targetUnits: Math.round(prod.quota2025 * 1.15),
       targetPrice: prod.price,
       targetRevenue: Math.round(prod.quota2025 * 1.15 * prod.price),
     }))
   );
+  const [loadingRmPlans, setLoadingRmPlans] = useState(false);
+  const [rmPlansLoadedYear, setRmPlansLoadedYear] = useState<number | null>(null);
+
+  const fillFromRmPlans = async (year: number) => {
+    setLoadingRmPlans(true);
+    try {
+      const token = localStorage.getItem('wm_auth_token');
+      const res = await fetch(`/api/regional-plans?year=${year}`, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const data = await res.json();
+      const sumByProduct = new Map<string, number>();
+      for (const p of (data.plans || []) as Array<{ product_id: string; plan_units: number }>) {
+        sumByProduct.set(p.product_id, (sumByProduct.get(p.product_id) || 0) + p.plan_units);
+      }
+      setRussiaProducts(prev =>
+        prev.map(p => {
+          const planFromRM = sumByProduct.get(p.id) || 0;
+          // Если у этого препарата есть план от РМ — используем его, иначе оставляем текущее
+          if (planFromRM > 0) {
+            return { ...p, targetUnits: planFromRM, targetRevenue: planFromRM * p.targetPrice };
+          }
+          return p;
+        })
+      );
+      setRmPlansLoadedYear(year);
+    } catch (err) {
+      console.error('[RussiaCalculator] Не удалось загрузить планы РМ:', err);
+    } finally {
+      setLoadingRmPlans(false);
+    }
+  };
 
   const [isExpanded, setIsExpanded] = useState(true);
 
@@ -1013,6 +1048,17 @@ function RussiaCalculator() {
             <Button
               onClick={(e) => {
                 e.stopPropagation();
+                fillFromRmPlans(new Date().getFullYear());
+              }}
+              disabled={loadingRmPlans}
+              className="bg-emerald-500/30 backdrop-blur text-white border-2 border-emerald-300/50 hover:bg-emerald-500/50"
+              title="Подставить количество упаковок из планов, которые ввели региональные менеджеры"
+            >
+              {loadingRmPlans ? '...' : '↓ Из планов РМ'}
+            </Button>
+            <Button
+              onClick={(e) => {
+                e.stopPropagation();
                 exportRussiaToCSV();
               }}
               className="bg-white/20 backdrop-blur text-white border-2 border-white/30 hover:bg-white/30"
@@ -1022,6 +1068,11 @@ function RussiaCalculator() {
             </Button>
             {isExpanded ? <ChevronUp className="w-6 h-6" /> : <ChevronDown className="w-6 h-6" />}
           </div>
+          {rmPlansLoadedYear && (
+            <p className="text-xs text-emerald-200 mt-2 ml-1">
+              ✓ Загружены планы РМ за {rmPlansLoadedYear} год. Можно корректировать вручную.
+            </p>
+          )}
         </div>
       </div>
 

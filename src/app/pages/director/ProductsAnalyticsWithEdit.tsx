@@ -225,12 +225,16 @@ export default function ProductsAnalyticsWithEdit() {
             {metric === 'rubles' ? formatNumber(totalStats.totalUnits) : formatCurrency(totalStats.totalRevenue)}
           </p>
         </div>
-        <div className="bg-gradient-to-br from-emerald-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl">
+        <div className={`bg-gradient-to-br ${productsDataPrev.length > 0 && productsDataPrev.some(p => p.totalRevenue > 0) ? 'from-emerald-500 to-emerald-600' : 'from-slate-400 to-slate-500'} rounded-2xl p-6 text-white shadow-xl`}>
           <div className="flex items-center justify-between mb-2">
-            <p className="text-emerald-100">Рост к {dateSettings.previousYear}</p>
+            <p className="text-white/90">Рост к {dateSettings.previousYear}</p>
             <TrendingUp className="w-8 h-8 text-white/30" />
           </div>
-          <p className="text-3xl font-bold">{formatPercent(totalStats.growth)}</p>
+          {productsDataPrev.length > 0 && productsDataPrev.some(p => p.totalRevenue > 0) ? (
+            <p className="text-3xl font-bold">{formatPercent(totalStats.growth)}</p>
+          ) : (
+            <p className="text-sm font-medium text-white/80 mt-2">Нет данных за {dateSettings.previousYear}</p>
+          )}
         </div>
       </div>
 
@@ -318,16 +322,24 @@ export default function ProductsAnalyticsWithEdit() {
 
                 <div className="flex items-center justify-between pt-4 border-t border-slate-100">
                   <div className="flex items-center gap-2">
-                    {isPositive ? (
-                      <TrendingUp className="w-5 h-5 text-green-600" />
+                    {item.prevYearRevenue > 0 ? (
+                      <>
+                        {isPositive ? (
+                          <TrendingUp className="w-5 h-5 text-green-600" />
+                        ) : (
+                          <TrendingDown className="w-5 h-5 text-red-600" />
+                        )}
+                        <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                          {formatPercent(growth)}
+                        </span>
+                      </>
                     ) : (
-                      <TrendingDown className="w-5 h-5 text-red-600" />
+                      <span className="text-xs text-slate-400">— нет данных</span>
                     )}
-                    <span className={`text-sm font-semibold ${isPositive ? 'text-green-600' : 'text-red-600'}`}>
-                      {formatPercent(growth)}
-                    </span>
                   </div>
-                  <span className="text-xs text-slate-400">vs 2025</span>
+                  {item.prevYearRevenue > 0 && (
+                    <span className="text-xs text-slate-400">vs {dateSettings.previousYear}</span>
+                  )}
                 </div>
               </div>
             </div>
