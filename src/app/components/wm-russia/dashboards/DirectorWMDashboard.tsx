@@ -67,7 +67,10 @@ import { FEDERAL_DISTRICTS, getTotalRussiaBudget2025, getDistrictStats, FederalD
 import ProductsAnalyticsWithEdit from '@/app/pages/director/ProductsAnalyticsWithEdit';
 import BudgetCalculatorEnhanced from '@/app/pages/director/BudgetCalculatorEnhanced';
 import TerritoriesAnalytics from '@/app/pages/director/TerritoriesAnalytics';
-import EmployeesAnalytics from '@/app/pages/director/EmployeesAnalytics';
+// Live-версия с реальными данными из /api/admin/employees (107 сотрудников
+// из CRM xlsx) — заменяет старый EmployeesAnalytics с mock-сотрудниками
+// типа «Смирнов Д.», «Петров А.» с фейковыми телефонами.
+import EmployeesAnalytics from '@/app/pages/director/EmployeesAnalyticsLive';
 import { initializeUploadedMonths, isMonthUploaded, getLastUploadedMonth } from '@/data/dataUploadManager';
 import { getSalesData } from '@/data/salesData';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';

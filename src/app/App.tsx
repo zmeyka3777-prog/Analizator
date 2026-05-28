@@ -3432,11 +3432,12 @@ export default function MDLPAnalyzerPro() {
           initialSection={adminTargetSection || undefined}
           onBackToMDLP={(targetMdlpSection) => {
             setAdminTargetSection(null);
-            // Если sidebar передал mdlpSection (AdminCombinedSidebar клик
-            // «Аналитика»/«Загрузка») — сразу переходим на нужный экран.
-            if (targetMdlpSection) {
-              navigateTo(targetMdlpSection);
-            }
+            // Гарантируем безопасный старт после возврата: 'upload' не
+            // содержит charts и не пытается рендерить WM Russia виджеты,
+            // которые могут крашнуть Recharts с T.startsWith при пустых
+            // данных. Если sidebar явно передал target — используем его.
+            const safeTarget = targetMdlpSection || 'upload';
+            navigateTo(safeTarget);
             // Если сессия МДЛП не активна — восстановить из WM Russia сессии
             if (!currentUser) {
               try {
