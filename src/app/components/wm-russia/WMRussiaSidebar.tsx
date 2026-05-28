@@ -31,11 +31,10 @@ const menuItemsByRole: Record<WMUserRole, MenuItem[]> = {
     { id: 'territory-kpi', label: 'KPI территории', icon: '🎯' },
   ],
   manager: [
-    // Три реальные вкладки (overview/employees/products) — остальные дубли удалены:
-    // territories, district-kpi, reports все маппятся в overview, создавая путаницу.
     { id: 'district-dashboard', label: 'Дашборд округа', icon: '📊' },
     { id: 'all-medreps', label: 'Все медпреды', icon: '👥' },
     { id: 'analytics', label: 'Аналитика по препаратам', icon: '📈' },
+    { id: 'plans', label: 'Планы', icon: '📋' },
   ],
   director: [
     { id: 'director-dashboard', label: 'Общая панель', icon: '🏢' },

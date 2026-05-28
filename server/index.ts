@@ -876,6 +876,135 @@ app.patch("/api/plans/:id", authMiddleware, async (req: AuthRequest, res) => {
   }
 });
 
+// ==================== REGIONAL PLANS (новая фича Phase 2) ====================
+// Таблица world_medicine.regional_plans хранит планы РМ по препаратам и месяцам.
+// Каждый РМ заполняет план для своих регионов (например ПФО — 14 регионов).
+// Директор видит сумму по всем РМ.
+//
+// Структура записи: { user_id, year, region_name, product_id, month (1-12), plan_units }
+// UNIQUE(user_id, year, region_name, product_id, month) — один план на эту комбинацию.
+
+// GET план: режим определяется ролью из JWT.
+//   - manager (РМ): только свои записи
+//   - director/admin: все записи (для сводного view)
+//   - остальные роли: запрет
+app.get("/api/regional-plans", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const year = Number(req.query.year) || new Date().getFullYear();
+    const role = (req as any).userRole;
+    const userId = req.userId;
+
+    let result;
+    if (role === 'director' || role === 'admin') {
+      // Сводка: все планы за год + ФИО автора через JOIN на users
+      result = await safeQuery(
+        `SELECT rp.id, rp.user_id, rp.year, rp.region_name, rp.product_id,
+                rp.month, rp.plan_units, rp.created_at, rp.updated_at,
+                u.name as user_name, u.email as user_email
+         FROM world_medicine.regional_plans rp
+         LEFT JOIN world_medicine.users u ON u.id = rp.user_id
+         WHERE rp.year = $1
+         ORDER BY rp.user_id, rp.region_name, rp.product_id, rp.month`,
+        [year]
+      );
+    } else if (role === 'manager' || role === 'regional_manager') {
+      // РМ видит только свои
+      result = await safeQuery(
+        `SELECT id, user_id, year, region_name, product_id, month, plan_units,
+                created_at, updated_at
+         FROM world_medicine.regional_plans
+         WHERE user_id = $1 AND year = $2
+         ORDER BY region_name, product_id, month`,
+        [userId, year]
+      );
+    } else {
+      return res.status(403).json({ error: "Доступ запрещён — только для РМ и директора" });
+    }
+
+    res.json({ year, plans: result.rows });
+  } catch (error: any) {
+    console.error("[regional-plans] GET error:", error?.message);
+    res.status(500).json({ error: "Ошибка получения планов РМ" });
+  }
+});
+
+// POST /api/regional-plans/bulk — батч UPSERT массива записей.
+// Принимает { year, plans: [{ region_name, product_id, month, plan_units }] }
+// Использует ON CONFLICT для атомарного UPSERT.
+app.post("/api/regional-plans/bulk", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const role = (req as any).userRole;
+    if (role !== 'manager' && role !== 'regional_manager' && role !== 'admin') {
+      return res.status(403).json({ error: "Только РМ может сохранять планы" });
+    }
+
+    const { year, plans } = req.body;
+    if (!Number.isInteger(year) || year < 2020 || year > 2035) {
+      return res.status(400).json({ error: "Некорректный год" });
+    }
+    if (!Array.isArray(plans)) {
+      return res.status(400).json({ error: "Массив plans обязателен" });
+    }
+
+    const userId = req.userId;
+    let inserted = 0;
+    let updated = 0;
+
+    for (const p of plans) {
+      const regionName = String(p.region_name || '').trim();
+      const productId = String(p.product_id || '').trim();
+      const month = Number(p.month);
+      const planUnits = Number(p.plan_units) || 0;
+
+      if (!regionName || !productId) continue;
+      if (!Number.isInteger(month) || month < 1 || month > 12) continue;
+
+      const result = await safeQuery(
+        `INSERT INTO world_medicine.regional_plans
+           (user_id, year, region_name, product_id, month, plan_units)
+         VALUES ($1, $2, $3, $4, $5, $6)
+         ON CONFLICT (user_id, year, region_name, product_id, month)
+         DO UPDATE SET plan_units = EXCLUDED.plan_units, updated_at = NOW()
+         RETURNING (xmax = 0) AS inserted`,
+        [userId, year, regionName, productId, month, planUnits]
+      );
+      if (result.rows[0]?.inserted) inserted++;
+      else updated++;
+    }
+
+    res.json({ success: true, inserted, updated, total: inserted + updated });
+  } catch (error: any) {
+    console.error("[regional-plans] POST bulk error:", error?.message);
+    res.status(500).json({ error: "Ошибка сохранения планов" });
+  }
+});
+
+// DELETE /api/regional-plans?year=2026 — удалить все мои планы за год.
+app.delete("/api/regional-plans", authMiddleware, async (req: AuthRequest, res) => {
+  try {
+    const role = (req as any).userRole;
+    if (role !== 'manager' && role !== 'regional_manager' && role !== 'admin') {
+      return res.status(403).json({ error: "Только РМ может удалять свои планы" });
+    }
+
+    const year = Number(req.query.year);
+    if (!Number.isInteger(year) || year < 2020 || year > 2035) {
+      return res.status(400).json({ error: "Некорректный год" });
+    }
+
+    const userId = req.userId;
+    const result = await safeQuery(
+      `DELETE FROM world_medicine.regional_plans WHERE user_id = $1 AND year = $2`,
+      [userId, year]
+    );
+
+    res.json({ success: true, deleted: result.rowCount || 0 });
+  } catch (error: any) {
+    console.error("[regional-plans] DELETE error:", error?.message);
+    res.status(500).json({ error: "Ошибка удаления планов" });
+  }
+});
+
 app.get("/api/uploads/:userId", authMiddleware, async (req: AuthRequest, res) => {
   try {
     const userId = Number(req.params.userId);

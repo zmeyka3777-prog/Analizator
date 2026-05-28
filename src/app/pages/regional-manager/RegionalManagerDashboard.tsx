@@ -8,6 +8,7 @@ import { getSalesData, TERRITORIES } from '@/data/salesData';
 import { EMPLOYEES, getSubordinates } from '@/data/employees';
 import { ProductsTab } from './ProductsTab';
 import { EmployeesTabNew } from './EmployeesTabNew';
+import { PlansTab } from './PlansTab';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
@@ -19,7 +20,7 @@ const COLORS = [
   '#eab308', '#64748b',
 ];
 
-type Tab = 'overview' | 'products' | 'employees';
+type Tab = 'overview' | 'products' | 'employees' | 'plans';
 
 // ==================== OverviewTab ====================
 function OverviewTab() {
@@ -192,6 +193,7 @@ const REGIONAL_SECTION_MAP: Record<string, Tab> = {
   'analytics': 'products',
   'district-kpi': 'overview',
   'reports': 'overview',
+  'plans': 'plans',
 };
 
 // ==================== RegionalManagerDashboard ====================
@@ -212,6 +214,7 @@ export default function RegionalManagerDashboard({ activeSection }: { activeSect
     { key: 'overview', label: 'Обзор' },
     { key: 'products', label: 'Препараты' },
     { key: 'employees', label: 'Сотрудники' },
+    { key: 'plans', label: 'Планы' },
   ];
 
   return (
@@ -220,6 +223,7 @@ export default function RegionalManagerDashboard({ activeSection }: { activeSect
       {activeTab === 'overview' && <OverviewTab />}
       {activeTab === 'products' && <ProductsTab />}
       {activeTab === 'employees' && <EmployeesTabNew />}
+      {activeTab === 'plans' && <PlansTab />}
     </div>
   );
 }
