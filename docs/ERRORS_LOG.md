@@ -5,7 +5,7 @@
 
 ---
 
-## ⚠️ Top-7 ошибок которые повторяются чаще всего
+## ⚠️ Top-10 ошибок которые повторяются чаще всего
 
 | # | Признак | Корень | Что делать |
 |---|---------|--------|-----------|
@@ -16,12 +16,15 @@
 | 5 | Дашборд показывает нули в KPI | `SALES_DATA = []`, `setSalesDataFromMdlp` не сработал | Проверить что `SharedDataProvider.reloadFromServer()` вызывается; проверить что `mdlp_user` есть в localStorage |
 | 6 | После смены юзера данные прежнего остались | `SharedDataProvider` не получил событие `user-changed` | App.tsx/WMRussiaApp должны диспатчить `window.dispatchEvent(new Event('user-changed'))` при login/logout |
 | 7 | Имя пользователя/пароль сбрасывается в Timeweb после ручного "Изменить" | Сама панель Timeweb сбрасывает grants даже без явных действий | Запустить `/root/restore-grants.sh` |
+| 8 | **15 000 записей МДЛП скипаются → SALES_DATA пуст** | `SharedDataContext.reloadFromServer` маппит `month: typeof r.month === 'number' ? r.month : undefined`. API отдаёт строку "Мар" → undefined → setSalesDataFromMdlp скипает | Использовать `toMonthNum(r.month)` из `@/utils/months` (поддерживает строки/числа) |
+| 9 | **Белый экран при «Вернуться в МДЛП» (директор)** | Recharts падает с `T.startsWith is not a function` если получает невалидные данные | (a) `main.tsx` обёрнут в `ErrorBoundary` — fallback вместо белого экрана. (b) `onBackToMDLP` явно `navigateTo('upload')` + сброс WM-фильтров. (c) `ChartErrorBoundary` готов для оборачивания конкретных Recharts-блоков |
+| 10 | **AuthContext.login всегда возвращает false** | Сервер отвечает плоско `{ id, name, role, token }`, AuthContext ждал `{ user, token }` | Парсить оба формата: `const u = data?.user ?? data` |
 
 ---
 
-## 🆕 Активные проблемы
+## 🆕 Активные проблемы (на 2026-05-28)
 
-Сейчас нет активных проблем (на 2026-05-03). Следующее — UI-аудит через Playwright MCP.
+- **T.startsWith crash в Recharts** при возврате директора из «Панель директора» в «Анализатор МДЛП». ErrorBoundary защищает (юзер видит сообщение + «Перезагрузить страницу» кнопку), но **корень не найден**. Требуются sourcemaps + локальный dev для пошагового дебага. Все наши `.startsWith()` вызовы корректны (только `activeTab.startsWith('wm-')` на гарантированной строке). Подозрение: Recharts internal formatter получает число где ждёт строку — нужно обернуть конкретные Recharts блоки в `ChartErrorBoundary`.
 
 ---
 

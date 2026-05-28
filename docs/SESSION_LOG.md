@@ -5,7 +5,93 @@
 
 ---
 
-## Последняя сессия: 2026-03-21
+## Последняя сессия: 2026-05-25 — 2026-05-28 (марафон: фильтры, планы РМ, иерархия сотрудников)
+
+### Что сделано
+
+#### Реальные сотрудники + иерархия (2026-05-26)
+- Таблица `world_medicine.employees_data` расширена 6 колонками: `crm_group, position, city, email, hierarchy_level, source`
+- Импортированы **107 сотрудников** из `сотрудники.xlsx` (CRM): 2 директора, 8 РМ, 15 ТМ, 82 МП
+- 14 CRM-групп: Moscow 1/2, CFD Samadova, NCFD Bunytov, NWD Samadova, **PFO Samadova/Nechaeva/Orudjov/Sonin**, SFD Abbasov/Guseyn/Shtefanova, SibFD Milchenko, UFD Tagieva
+- `/api/admin/employees` возвращает с сортировкой по hierarchy_level → crm_group → role → name
+- [EmployeesManagement.tsx](src/app/pages/admin/EmployeesManagement.tsx) — полный refactor с иерархической группировкой
+- [EmployeesAnalyticsLive.tsx](src/app/pages/director/EmployeesAnalyticsLive.tsx) — НОВЫЙ компонент для директора с реальными данными (заменил mock EmployeesAnalytics)
+
+#### Combined Admin Sidebar (2026-05-26)
+- Единый sidebar для admin в обоих режимах (MDLP + WM Russia) с группами **АНАЛИТИКА / УПРАВЛЕНИЕ / СИСТЕМА**
+- 13 пунктов вместо 20 без дублей
+- Новый компонент [AdminCombinedSidebar.tsx](src/app/components/common/AdminCombinedSidebar.tsx)
+- WMRussiaApp.tsx принимает `initialSection` prop для прямого перехода в админ-вкладку
+
+#### Фича «Планы РМ» полный цикл (2026-05-28)
+- БД таблица `world_medicine.regional_plans`: id, user_id, year, region_name, product_id, month (1-12), plan_units + UNIQUE constraint
+- 3 API endpoint'а в [server/index.ts](server/index.ts):
+  - `GET /api/regional-plans?year=2026` — role-based (manager=свои, director/admin=все+JOIN на users)
+  - `POST /api/regional-plans/bulk` — батч UPSERT через ON CONFLICT
+  - `DELETE /api/regional-plans?year=2026` — очистить мои планы
+- [PlansTab.tsx](src/app/pages/regional-manager/PlansTab.tsx) — 4-я вкладка в кабинете РМ:
+  - Матрица 14 регионов × 12 месяцев для каждого из 12 препаратов
+  - Inline-редактирование с жёлтым бордюром на dirty
+  - Excel шаблон скачать/загрузить (12 листов по препаратам)
+  - Кнопки Сохранить (N) / Очистить год
+- [DirectorPlansSummary.tsx](src/app/pages/director/DirectorPlansSummary.tsx) — в начале калькулятора бюджета:
+  - KPI: План / Факт (из SALES_DATA) / Выполнение % / РМ заполнили
+  - Список РМ с раскрытием → распределение по препаратам
+- В RussiaCalculator добавлена кнопка **«↓ Из планов РМ»** — подставляет сумму планов РМ в калькулятор
+
+#### Director UX (2026-05-28)
+- BUG: «Вернуться в МДЛП» → белый экран (T.startsWith crash в Recharts)
+- Фикс: `onBackToMDLP` явно `navigateTo('upload')` + сброс `wmSelectedDistrict/Product`
+- `main.tsx` обёрнут в `ErrorBoundary` (защита от любого crash)
+- Новый [ChartErrorBoundary.tsx](src/app/components/common/ChartErrorBoundary.tsx) для локальной защиты chart-блоков
+- Динамичные пресеты периодов в ReportsTabLight (`buildPeriodPresets()`)
+- Скрытие «Рост 0%» когда нет данных за прошлый год
+
+#### Глобальные фильтры месяцев + рубли/упаковки (раньше в этом марафоне)
+- [GlobalFiltersContext.tsx](src/context/GlobalFiltersContext.tsx) — единый стейт фильтров
+- [GlobalFilterControls.tsx](src/app/components/common/GlobalFilterControls.tsx) — multi-select месяцев + toggle метрики
+- Подключено в App.tsx (MDLP) и AppLayout (director)
+- Подключено к ProductsAnalyticsWithEdit, TerritoriesAnalytics, ReportsTabLight, BudgetCalculatorEnhanced, RegionalManagerDashboard
+- MedRep/TM получают через monthlyFact в MedRepData → applyMonthsFilter в WMRussiaApp
+
+#### Revenue из drug_prices + индексация SALES_DATA (раньше)
+- SharedDataProvider подгружает `/api/drug-prices` параллельно с yearly-data
+- setSalesDataFromMdlp: revenue = units × price (приоритет: МДЛП-сумма → БД-прайс → PRODUCTS.price fallback)
+- Индексы в salesData.ts: `INDEX_BY_YEAR_MONTH_PRODUCT`, `INDEX_BY_YEAR_PRODUCT`, etc — O(1) lookup
+- Фильтр срабатывает за **9 мс** на 313K записях (раньше 200-500 мс)
+
+#### 14 регионов ПФО (раньше)
+- `federalDistricts.ts` расширен с 6 до 14 регионов ПФО
+- `salesData.ts` TERRITORIES — полные 14 названий
+
+#### Прочие фиксы
+- `setSalesDataFromMdlp` — парсит строковый месяц «Мар» в число (был crash 15K записей пропускались)
+- mojibake «Выпо��нение» → «Выполнение»
+- Admin auto-switch отключён (combined sidebar делает не нужным)
+- Director auto-switch в wm-russia mode после login
+- AuthContext.login починен (раньше всегда возвращал false)
+- DbStatsPanel в админке
+- 14 admin sidebar пунктов восстановлены (system-settings, upload, db-stats)
+
+### Состояние проекта
+- ✅ Полный цикл планов: РМ вводит → БД → директор видит → калькулятор подставляет
+- ✅ 107 реальных сотрудников из CRM с иерархией
+- ✅ Глобальный фильтр месяцев + переключатель рубли/упаковки
+- ✅ Все 5 кабинетов работают на реальных МДЛП-данных + per-user изоляция
+- ✅ Production VPS 85.193.86.69, БД connected, pm2 online
+
+### Что осталось сделать
+- **#1 КРИТИЧНО** Найти источник `T.startsWith` crash в Recharts (нужны sourcemaps + локальный dev). ErrorBoundary защищает но юзер видит сообщение об ошибке
+- Обернуть конкретные Recharts-блоки в ChartErrorBoundary (компонент готов)
+- Реальные бюджеты ПФО (вместо моих оценок в federalDistricts.ts)
+- Удалить старый mock-файл `src/data/employees.ts` (заменён API)
+- strictNullChecks (228 ошибок), убрать `any` (273 места)
+- Refresh JWT-токены + persistent blacklist
+- Email-уведомления
+
+---
+
+## Сессия: 2026-03-21
 
 ### Что сделано
 - **WMRussiaApp.tsx** — убраны моки, добавлен фильтр территорий:

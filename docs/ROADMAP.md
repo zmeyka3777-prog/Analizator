@@ -27,6 +27,26 @@
 
 ## ✅ Что готово (закрыто за сессии март-май 2026)
 
+### Май 2026 — большой марафон (планы РМ, иерархия, фильтры)
+- [x] **Полный цикл «План РМ → Директор»**: БД таблица `regional_plans`, API endpoints, UI РМ (вкладка «Планы» с Excel импорт/экспорт), UI Директор (`DirectorPlansSummary` + кнопка «↓ Из планов РМ» в калькуляторе)
+- [x] **107 реальных сотрудников** из `сотрудники.xlsx` (CRM): 2 директора, 8 РМ, 15 ТМ, 82 МП; 14 CRM-групп (Moscow 1/2, CFD/NCFD/NWD Samadova/Bunytov, **PFO Samadova/Nechaeva/Orudjov/Sonin**, SFD/SibFD/UFD)
+- [x] **Иерархический view сотрудников**: `EmployeesManagement` (admin) и `EmployeesAnalyticsLive` (director) — группировка по CRM-группе, отступы РМ→ТМ→МП
+- [x] **Combined sidebar для admin**: единый sidebar в обоих режимах (MDLP + WM Russia) с 3 группами **АНАЛИТИКА / УПРАВЛЕНИЕ / СИСТЕМА**
+- [x] **Глобальные фильтры**: multi-select по месяцам (12 чекбоксов) + toggle Рубли/Упаковки. Реактивно влияет на все 6 вкладок директора и manager dashboard
+- [x] **Revenue из drug_prices** с fallback на хардкод PRODUCTS.price (когда `amount=0` в МДЛП)
+- [x] **Индексация SALES_DATA** — фильтр срабатывает за 9 мс на 313K записях (O(1) lookup)
+- [x] **14 регионов ПФО** в `federalDistricts.ts` и `TERRITORIES` (раньше было 6, остальные данные терялись)
+- [x] **Auto-routing director** в свою панель сразу после login (без лишнего клика)
+- [x] **AuthContext.login** починен (раньше всегда false)
+- [x] **ErrorBoundary** в main.tsx (защита от любого crash) + `ChartErrorBoundary` для Recharts блоков
+- [x] **Динамичные периоды отчётов** (текущий месяц/квартал/год вместо хардкода 2024/2025/2026)
+- [x] **Скрытие фейкового «Рост 0%»** когда нет данных за прошлый год
+- [x] Фикс «Вернуться в МДЛП» белый экран (safe target navigateTo + WM-filter reset)
+- [x] mojibake «Выпо��нение» → «Выполнение»
+- [x] DbStatsPanel в админке с реальными данными `/api/database/stats`
+- [x] Восстановлены admin пункты (system-settings, upload, db-stats)
+- [x] ErrorToast компонент + `emitAppError()` хелпер
+
 ### Архитектура и единый источник данных
 - [x] `SharedDataProvider` — единый провайдер данных для всех ролей
 - [x] События `mdlp-data-updated` (после загрузки) и `user-changed` (login/logout) для авто-обновления всех панелей
@@ -101,11 +121,23 @@
 
 ## 📋 Что осталось сделать
 
-### Приоритет 1 — UX (после Playwright MCP аудита)
-- [ ] **Полный аудит UI** через Playwright MCP (запланирован) — пройти по всем кнопкам/вкладкам каждой роли, найти тупики и неработающие хендлеры
-- [ ] Фиксы найденных багов
+### Приоритет 1 — Критичные баги
+- [ ] **Найти источник `T.startsWith` crash в Recharts** при возврате директора в МДЛП. ErrorBoundary защищает (юзер видит fallback), но крах остаётся. Нужны sourcemaps + локальный dev. Обернуть конкретные `<ResponsiveContainer>` в `ChartErrorBoundary` (компонент готов в `src/app/components/common/ChartErrorBoundary.tsx`)
 
-### Приоритет 2 — Тех долг (постепенно, по 1 за PR)
+### Приоритет 2 — UX/Данные (улучшения)
+- [ ] **Реальные бюджеты ПФО** в `federalDistricts.ts` (сейчас мои оценки для 8 новых регионов: Марий Эл 30K, Удмуртия 50K, Чувашия 40K, Киров 45K, Оренбург 55K, Пермский край 75K, Саратов 60K, Ульяновск 40K)
+- [ ] Удалить старый mock-файл `src/data/employees.ts` (заменён `/api/admin/employees` + БД)
+- [ ] `getMonthlyDynamics()` хардкодит years 2024/2025/2026 — сделать динамическим
+- [ ] Снизить шум `/api/health` polling (сейчас 30s, нормально, но 60+ запросов в сессии)
+
+### Приоритет 3 — Завершить фичу «Планы РМ»
+- [x] БД таблица + 3 API endpoint'а (GET/POST bulk/DELETE)
+- [x] UI РМ — вкладка «Планы» с Excel импорт/экспорт
+- [x] UI Директор — сводный view в калькуляторе бюджета
+- [x] Кнопка «↓ Из планов РМ» в RussiaCalculator
+- [ ] **Drill-down планов в `<По территориям>`** — показать план vs факт по регионам ПФО
+
+### Приоритет 4 — Тех долг (постепенно, по 1 за PR)
 - [ ] `strictNullChecks: true` в `tsconfig.json` — сейчас даёт 228 ошибок, чинить инкрементально по директориям (server → lib → app)
 - [ ] Убрать `any` (273 места в `src/`) — создать типы для API-ответов
 - [ ] Стабильные React keys вместо `key={i}` (75 мест) — ломает state при сортировке/удалении

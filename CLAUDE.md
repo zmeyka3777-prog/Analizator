@@ -304,25 +304,35 @@ bash scripts/save-session.sh "описание изменений"
 
 ---
 
-## Текущий статус проекта (обновлено 2026-05-03)
+## Текущий статус проекта (обновлено 2026-05-28)
 
 **ПОЛНЫЙ СПИСОК** — см. `docs/ROADMAP.md`. Краткий обзор:
 
 ### Что сделано ✅
-- 5 кабинетов работают, единая «Панель директора WM» (старая удалена)
-- **Единый источник данных:** `SharedDataProvider` слушает события `mdlp-data-updated` и `user-changed`, подтягивает реальные данные из БД, заполняет `SALES_DATA` через `setSalesDataFromMdlp()` — все графики работают от реальных загрузок пользователя
+- **5 кабинетов работают**, `EmployeesAnalyticsLive` с реальными сотрудниками из API
+- **Единый источник данных:** `SharedDataProvider` + индексы O(1), фильтр за 9 мс на 313K записей
 - **Изоляция per-user:** все запросы фильтруются по `user_id` из JWT
-- Безопасность (этапы 1-9): xlsx CVE закрыт, bcrypt 12, JWT 24h + blacklist, zod, TLS, CSP без `unsafe-eval`
-- ~4500 строк mock-кода удалено
-- Деплой работает: VPS 85.193.86.69, nginx + PM2 + Timeweb managed PG
-- **Cron `/root/restore-grants.sh`** — автовосстановление GRANT'ов которые Timeweb периодически сбрасывает (см. `memory/ops_timeweb_grants.md`)
+- **Глобальные фильтры** месяцев + Рубли/Упаковки реактивны во всех 6 вкладках директора
+- **Полный цикл планов РМ:** БД `regional_plans` → API → PlansTab (РМ с Excel) → DirectorPlansSummary (директор) → кнопка «Из планов РМ» в калькуляторе
+- **107 реальных сотрудников из CRM xlsx** в `employees_data`, иерархия по 14 CRM-группам (PFO Sonin, PFO Orudjov и т.д.)
+- **Combined sidebar admin** (АНАЛИТИКА/УПРАВЛЕНИЕ/СИСТЕМА) в обоих режимах
+- **Revenue из `drug_prices`** с fallback на PRODUCTS.price
+- **14 регионов ПФО** (раньше 6)
+- **ErrorBoundary** в main.tsx + `ChartErrorBoundary` для Recharts блоков
+- **Auto-routing** бизнес-ролей в свой кабинет после login
+- Безопасность (этапы 1-9): xlsx CVE, bcrypt 12, JWT 24h + blacklist, zod, TLS, CSP без unsafe-eval
+- Деплой: VPS 85.193.86.69 (nginx + PM2 + Timeweb managed PG)
+- **Cron `/root/restore-grants.sh`** для GRANT'ов Timeweb
 
 ### Что осталось ⏳
-- UI-аудит через Playwright MCP (подключён 2026-05-03, нужен перезапуск Claude Code)
-- Тех долг: `strictNullChecks`, убрать `any`, стабильные React keys, money в копейках
-- Refresh JWT-токены + persistent blacklist (сейчас in-memory)
-- ISO-неделя через `EXTRACT(WEEK FROM document_date)` — нужна schema migration
-- Полное разделение `salesAmount` / `salesQuantity` в UI (переключатель метрики)
+- **🔴 Корень `T.startsWith` crash в Recharts** при возврате директора в МДЛП (нужны sourcemaps, ErrorBoundary защищает)
+- **Реальные бюджеты ПФО** в `federalDistricts.ts` (сейчас оценки для 8 новых регионов)
+- **Удалить mock** `src/data/employees.ts` (заменён API)
+- **Drill-down планов РМ** в «По территориям» директора
+- `getMonthlyDynamics()` хардкод годов → динамичные
+- Тех долг: `strictNullChecks` (228), убрать `any` (273), стабильные React keys (75)
+- Refresh JWT + persistent blacklist
+- ISO-неделя через `EXTRACT(WEEK FROM document_date)` (schema migration)
 - Email-уведомления, шаблоны отчётов, расписание автоотчётов
 
 ### Известные особенности
