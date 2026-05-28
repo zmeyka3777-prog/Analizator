@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-28 14:10
+**Дата:** 2026-05-28 14:29
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+8c2c317 Auto-save at end of session
 edcb601 Auto-save at end of session
 ef9a608 docs: обновление всех ключевых документов перед компактингом
 d435590 Auto-save at end of session
 f3b9141 feat(director-ux): кнопка 'Из планов РМ' в калькуляторе + динамичные периоды отчётов
-c25b853 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
