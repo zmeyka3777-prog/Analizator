@@ -1,22 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-05-28 14:29
+**Дата:** 2026-05-29 07:18
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-нет изменений
+src/app/App.tsx
 ```
 
 ## Последние 5 коммитов
 
 ```
+ee9d330 Auto-save at end of session
 8c2c317 Auto-save at end of session
 edcb601 Auto-save at end of session
 ef9a608 docs: обновление всех ключевых документов перед компактингом
 d435590 Auto-save at end of session
-f3b9141 feat(director-ux): кнопка 'Из планов РМ' в калькуляторе + динамичные периоды отчётов
 ```
 
 ## Для нового Claude (инструкции)

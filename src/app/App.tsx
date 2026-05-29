@@ -25,6 +25,7 @@ import { WMRussiaApp } from './components/wm-russia/WMRussiaApp';
 import { ThemeProvider } from '../contexts/ThemeContext';
 // DirectorDashboard (старая mock-панель) удалена — используется DirectorWMDashboard через appMode='wm-russia'
 import { ErrorBoundary } from '../components/ErrorBoundary';
+import { ChartErrorBoundary } from './components/common/ChartErrorBoundary';
 import { useSharedData, MDLPSaleRecord } from '../context/SharedDataContext';
 import { useGlobalFilters } from '../context/GlobalFiltersContext';
 import { GlobalFilterControls } from './components/common/GlobalFilterControls';
@@ -4427,6 +4428,7 @@ export default function MDLPAnalyzerPro() {
                         Топ-10 регионов по коэффициенту
                       </h3>
                       <div className="h-[380px]">
+                        <ChartErrorBoundary label="Топ-10 регионов по коэффициенту (per-capita)">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={barData} layout="vertical" margin={{ left: 5, right: 30 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
@@ -4443,6 +4445,7 @@ export default function MDLPAnalyzerPro() {
                             </Bar>
                           </BarChart>
                         </ResponsiveContainer>
+                        </ChartErrorBoundary>
                       </div>
                     </div>
 
@@ -4616,6 +4619,7 @@ export default function MDLPAnalyzerPro() {
                       Продажи на сотрудника по менеджерам
                     </h3>
                     <div className="h-[380px]">
+                      <ChartErrorBoundary label="Продажи на сотрудника по менеджерам">
                       <ResponsiveContainer width="100%" height="100%">
                         <BarChart data={barData} margin={{ left: 10, right: 30, bottom: 50 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
@@ -4632,6 +4636,7 @@ export default function MDLPAnalyzerPro() {
                           </Bar>
                         </BarChart>
                       </ResponsiveContainer>
+                      </ChartErrorBoundary>
                     </div>
                   </div>
 
@@ -6274,6 +6279,7 @@ export default function MDLPAnalyzerPro() {
                   if (combinedData.length === 0) return <NoDataMessage title="Нет данных" />;
                   if (!chartsReady) return <div className="h-[220px] flex items-center justify-center text-slate-400 text-sm">Загрузка...</div>;
                   return (
+                  <ChartErrorBoundary label="Динамика продаж (упаковки)">
                   <ResponsiveContainer width="100%" height={220}>
                     <ComposedChart data={combinedData}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
@@ -6288,7 +6294,8 @@ export default function MDLPAnalyzerPro() {
                         return <Bar key={year} dataKey={year} fill={color} name={`${year} уп.`} opacity={0.85} />;
                       })}
                     </ComposedChart>
-                  </ResponsiveContainer>);
+                  </ResponsiveContainer>
+                  </ChartErrorBoundary>);
                 })()}
               </div>
               <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-5 border border-white/30 shadow-xl">
@@ -6301,6 +6308,7 @@ export default function MDLPAnalyzerPro() {
                   if (!chartsReady) return <div className="h-[220px] flex items-center justify-center text-slate-400 text-sm">Загрузка...</div>;
                   const rubYearKeys = dynamicYears.map(y => `${y}_rub`);
                   return (
+                  <ChartErrorBoundary label="Динамика продаж (рубли)">
                   <ResponsiveContainer width="100%" height={220}>
                     <ComposedChart data={combinedDataRubles}>
                       <CartesianGrid strokeDasharray="3 3" stroke={CHART_COLORS.grid} />
@@ -6316,7 +6324,8 @@ export default function MDLPAnalyzerPro() {
                         return <Bar key={rKey} dataKey={rKey} fill={color} name={`${year} ₽`} opacity={0.85} />;
                       })}
                     </ComposedChart>
-                  </ResponsiveContainer>);
+                  </ResponsiveContainer>
+                  </ChartErrorBoundary>);
                 })()}
               </div>
             </div>
@@ -6329,12 +6338,13 @@ export default function MDLPAnalyzerPro() {
                 </h3>
                 {drugPieData.pkgData.length === 0 ? <NoDataMessage title="Нет данных" /> : (
                   <>
+                  <ChartErrorBoundary label="Доля препаратов (упаковки)">
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
                       <Pie data={drugPieData.pkgData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={95} paddingAngle={2} stroke="rgba(255,255,255,0.6)" strokeWidth={2}>
                         {drugPieData.pkgData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
                       </Pie>
-                      <Tooltip 
+                      <Tooltip
                         formatter={(value: number, name: string, props: any) => [formatPackages(value), props.payload.fullName || name]}
                         contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px', backdropFilter: 'blur(8px)' }}
                         itemStyle={{ color: '#e2e8f0' }}
@@ -6342,6 +6352,7 @@ export default function MDLPAnalyzerPro() {
                       />
                     </PieChart>
                   </ResponsiveContainer>
+                  </ChartErrorBoundary>
                   <div className="grid grid-cols-1 gap-1.5 mt-2 max-h-[160px] overflow-y-auto">
                     {drugPieData.pkgData.map((item, idx) => {
                       const total = drugPieData.pkgData.reduce((s, d) => s + d.value, 0);
@@ -6368,12 +6379,13 @@ export default function MDLPAnalyzerPro() {
                   const totalRub = filteredRubData.reduce((s, d) => s + d.value, 0);
                   return (
                   <>
+                  <ChartErrorBoundary label="Доля препаратов (рубли)">
                   <ResponsiveContainer width="100%" height={220}>
                     <PieChart>
                       <Pie data={filteredRubData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={95} paddingAngle={2} stroke="rgba(255,255,255,0.6)" strokeWidth={2}>
                         {filteredRubData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS[idx % PIE_COLORS.length]} />)}
                       </Pie>
-                      <Tooltip 
+                      <Tooltip
                         formatter={(value: number, name: string, props: any) => [formatMoneyFull(value), props.payload.fullName || name]}
                         contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px', backdropFilter: 'blur(8px)' }}
                         itemStyle={{ color: '#e2e8f0' }}
@@ -6381,6 +6393,7 @@ export default function MDLPAnalyzerPro() {
                       />
                     </PieChart>
                   </ResponsiveContainer>
+                  </ChartErrorBoundary>
                   <div className="grid grid-cols-1 gap-1.5 mt-2 max-h-[160px] overflow-y-auto">
                     {filteredRubData.map((item, idx) => {
                       const pct = totalRub > 0 ? ((item.value / totalRub) * 100).toFixed(1) : '0';
@@ -6555,6 +6568,7 @@ export default function MDLPAnalyzerPro() {
                   : 'График прогноза'}
               </h3>
               {hasYearData && chartsReady ? (
+                <ChartErrorBoundary label="График прогноза">
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={isMoney ? combinedData.map((d: any) => { const r: any = { month: d.month, name: d.name }; forecastYears.forEach(y => { r[y] = toRubles(d[y] || 0); }); return r; }) : combinedData}>
                     <CartesianGrid strokeDasharray="3 3" />
@@ -6579,6 +6593,7 @@ export default function MDLPAnalyzerPro() {
                     })}
                   </LineChart>
                 </ResponsiveContainer>
+                </ChartErrorBoundary>
               ) : (
                 <NoDataMessage title="Загрузите данные для отображения графика прогноза" />
               )}
@@ -7010,6 +7025,7 @@ export default function MDLPAnalyzerPro() {
                     <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-500 to-blue-600 rounded-full" />
                     {compareTab === 0 ? 'Сравнение по годам' : compareTab === 1 ? 'Сравнение по кварталам' : 'Сравнение по месяцам'}
                   </h3>
+                  <ChartErrorBoundary label="Сравнение периодов (compare)">
                   <ResponsiveContainer width="100%" height={320}>
                     {compareTab === 0 ? (
                       <BarChart data={isMoney ? compareData.map((d: any) => ({ ...d, sales: toRubles(d.sales || 0) })) : compareData}>
@@ -7044,6 +7060,7 @@ export default function MDLPAnalyzerPro() {
                       </BarChart>
                     )}
                   </ResponsiveContainer>
+                  </ChartErrorBoundary>
                 </div>
                 
                 <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/30 shadow-xl overflow-hidden">
@@ -7167,6 +7184,7 @@ export default function MDLPAnalyzerPro() {
                     </div>
                   ))}
                 </div>
+                <ChartErrorBoundary label="Федеральные округа (территории)">
                 <ResponsiveContainer width="100%" height={250}>
                   <BarChart data={federalDistrictSales.slice(0, 10).map(fd => ({ name: fd.name.replace('федеральный округ', 'ФО').replace('Федеральный округ', 'ФО'), sales: toRubles(fd.sales) }))} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f020" />
@@ -7180,9 +7198,10 @@ export default function MDLPAnalyzerPro() {
                     <Bar dataKey="sales" fill={CHART_COLORS.year2025} name="Продажи" radius={[0, 6, 6, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+                </ChartErrorBoundary>
               </div>
             )}
-            
+
             {/* Анализ по менеджерам */}
             {managerSales.length > 0 && managerSales.some(m => m.sales > 0) && (
               <div className="bg-white/70 backdrop-blur-xl rounded-2xl p-5 border border-white/30 shadow-xl mb-4">
@@ -7211,6 +7230,7 @@ export default function MDLPAnalyzerPro() {
                     );
                   })}
                 </div>
+                <ChartErrorBoundary label="Анализ по менеджерам (территории)">
                 <ResponsiveContainer width="100%" height={280}>
                   <BarChart data={managerSales.map(m => ({ name: m.name, sales: toRubles(m.sales) }))} layout="vertical">
                     <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f020" />
@@ -7224,6 +7244,7 @@ export default function MDLPAnalyzerPro() {
                     <Bar dataKey="sales" fill="#f97316" name="Продажи" radius={[0, 6, 6, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
+                </ChartErrorBoundary>
               </div>
             )}
             
@@ -7335,6 +7356,7 @@ export default function MDLPAnalyzerPro() {
                 <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-500 to-blue-600 rounded-full" />
                 Все регионы: продажи
               </h3>
+              <ChartErrorBoundary label="Все регионы: продажи (территории)">
               <ResponsiveContainer width="100%" height={300}>
                 <BarChart data={(filteredData?.regionSales || []).map(r => ({ name: r.name.replace('Республика ', '').replace(' область', ''), sales: toRubles(r.sales) }))} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f020" />
@@ -7348,6 +7370,7 @@ export default function MDLPAnalyzerPro() {
                   <Bar dataKey="sales" fill={CHART_COLORS.year2025} name="Продажи" radius={[0, 6, 6, 0]} />
                 </BarChart>
               </ResponsiveContainer>
+              </ChartErrorBoundary>
             </div>
             </>
             ) : (
@@ -7390,6 +7413,7 @@ export default function MDLPAnalyzerPro() {
                       <div className="w-1.5 h-6 bg-gradient-to-b from-cyan-500 to-blue-600 rounded-full" />
                       Продажи по регионам
                     </h3>
+                    <ChartErrorBoundary label="Продажи по регионам (drilldown FO)">
                     <ResponsiveContainer width="100%" height={300}>
                       <BarChart data={(filteredData?.regionSales || []).slice(0, 10).map(r => ({ name: r.name.replace('Республика ', '').replace(' область', ''), sales: toRubles(r.sales) }))}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f020" />
@@ -7403,6 +7427,7 @@ export default function MDLPAnalyzerPro() {
                         <Bar dataKey="sales" fill={CHART_COLORS.year2025} name="Продажи" radius={[6, 6, 0, 0]} />
                       </BarChart>
                     </ResponsiveContainer>
+                    </ChartErrorBoundary>
                   </div>
                   <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/30 shadow-xl overflow-hidden">
                     <div className="p-4 border-b border-white/20"><h3 className="font-semibold text-slate-700 flex items-center gap-2"><div className="w-1.5 h-5 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full" /> Все регионы</h3></div>
@@ -7481,6 +7506,7 @@ export default function MDLPAnalyzerPro() {
                         <div className="w-1.5 h-5 bg-gradient-to-b from-blue-500 to-blue-600 rounded-full" />
                         Города региона
                       </h3>
+                      <ChartErrorBoundary label="Города региона (drilldown)">
                       <ResponsiveContainer width="100%" height={200}>
                         <BarChart data={regionCities.slice(0, 8).map(([name, c]) => ({ name: name.replace('г. ', ''), sales: toRubles(c.sales) }))} layout="vertical">
                           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f020" />
@@ -7494,6 +7520,7 @@ export default function MDLPAnalyzerPro() {
                           <Bar dataKey="sales" fill={CHART_COLORS.year2025} radius={[0, 6, 6, 0]} name="Продажи" />
                         </BarChart>
                       </ResponsiveContainer>
+                      </ChartErrorBoundary>
                     </div>
                   )}
                   <div className="bg-white/70 backdrop-blur-xl rounded-2xl border border-white/30 shadow-xl overflow-hidden">
@@ -7757,6 +7784,7 @@ export default function MDLPAnalyzerPro() {
                         </div>
                       </div>
                       <div className="bg-white rounded-xl border p-4">
+                        <ChartErrorBoundary label="Сезонность: продажи и индекс">
                         <ResponsiveContainer width="100%" height={300}>
                           <ComposedChart data={isMoney ? dataWithIndex.map((d: any) => ({ ...d, sales: toRubles(d.sales) })) : dataWithIndex}>
                             <CartesianGrid strokeDasharray="3 3" />
@@ -7769,6 +7797,7 @@ export default function MDLPAnalyzerPro() {
                             <Line yAxisId="right" dataKey="index" stroke={CHART_COLORS.plan} strokeWidth={2} name="Индекс" />
                           </ComposedChart>
                         </ResponsiveContainer>
+                        </ChartErrorBoundary>
                       </div>
                     </>
                   );
@@ -7905,6 +7934,7 @@ export default function MDLPAnalyzerPro() {
                   {/* Круговая диаграмма БЕЗ ЛЕЙБЛОВ + Легенда справа */}
                   <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                     <div>
+                      <ChartErrorBoundary label="Группы контрагентов (доля)">
                       <ResponsiveContainer width="100%" height={320}>
                         <PieChart>
                           <Pie
@@ -7938,6 +7968,7 @@ export default function MDLPAnalyzerPro() {
                           />
                         </PieChart>
                       </ResponsiveContainer>
+                      </ChartErrorBoundary>
                       <p className="text-xs text-center text-slate-500 mt-2">Кликните на сегмент для детализации</p>
                     </div>
                     
@@ -8334,6 +8365,7 @@ export default function MDLPAnalyzerPro() {
                           <BarChart3 size={16} className="text-cyan-600" />
                           Топ-15 отфильтрованных контрагентов
                         </h4>
+                        <ChartErrorBoundary label="Топ-15 отфильтрованных контрагентов">
                         <ResponsiveContainer width="100%" height={300}>
                           <BarChart data={isMoney ? chartData.map((d: any) => ({ ...d, sales: toRubles(d.sales) })) : chartData} layout="vertical" margin={{ left: 10, right: 30 }}>
                             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -8350,6 +8382,7 @@ export default function MDLPAnalyzerPro() {
                             </Bar>
                           </BarChart>
                         </ResponsiveContainer>
+                        </ChartErrorBoundary>
                       </div>
                     )}
                     
@@ -8432,6 +8465,7 @@ export default function MDLPAnalyzerPro() {
                           </h4>
                           
                           {districtChartData.length > 0 && (
+                            <ChartErrorBoundary label="Аналитика по районам (контрагенты)">
                             <ResponsiveContainer width="100%" height={Math.max(200, districtChartData.length * 28)}>
                               <BarChart data={isMoney ? districtChartData.map((d: any) => ({ ...d, sales: toRubles(d.sales) })) : districtChartData} layout="vertical" margin={{ left: 10, right: 30 }}>
                                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -8465,6 +8499,7 @@ export default function MDLPAnalyzerPro() {
                                 />
                               </BarChart>
                             </ResponsiveContainer>
+                            </ChartErrorBoundary>
                           )}
                           
                           {/* Детализация по препаратам для выбранного района */}
@@ -9194,18 +9229,20 @@ export default function MDLPAnalyzerPro() {
                               <div className="w-1.5 h-5 bg-gradient-to-b from-purple-500 to-purple-600 rounded-full" />
                               Доля по упаковкам
                             </h3>
+                            <ChartErrorBoundary label="WM продукты: доля по упаковкам">
                             <ResponsiveContainer width="100%" height={200}>
                               <PieChart>
                                 <Pie data={pkgPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={85} paddingAngle={2} stroke="rgba(255,255,255,0.6)" strokeWidth={2}>
                                   {pkgPieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS_WM[idx % PIE_COLORS_WM.length]} />)}
                                 </Pie>
-                                <Tooltip 
+                                <Tooltip
                                   formatter={(v: number) => v.toLocaleString('ru-RU') + ' уп.'}
                                   contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                                   itemStyle={{ color: '#e2e8f0' }}
                                 />
                               </PieChart>
                             </ResponsiveContainer>
+                            </ChartErrorBoundary>
                             <div className="grid grid-cols-1 gap-1 mt-2 max-h-[140px] overflow-y-auto">
                               {pkgPieData.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-50/80 transition-colors">
@@ -9221,18 +9258,20 @@ export default function MDLPAnalyzerPro() {
                               <div className="w-1.5 h-5 bg-gradient-to-b from-emerald-500 to-emerald-600 rounded-full" />
                               Доля по рублям
                             </h3>
+                            <ChartErrorBoundary label="WM продукты: доля по рублям">
                             <ResponsiveContainer width="100%" height={200}>
                               <PieChart>
                                 <Pie data={rubPieData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={85} paddingAngle={2} stroke="rgba(255,255,255,0.6)" strokeWidth={2}>
                                   {rubPieData.map((_, idx) => <Cell key={idx} fill={PIE_COLORS_WM[idx % PIE_COLORS_WM.length]} />)}
                                 </Pie>
-                                <Tooltip 
+                                <Tooltip
                                   formatter={(v: number) => formatMoneyFull(v)}
                                   contentStyle={{ background: 'rgba(15,23,42,0.9)', border: 'none', borderRadius: '12px', color: '#fff', fontSize: '12px' }}
                                   itemStyle={{ color: '#e2e8f0' }}
                                 />
                               </PieChart>
                             </ResponsiveContainer>
+                            </ChartErrorBoundary>
                             <div className="grid grid-cols-1 gap-1 mt-2 max-h-[140px] overflow-y-auto">
                               {rubPieData.map((item, idx) => (
                                 <div key={idx} className="flex items-center gap-2 px-2 py-1 rounded-lg hover:bg-slate-50/80 transition-colors">
