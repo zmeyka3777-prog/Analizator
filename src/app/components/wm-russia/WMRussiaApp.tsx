@@ -9,7 +9,6 @@ import { WMRussiaSidebar } from './WMRussiaSidebar';
 import { MedRepDashboard } from './dashboards/MedRepDashboard';
 import { TerritoryManagerDashboard } from './dashboards/TerritoryManagerDashboard';
 import { RegionalManagerDashboard } from './dashboards/RegionalManagerDashboard';
-import { AdminDashboard } from './dashboards/AdminDashboard';
 import NewAdminDashboard from '@/app/pages/admin/AdminDashboard';
 import NewRegionalManagerDashboard from '@/app/pages/regional-manager/RegionalManagerDashboard';
 import { DirectorWMDashboard } from './dashboards/DirectorWMDashboard';
@@ -338,7 +337,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
             </div>
             {onBackToMDLP && (
               <button
-                onClick={onBackToMDLP}
+                onClick={() => onBackToMDLP()}
                 className="w-full mt-4 py-2.5 text-sm text-gray-400 hover:text-cyan-300 hover:bg-white/5 rounded-xl transition-all flex items-center justify-center gap-2"
               >
                 <ArrowLeft className="h-4 w-4" />
@@ -523,7 +522,7 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
                 <div className="flex items-center gap-4">
                   {onBackToMDLP && (
                     <button
-                      onClick={onBackToMDLP}
+                      onClick={() => onBackToMDLP()}
                       className="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm text-slate-500 hover:text-cyan-600 border border-slate-200 hover:border-cyan-300 rounded-lg transition-all"
                     >
                       <ArrowLeft className="h-4 w-4" />

@@ -1110,9 +1110,12 @@ app.post("/api/analytics/generate-comment", authMiddleware, async (req: AuthRequ
 // Budget Scenarios API
 app.get("/api/budget-scenarios/:userId", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const userId = parseIntParam(req.params.userId as string);
+    // Изоляция per-user: игнорируем userId из URL, берём владельца из JWT.
+    // Иначе любой авторизованный пользователь мог подставить чужой userId
+    // и прочитать чужие финансовые сценарии (IDOR).
+    const userId = req.userId;
     if (!userId) {
-      return res.status(400).json({ error: "Неверный ID пользователя" });
+      return res.status(401).json({ error: "Не авторизован" });
     }
     const scenarios = await storage.getBudgetScenariosByUser(userId);
     res.json(scenarios);
@@ -1124,14 +1127,20 @@ app.get("/api/budget-scenarios/:userId", authMiddleware, async (req: AuthRequest
 
 app.post("/api/budget-scenarios", authMiddleware, async (req: AuthRequest, res) => {
   try {
-    const { userId, name, currentBudget, growthPercent, targetBudget, drugs, districtShares } = req.body;
-    
-    if (!userId || !name || currentBudget === undefined || growthPercent === undefined) {
+    // userId владельца берём ТОЛЬКО из JWT, а не из тела запроса —
+    // иначе можно создать сценарий от имени чужого пользователя.
+    const ownerId = req.userId;
+    if (!ownerId) {
+      return res.status(401).json({ error: "Не авторизован" });
+    }
+    const { name, currentBudget, growthPercent, targetBudget, drugs, districtShares } = req.body;
+
+    if (!name || currentBudget === undefined || growthPercent === undefined) {
       return res.status(400).json({ error: "Недостаточно данных для создания сценария" });
     }
 
     const scenario = await storage.createBudgetScenario({
-      userId: parseInt(userId),
+      userId: ownerId,
       name: sanitizeString(name),
       currentBudget: String(currentBudget),
       growthPercent: String(growthPercent),
@@ -1154,8 +1163,18 @@ app.put("/api/budget-scenarios/:id", authMiddleware, async (req: AuthRequest, re
       return res.status(400).json({ error: "Неверный ID сценария" });
     }
 
+    // Проверка владельца перед записью (как в DELETE ниже) — иначе можно
+    // перезаписать чужой сценарий по его id.
+    const existing = await storage.getBudgetScenarioById(id);
+    if (!existing) {
+      return res.status(404).json({ error: "Сценарий не найден" });
+    }
+    if (existing.userId !== req.userId) {
+      return res.status(403).json({ error: "Нет доступа к этому сценарию" });
+    }
+
     const { name, currentBudget, growthPercent, targetBudget, drugs, districtShares } = req.body;
-    
+
     const scenario = await storage.updateBudgetScenario(id, {
       name: name ? sanitizeString(name) : undefined,
       currentBudget: currentBudget !== undefined ? String(currentBudget) : undefined,

@@ -115,7 +115,7 @@ export function WMRussiaSidebar({
       {onBackToMDLP && (
         <div className="px-3 pt-3">
           <button
-            onClick={onBackToMDLP}
+            onClick={() => onBackToMDLP()}
             className="w-full flex items-center gap-2 px-3 py-2.5 rounded-xl text-sm text-slate-600 hover:text-cyan-700 hover:bg-cyan-50 border border-slate-200 hover:border-cyan-300 transition-all"
           >
             <BarChart3 className="w-4 h-4 flex-shrink-0" />

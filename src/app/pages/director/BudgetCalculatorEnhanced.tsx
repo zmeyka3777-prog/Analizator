@@ -743,13 +743,13 @@ export default function BudgetCalculatorEnhanced() {
                           </div>
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Продажи 2025</p>
-                            <p className="font-medium text-slate-700">{formatCurrency(productsData2025.find(p => p.product.id === prod.id)?.totalRevenue * 1000 || 0)}</p>
+                            <p className="font-medium text-slate-700">{formatCurrency(productsData2025.find(p => p.product.id === prod.id)?.totalRevenue || 0)}</p>
                           </div>
                           <div>
                             <p className="text-xs text-slate-500 mb-1">Прогноз роста</p>
                             <p className="font-medium text-blue-600">
                               {medData.targetRevenue > 0 && productsData2025.find(p => p.product.id === prod.id)
-                                ? `+${(((medData.targetRevenue - productsData2025.find(p => p.product.id === prod.id)!.totalRevenue * 1000) / (productsData2025.find(p => p.product.id === prod.id)!.totalRevenue * 1000)) * 100).toFixed(1)}%`
+                                ? `+${(((medData.targetRevenue - productsData2025.find(p => p.product.id === prod.id)!.totalRevenue) / (productsData2025.find(p => p.product.id === prod.id)!.totalRevenue)) * 100).toFixed(1)}%`
                                 : '—'}
                             </p>
                           </div>
@@ -1006,19 +1006,19 @@ function RussiaCalculator() {
 
   // Экспорт в CSV
   const exportRussiaToCSV = () => {
-    let csv = 'Калькулятор бюджета World Medicine — Россия\\n\\n';
-    csv += `Дата:,${new Date().toLocaleDateString('ru-RU')}\\n\\n`;
-    
-    csv += 'ПРЕПАРАТЫ\\n';
-    csv += 'Название,Категория,Цена за уп. (₽),Количество (уп.),Выручка (₽)\\n';
+    let csv = 'Калькулятор бюджета World Medicine — Россия\n\n';
+    csv += `Дата:,${new Date().toLocaleDateString('ru-RU')}\n\n`;
+
+    csv += 'ПРЕПАРАТЫ\n';
+    csv += 'Название,Категория,Цена за уп. (₽),Количество (уп.),Выручка (₽)\n';
     russiaProducts.forEach(prod => {
-      csv += `${prod.shortName},${prod.category},${prod.targetPrice},${prod.targetUnits},${prod.targetRevenue}\\n`;
+      csv += `${prod.shortName},${prod.category},${prod.targetPrice},${prod.targetUnits},${prod.targetRevenue}\n`;
     });
-    
-    csv += '\\nИТОГО\\n';
-    csv += `Всего упаковок:,${totalUnits}\\n`;
-    csv += `Общая выручка:,${totalRevenue}\\n`;
-    csv += `Средняя цена:,${avgPrice.toFixed(2)}\\n`;
+
+    csv += '\nИТОГО\n';
+    csv += `Всего упаковок:,${totalUnits}\n`;
+    csv += `Общая выручка:,${totalRevenue}\n`;
+    csv += `Средняя цена:,${avgPrice.toFixed(2)}\n`;
 
     const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
     const link = document.createElement('a');
@@ -1247,7 +1247,7 @@ function RussiaCalculator() {
                 Топ-3 по выручке
               </h4>
               <div className="space-y-2">
-                {russiaProducts
+                {[...russiaProducts]
                   .sort((a, b) => b.targetRevenue - a.targetRevenue)
                   .slice(0, 3)
                   .map((prod, idx) => (
@@ -1270,7 +1270,7 @@ function RussiaCalculator() {
                 Топ-3 по объему
               </h4>
               <div className="space-y-2">
-                {russiaProducts
+                {[...russiaProducts]
                   .sort((a, b) => b.targetUnits - a.targetUnits)
                   .slice(0, 3)
                   .map((prod, idx) => (

@@ -3439,7 +3439,12 @@ export default function MDLPAnalyzerPro() {
             setWmSelectedDistrict(null);
             setWmSelectedProduct(null);
             // Гарантируем безопасный старт: 'upload' не содержит charts.
-            const safeTarget = targetMdlpSection || 'upload';
+            // typeof-проверка обязательна: кнопки с onClick={onBackToMDLP}
+            // передают сюда MouseEvent, и объект в setActiveTab ронял
+            // приложение (activeTab.startsWith is not a function).
+            const safeTarget = typeof targetMdlpSection === 'string' && targetMdlpSection
+              ? targetMdlpSection
+              : 'upload';
             navigateTo(safeTarget);
             // Если сессия МДЛП не активна — восстановить из WM Russia сессии
             if (!currentUser) {
@@ -6236,7 +6241,7 @@ export default function MDLPAnalyzerPro() {
                 const kpiCards = [
                   { title: 'Регионов', total: hasRealData ? (filteredData?.regionSales?.length ?? 0) : 0, perYear: regionsPerYear || {}, icon: Globe, onClick: () => navigateTo('territory'), color: 'from-purple-500 to-purple-600', bgColor: 'from-purple-50 to-purple-50', textColor: 'text-purple-600' },
                   { title: 'Контрагентов', total: hasRealData ? (filteredData?.contragentSales?.length ?? 0) : 0, perYear: contragentsPerYear || {}, icon: Users, onClick: () => navigateTo('contragents'), color: 'from-emerald-500 to-emerald-600', bgColor: 'from-emerald-50 to-emerald-50', textColor: 'text-emerald-600' },
-                  { title: 'Препаратов', total: hasRealData ? (filteredData?.drugSales?.length ?? 0) : 0, perYear: drugsPerYearData || {}, icon: Pill, onClick: () => navigateTo('drugs'), color: 'from-orange-500 to-red-500', bgColor: 'from-orange-50 to-red-50', textColor: 'text-orange-600' },
+                  { title: 'Препаратов', total: hasRealData ? (filteredData?.drugSales?.length ?? 0) : 0, perYear: drugsPerYearData || {}, icon: Pill, onClick: () => navigateTo('abc'), color: 'from-orange-500 to-red-500', bgColor: 'from-orange-50 to-red-50', textColor: 'text-orange-600' },
                 ];
                 return kpiCards.map((kpi, i) => (
                   <div key={i} onClick={kpi.onClick} className={`bg-gradient-to-br ${kpi.bgColor} rounded-2xl p-3 md:p-4 border-2 border-white shadow-lg hover:shadow-xl cursor-pointer transition-all hover:scale-105 group relative overflow-hidden`}>

@@ -129,6 +129,27 @@ export default function TerritoriesAnalytics() {
   const prevYear = currentYear - 1;
   const nextYear = currentYear + 1;
 
+  // Экспорт аналитики по округам в CSV (кнопка «Экспорт» в шапке).
+  const handleExportCSV = () => {
+    const rows = [
+      ['Федеральный округ', `Выручка ${currentYear} (₽)`, `Выручка ${prevYear} (₽)`, `Упаковки ${currentYear}`, 'Рост, %'],
+      ...districtsAnalytics.map(d => [
+        d.district.name,
+        Math.round(d.revenue2025),
+        Math.round(d.revenue2024),
+        Math.round(d.units2025),
+        d.growth.toFixed(1),
+      ]),
+    ];
+    const csv = '﻿' + rows.map(r => r.join(';')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `territories_${currentYear}_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
   // ==================== АНАЛИТИКА ПО ОКРУГАМ ====================
   const districtsAnalytics = useMemo(() => {
     return getFederalDistricts().map(district => {
@@ -341,7 +362,7 @@ export default function TerritoriesAnalytics() {
           <p className="text-slate-500">Анализ продаж по федеральным округам и регионам России</p>
         </div>
         <div className="flex gap-3">
-          <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700">
+          <Button onClick={handleExportCSV} className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700">
             <Download className="w-4 h-4 mr-2" />
             Экспорт
           </Button>
@@ -352,10 +373,10 @@ export default function TerritoriesAnalytics() {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <div className="bg-gradient-to-br from-cyan-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-cyan-100">Общая выручка</p>
-            <DollarSign className="w-8 h-8 text-white/30" />
+            <p className="text-cyan-100">{metric === 'packages' ? 'Всего упаковок' : 'Общая выручка'}</p>
+            {metric === 'packages' ? <Package className="w-8 h-8 text-white/30" /> : <DollarSign className="w-8 h-8 text-white/30" />}
           </div>
-          <p className="text-3xl font-bold">{formatCurrency(totalStats.totalRevenue2025)}</p>
+          <p className="text-3xl font-bold">{metric === 'packages' ? `${formatNumber(totalStats.totalUnits)} уп.` : formatCurrency(totalStats.totalRevenue2025)}</p>
           <div className="flex items-center gap-2 mt-2">
             {totalStats.growth >= 0 ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
             <span className="text-sm font-semibold">{formatPercent(totalStats.growth)} к {getYears().yearBeforePrevious}</span>

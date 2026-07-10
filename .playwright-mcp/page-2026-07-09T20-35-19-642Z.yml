@@ -1,0 +1,911 @@
+- generic [ref=e1]:
+  - generic [ref=e51]:
+    - banner [ref=e52]:
+      - generic [ref=e54]:
+        - button "На главную" [ref=e55] [cursor=pointer]:
+          - generic [ref=e56]:
+            - generic [ref=e57]: WM
+            - generic [ref=e60]:
+              - heading "World Medicine" [level=1] [ref=e61]
+              - paragraph [ref=e62]: MDLP Analytics Pro
+        - navigation [ref=e64]:
+          - button "Дашборд" [ref=e65]
+          - button "Калькулятор бюджета" [ref=e66]
+          - button "По препаратам" [ref=e67]
+          - button "По территориям" [ref=e68]
+          - button "Сотрудники" [active] [ref=e69]
+          - button "Отчёты" [ref=e70]
+        - generic [ref=e71]:
+          - generic [ref=e73]:
+            - button "Без фильтра" [ref=e75]
+            - generic [ref=e81]:
+              - button "Рубли" [ref=e82]
+              - button "Упаковки" [ref=e87]
+          - button "Д Директор WM Генеральный директор" [ref=e94]:
+            - generic [ref=e95]: Д
+            - generic [ref=e96]:
+              - paragraph [ref=e97]: Директор WM
+              - paragraph [ref=e98]: Генеральный директор
+    - main [ref=e101]:
+      - generic [ref=e102]:
+        - button "Вернуться в анализатор МДЛП" [ref=e103]
+        - generic [ref=e106]:
+          - generic [ref=e112]:
+            - heading "Панель директора" [level=1] [ref=e113]
+            - paragraph [ref=e114]: Аналитика и планирование продаж
+          - generic [ref=e115]:
+            - button "Управление препаратами" [ref=e116]
+            - button "Управление территориями" [ref=e117]
+        - generic [ref=e2088]:
+          - generic [ref=e2090]:
+            - heading "Анализ сотрудников" [level=2] [ref=e2091]
+            - paragraph [ref=e2092]: Организационная структура из CRM (106 человек в 8 ФО)
+          - generic [ref=e2093]:
+            - generic [ref=e2094]:
+              - generic [ref=e2095]: Всего
+              - paragraph [ref=e2102]: "106"
+            - generic [ref=e2103]:
+              - generic [ref=e2104]: Руководство
+              - paragraph [ref=e2108]: "1"
+            - generic [ref=e2109]:
+              - generic [ref=e2110]: РМ
+              - paragraph [ref=e2115]: "8"
+            - generic [ref=e2116]:
+              - generic [ref=e2117]: ТМ
+              - paragraph [ref=e2122]: "15"
+            - generic [ref=e2123]:
+              - generic [ref=e2124]: МП
+              - paragraph [ref=e2130]: "82"
+          - generic [ref=e2131]:
+            - button "Все ФО (106)" [ref=e2132]
+            - button "ПФО (34)" [ref=e2133]
+            - button "ЦФО (24)" [ref=e2134]
+            - button "ЮФО (17)" [ref=e2135]
+            - button "СФО (13)" [ref=e2136]
+            - button "УФО (7)" [ref=e2137]
+            - button "СЗФО (5)" [ref=e2138]
+            - button "СКФО (4)" [ref=e2139]
+            - button "Руководство (1)" [ref=e2140]
+            - button "Прочее (1)" [ref=e2141]
+          - textbox "Поиск по ФИО, группе, городу, email..." [ref=e2146]
+          - generic [ref=e2147]:
+            - generic [ref=e2148]:
+              - button "Руководство компании 0 ТМ 0 МП 1 чел." [ref=e2149]:
+                - generic [ref=e2150]: Руководство компании
+                - generic [ref=e2158]:
+                  - generic [ref=e2159]: 0 ТМ
+                  - generic [ref=e2160]: 0 МП
+                  - generic [ref=e2161]: 1 чел.
+              - generic [ref=e2168]:
+                - generic [ref=e2169]:
+                  - generic [ref=e2170]: Субботина Елена
+                  - generic [ref=e2171]: Директор
+                  - generic [ref=e2172]: Москва
+                - link "elena.subbotina@orney.ru" [ref=e2176] [cursor=pointer]:
+                  - /url: mailto:elena.subbotina@orney.ru
+            - generic [ref=e2180]:
+              - button "Без группы 0 ТМ 1 МП 1 чел." [ref=e2181]:
+                - generic [ref=e2182]: Без группы
+                - generic [ref=e2190]:
+                  - generic [ref=e2191]: 0 ТМ
+                  - generic [ref=e2192]: 1 МП
+                  - generic [ref=e2193]: 1 чел.
+              - generic [ref=e2204]:
+                - generic [ref=e2205]: Мухамадиева Римма
+                - generic [ref=e2206]: МП
+            - generic [ref=e2207]:
+              - 'button "CFD Samadova · РМ: Самадова Лейла 1 ТМ 9 МП 11 чел." [ref=e2208]':
+                - generic [ref=e2209]:
+                  - generic [ref=e2216]: CFD Samadova
+                  - generic [ref=e2217]: "· РМ: Самадова Лейла"
+                - generic [ref=e2218]:
+                  - generic [ref=e2219]: 1 ТМ
+                  - generic [ref=e2220]: 9 МП
+                  - generic [ref=e2221]: 11 чел.
+              - generic [ref=e2222]:
+                - generic [ref=e2229]:
+                  - generic [ref=e2230]:
+                    - generic [ref=e2231]: Самадова Лейла
+                    - generic [ref=e2232]: РМ
+                    - generic [ref=e2233]: Санкт-Петербург
+                  - link "leyla.samadova@orney.ru" [ref=e2237] [cursor=pointer]:
+                    - /url: mailto:leyla.samadova@orney.ru
+                - generic [ref=e2247]:
+                  - generic [ref=e2248]:
+                    - generic [ref=e2249]: Разуваев Александр Александрович
+                    - generic [ref=e2250]: ТМ
+                    - generic [ref=e2251]: Воронеж
+                  - link "aleksandr.razuvaev@orney.ru" [ref=e2255] [cursor=pointer]:
+                    - /url: mailto:aleksandr.razuvaev@orney.ru
+                - generic [ref=e2266]:
+                  - generic [ref=e2267]:
+                    - generic [ref=e2268]: Беневоленская Наталья Викторовна
+                    - generic [ref=e2269]: МП
+                    - generic [ref=e2270]: Смоленск
+                  - link "natalya.benevolenskaya@orney.ru" [ref=e2274] [cursor=pointer]:
+                    - /url: mailto:natalya.benevolenskaya@orney.ru
+                - generic [ref=e2285]:
+                  - generic [ref=e2286]:
+                    - generic [ref=e2287]: Бобыкина Светлана Юрьевна
+                    - generic [ref=e2288]: МП
+                    - generic [ref=e2289]: Ярославль
+                  - link "bobykina.svetlana@orney.ru" [ref=e2293] [cursor=pointer]:
+                    - /url: mailto:bobykina.svetlana@orney.ru
+                - generic [ref=e2304]:
+                  - generic [ref=e2305]:
+                    - generic [ref=e2306]: Гурбанова Анжела
+                    - generic [ref=e2307]: МП
+                    - generic [ref=e2308]: Тула
+                  - link "anzhela.gurbanova@orney.ru" [ref=e2312] [cursor=pointer]:
+                    - /url: mailto:anzhela.gurbanova@orney.ru
+                - generic [ref=e2323]:
+                  - generic [ref=e2324]:
+                    - generic [ref=e2325]: Кулакова Яна
+                    - generic [ref=e2326]: МП
+                    - generic [ref=e2327]: Калуга
+                  - link "yana.kulakova@orney.ru" [ref=e2331] [cursor=pointer]:
+                    - /url: mailto:yana.kulakova@orney.ru
+                - generic [ref=e2342]:
+                  - generic [ref=e2343]:
+                    - generic [ref=e2344]: Макеева Наталья
+                    - generic [ref=e2345]: МП
+                    - generic [ref=e2346]: Липецк
+                  - link "makeeva.natalya@orney.ru" [ref=e2350] [cursor=pointer]:
+                    - /url: mailto:makeeva.natalya@orney.ru
+                - generic [ref=e2361]:
+                  - generic [ref=e2362]:
+                    - generic [ref=e2363]: Максимова Юлия
+                    - generic [ref=e2364]: МП
+                    - generic [ref=e2365]: Иваново
+                  - link "yulia.maksimova@orney.ru" [ref=e2369] [cursor=pointer]:
+                    - /url: mailto:yulia.maksimova@orney.ru
+                - generic [ref=e2380]:
+                  - generic [ref=e2381]:
+                    - generic [ref=e2382]: Мокшанкина Светлана
+                    - generic [ref=e2383]: МП
+                    - generic [ref=e2384]: undefined
+                  - link "mokshankina.svetlana@orney.ru" [ref=e2388] [cursor=pointer]:
+                    - /url: mailto:mokshankina.svetlana@orney.ru
+                - generic [ref=e2399]:
+                  - generic [ref=e2400]:
+                    - generic [ref=e2401]: Монахова Мария
+                    - generic [ref=e2402]: МП
+                    - generic [ref=e2403]: Курск
+                  - link "monahova.mariya@orney.ru" [ref=e2407] [cursor=pointer]:
+                    - /url: mailto:monahova.mariya@orney.ru
+                - generic [ref=e2419]:
+                  - generic [ref=e2420]: Обухова Татьяна
+                  - generic [ref=e2421]: МП
+                  - generic [ref=e2422]: Волгоград
+            - generic [ref=e2426]:
+              - 'button "Moscow 1 · РМ: Оруджов Али Илгар Оглы 1 ТМ 7 МП 9 чел." [ref=e2427]':
+                - generic [ref=e2428]:
+                  - generic [ref=e2435]: Moscow 1
+                  - generic [ref=e2436]: "· РМ: Оруджов Али Илгар Оглы"
+                - generic [ref=e2437]:
+                  - generic [ref=e2438]: 1 ТМ
+                  - generic [ref=e2439]: 7 МП
+                  - generic [ref=e2440]: 9 чел.
+              - generic [ref=e2441]:
+                - generic [ref=e2448]:
+                  - generic [ref=e2449]:
+                    - generic [ref=e2450]: Оруджов Али Илгар Оглы
+                    - generic [ref=e2451]: РМ
+                    - generic [ref=e2452]: Москва
+                  - link "orudzhov_ali@bk.ru" [ref=e2456] [cursor=pointer]:
+                    - /url: mailto:orudzhov_ali@bk.ru
+                - generic [ref=e2466]:
+                  - generic [ref=e2467]:
+                    - generic [ref=e2468]: Алешкова Наталья
+                    - generic [ref=e2469]: ТМ
+                    - generic [ref=e2470]: Москва
+                  - link "natalya.aleshkova@orney.ru" [ref=e2474] [cursor=pointer]:
+                    - /url: mailto:natalya.aleshkova@orney.ru
+                - generic [ref=e2485]:
+                  - generic [ref=e2486]:
+                    - generic [ref=e2487]: Абдулаева Айсел
+                    - generic [ref=e2488]: МП
+                    - generic [ref=e2489]: Москва
+                  - link "aysel.abdulaeva@orney.ru" [ref=e2493] [cursor=pointer]:
+                    - /url: mailto:aysel.abdulaeva@orney.ru
+                - generic [ref=e2504]:
+                  - generic [ref=e2505]:
+                    - generic [ref=e2506]: Каиргалиева Радмила
+                    - generic [ref=e2507]: МП
+                    - generic [ref=e2508]: Москва
+                  - link "radmila.kairgalieva@orney.ru" [ref=e2512] [cursor=pointer]:
+                    - /url: mailto:radmila.kairgalieva@orney.ru
+                - generic [ref=e2524]:
+                  - generic [ref=e2525]: МАМЕДОВ ФУАД
+                  - generic [ref=e2526]: МП
+                  - generic [ref=e2527]: Москва
+                - generic [ref=e2538]:
+                  - generic [ref=e2539]:
+                    - generic [ref=e2540]: Мустафаева Сабина
+                    - generic [ref=e2541]: МП
+                    - generic [ref=e2542]: Москва
+                  - link "mustafaeva.sabina@orney.ru" [ref=e2546] [cursor=pointer]:
+                    - /url: mailto:mustafaeva.sabina@orney.ru
+                - generic [ref=e2557]:
+                  - generic [ref=e2558]:
+                    - generic [ref=e2559]: Омарова Насипли
+                    - generic [ref=e2560]: МП
+                    - generic [ref=e2561]: Москва
+                  - link "omarova.nasipli@orney.ru" [ref=e2565] [cursor=pointer]:
+                    - /url: mailto:omarova.nasipli@orney.ru
+                - generic [ref=e2577]:
+                  - generic [ref=e2578]: Рустамов Руслан
+                  - generic [ref=e2579]: МП
+                  - generic [ref=e2580]: Москва
+                - generic [ref=e2591]:
+                  - generic [ref=e2592]:
+                    - generic [ref=e2593]: Татарникова Ирина
+                    - generic [ref=e2594]: МП
+                    - generic [ref=e2595]: Москва
+                  - link "irina.tatarnikova@orney.ru" [ref=e2599] [cursor=pointer]:
+                    - /url: mailto:irina.tatarnikova@orney.ru
+            - generic [ref=e2603]:
+              - button "Moscow Region 1 1 ТМ 3 МП 4 чел." [ref=e2604]:
+                - generic [ref=e2605]: Moscow Region 1
+                - generic [ref=e2613]:
+                  - generic [ref=e2614]: 1 ТМ
+                  - generic [ref=e2615]: 3 МП
+                  - generic [ref=e2616]: 4 чел.
+              - generic [ref=e2617]:
+                - generic [ref=e2624]:
+                  - generic [ref=e2625]:
+                    - generic [ref=e2626]: Пушкина Людмила
+                    - generic [ref=e2627]: ТМ
+                    - generic [ref=e2628]: Москва
+                  - link "lyudmila.pushkina@orney.ru" [ref=e2632] [cursor=pointer]:
+                    - /url: mailto:lyudmila.pushkina@orney.ru
+                - generic [ref=e2643]:
+                  - generic [ref=e2644]:
+                    - generic [ref=e2645]: Воробей Татьяна
+                    - generic [ref=e2646]: МП
+                    - generic [ref=e2647]: Москва
+                  - link "vorobey.tatyana@orney.ru" [ref=e2651] [cursor=pointer]:
+                    - /url: mailto:vorobey.tatyana@orney.ru
+                - generic [ref=e2662]:
+                  - generic [ref=e2663]:
+                    - generic [ref=e2664]: Исмаилов Хаял
+                    - generic [ref=e2665]: МП
+                    - generic [ref=e2666]: Москва
+                  - link "ismailov.hayal@orney.ru" [ref=e2670] [cursor=pointer]:
+                    - /url: mailto:ismailov.hayal@orney.ru
+                - generic [ref=e2681]:
+                  - generic [ref=e2682]:
+                    - generic [ref=e2683]: Кутлыева Гулрух
+                    - generic [ref=e2684]: МП
+                    - generic [ref=e2685]: Москва
+                  - link "gulruh.kutlyeva@orney.ru" [ref=e2689] [cursor=pointer]:
+                    - /url: mailto:gulruh.kutlyeva@orney.ru
+            - generic [ref=e2693]:
+              - button "NCFD Bunytov 2 ТМ 2 МП 4 чел." [ref=e2694]:
+                - generic [ref=e2695]: NCFD Bunytov
+                - generic [ref=e2703]:
+                  - generic [ref=e2704]: 2 ТМ
+                  - generic [ref=e2705]: 2 МП
+                  - generic [ref=e2706]: 4 чел.
+              - generic [ref=e2707]:
+                - generic [ref=e2714]:
+                  - generic [ref=e2715]:
+                    - generic [ref=e2716]: Данилова Екатерина
+                    - generic [ref=e2717]: ТМ
+                    - generic [ref=e2718]: Ставрополь
+                  - link "ekaterina.danilova@orney.ru" [ref=e2722] [cursor=pointer]:
+                    - /url: mailto:ekaterina.danilova@orney.ru
+                - generic [ref=e2732]:
+                  - generic [ref=e2733]:
+                    - generic [ref=e2734]: Шадова Дина Алиевна
+                    - generic [ref=e2735]: ТМ
+                    - generic [ref=e2736]: Нальчик
+                  - link "dina.shadova@orney.ru" [ref=e2740] [cursor=pointer]:
+                    - /url: mailto:dina.shadova@orney.ru
+                - generic [ref=e2751]:
+                  - generic [ref=e2752]:
+                    - generic [ref=e2753]: Драгунова Инна
+                    - generic [ref=e2754]: МП
+                    - generic [ref=e2755]: Ставрополь
+                  - link "inna.dragunova@orney.ru" [ref=e2759] [cursor=pointer]:
+                    - /url: mailto:inna.dragunova@orney.ru
+                - generic [ref=e2770]:
+                  - generic [ref=e2771]:
+                    - generic [ref=e2772]: Исаева Марина
+                    - generic [ref=e2773]: МП
+                    - generic [ref=e2774]: Ставрополь
+                  - link "marina.isaeva@orney.ru" [ref=e2778] [cursor=pointer]:
+                    - /url: mailto:marina.isaeva@orney.ru
+            - generic [ref=e2782]:
+              - button "NWD Samadova 1 ТМ 4 МП 5 чел." [ref=e2783]:
+                - generic [ref=e2784]: NWD Samadova
+                - generic [ref=e2792]:
+                  - generic [ref=e2793]: 1 ТМ
+                  - generic [ref=e2794]: 4 МП
+                  - generic [ref=e2795]: 5 чел.
+              - generic [ref=e2796]:
+                - generic [ref=e2803]:
+                  - generic [ref=e2804]:
+                    - generic [ref=e2805]: Кучко Алла
+                    - generic [ref=e2806]: ТМ
+                    - generic [ref=e2807]: Калининград
+                  - link "alla.kuchko@orney.ru" [ref=e2811] [cursor=pointer]:
+                    - /url: mailto:alla.kuchko@orney.ru
+                - generic [ref=e2822]:
+                  - generic [ref=e2823]:
+                    - generic [ref=e2824]: Ганбарова Айнур
+                    - generic [ref=e2825]: МП
+                    - generic [ref=e2826]: Санкт-Петербург
+                  - link "ainur.ganbarova@orney.ru" [ref=e2830] [cursor=pointer]:
+                    - /url: mailto:ainur.ganbarova@orney.ru
+                - generic [ref=e2841]:
+                  - generic [ref=e2842]:
+                    - generic [ref=e2843]: Залесская Яна
+                    - generic [ref=e2844]: МП
+                    - generic [ref=e2845]: Санкт-Петербург
+                  - link "yana.zalesskaya@orney.ru" [ref=e2849] [cursor=pointer]:
+                    - /url: mailto:yana.zalesskaya@orney.ru
+                - generic [ref=e2861]:
+                  - generic [ref=e2862]: Комягин Евгени
+                  - generic [ref=e2863]: МП
+                  - generic [ref=e2864]: Вологда
+                - generic [ref=e2875]:
+                  - generic [ref=e2876]:
+                    - generic [ref=e2877]: Хвиюзов Михаил
+                    - generic [ref=e2878]: МП
+                    - generic [ref=e2879]: Санкт-Петербург
+                  - link "mihail.hviyuzov@orney.ru" [ref=e2883] [cursor=pointer]:
+                    - /url: mailto:mihail.hviyuzov@orney.ru
+            - generic [ref=e2887]:
+              - button "PFO Orudjov 0 ТМ 14 МП 14 чел." [ref=e2888]:
+                - generic [ref=e2889]: PFO Orudjov
+                - generic [ref=e2897]:
+                  - generic [ref=e2898]: 0 ТМ
+                  - generic [ref=e2899]: 14 МП
+                  - generic [ref=e2900]: 14 чел.
+              - generic [ref=e2901]:
+                - generic [ref=e2910]:
+                  - generic [ref=e2911]: Багатырова Эмелина
+                  - generic [ref=e2912]: МП
+                  - generic [ref=e2913]: Москва
+                - generic [ref=e2924]:
+                  - generic [ref=e2925]:
+                    - generic [ref=e2926]: Гусейнов Турал
+                    - generic [ref=e2927]: МП
+                    - generic [ref=e2928]: Уфа
+                  - link "tural.guseynov@orney.ru" [ref=e2932] [cursor=pointer]:
+                    - /url: mailto:tural.guseynov@orney.ru
+                - generic [ref=e2943]:
+                  - generic [ref=e2944]:
+                    - generic [ref=e2945]: Зозуля Олеся
+                    - generic [ref=e2946]: МП
+                    - generic [ref=e2947]: Москва
+                  - link "zozulya.olesya@orney.ru" [ref=e2951] [cursor=pointer]:
+                    - /url: mailto:zozulya.olesya@orney.ru
+                - generic [ref=e2962]:
+                  - generic [ref=e2963]:
+                    - generic [ref=e2964]: Катырева Яна
+                    - generic [ref=e2965]: МП
+                    - generic [ref=e2966]: Пермь
+                  - link "yana.katireva@orney.ru" [ref=e2970] [cursor=pointer]:
+                    - /url: mailto:yana.katireva@orney.ru
+                - generic [ref=e2982]:
+                  - generic [ref=e2983]: Макушкина Анастасия
+                  - generic [ref=e2984]: МП
+                  - generic [ref=e2985]: Москва
+                - generic [ref=e2996]:
+                  - generic [ref=e2997]:
+                    - generic [ref=e2998]: Мансуров Арсен
+                    - generic [ref=e2999]: МП
+                    - generic [ref=e3000]: Уфа
+                  - link "mansurov.arsen@orney.ru" [ref=e3004] [cursor=pointer]:
+                    - /url: mailto:mansurov.arsen@orney.ru
+                - generic [ref=e3015]:
+                  - generic [ref=e3016]:
+                    - generic [ref=e3017]: Матвеева Наталья Юрьевна
+                    - generic [ref=e3018]: МП
+                    - generic [ref=e3019]: Пермь
+                  - link "matveeva.natalya@orney.ru" [ref=e3023] [cursor=pointer]:
+                    - /url: mailto:matveeva.natalya@orney.ru
+                - generic [ref=e3034]:
+                  - generic [ref=e3035]:
+                    - generic [ref=e3036]: Нигматов Ильмир
+                    - generic [ref=e3037]: МП
+                    - generic [ref=e3038]: Уфа
+                  - link "ilmir.nigamatov@orney.ru" [ref=e3042] [cursor=pointer]:
+                    - /url: mailto:ilmir.nigamatov@orney.ru
+                - generic [ref=e3053]:
+                  - generic [ref=e3054]:
+                    - generic [ref=e3055]: Пономарева Любовь Валерьевна
+                    - generic [ref=e3056]: МП
+                    - generic [ref=e3057]: Пермь
+                  - link "lyubov.ponomareva@orney.ru" [ref=e3061] [cursor=pointer]:
+                    - /url: mailto:lyubov.ponomareva@orney.ru
+                - generic [ref=e3072]:
+                  - generic [ref=e3073]:
+                    - generic [ref=e3074]: Потапенко Жанна
+                    - generic [ref=e3075]: МП
+                    - generic [ref=e3076]: Пермь
+                  - link "zhanna.potapenko@orney.ru" [ref=e3080] [cursor=pointer]:
+                    - /url: mailto:zhanna.potapenko@orney.ru
+                - generic [ref=e3091]:
+                  - generic [ref=e3092]:
+                    - generic [ref=e3093]: Сафиуллина Наиля
+                    - generic [ref=e3094]: МП
+                    - generic [ref=e3095]: Уфа
+                  - link "safiullina.nailya@orney.ru" [ref=e3099] [cursor=pointer]:
+                    - /url: mailto:safiullina.nailya@orney.ru
+                - generic [ref=e3110]:
+                  - generic [ref=e3111]:
+                    - generic [ref=e3112]: Старухина Елена
+                    - generic [ref=e3113]: МП
+                    - generic [ref=e3114]: Уфа
+                  - link "elena.starukhina@orney.ru" [ref=e3118] [cursor=pointer]:
+                    - /url: mailto:elena.starukhina@orney.ru
+                - generic [ref=e3129]:
+                  - generic [ref=e3130]:
+                    - generic [ref=e3131]: Шафикова Дина Иршатовна
+                    - generic [ref=e3132]: МП
+                    - generic [ref=e3133]: Стерлитамак
+                  - link "dina.shafikova@orney.ru" [ref=e3137] [cursor=pointer]:
+                    - /url: mailto:dina.shafikova@orney.ru
+                - generic [ref=e3148]:
+                  - generic [ref=e3149]:
+                    - generic [ref=e3150]: Эмриева Сати
+                    - generic [ref=e3151]: МП
+                    - generic [ref=e3152]: Москва
+                  - link "sakinat.emreeva@orney.ru" [ref=e3156] [cursor=pointer]:
+                    - /url: mailto:sakinat.emreeva@orney.ru
+            - generic [ref=e3160]:
+              - button "PFO Samadova 0 ТМ 4 МП 4 чел." [ref=e3161]:
+                - generic [ref=e3162]: PFO Samadova
+                - generic [ref=e3170]:
+                  - generic [ref=e3171]: 0 ТМ
+                  - generic [ref=e3172]: 4 МП
+                  - generic [ref=e3173]: 4 чел.
+              - generic [ref=e3174]:
+                - generic [ref=e3183]:
+                  - generic [ref=e3184]: Гробова Елена
+                  - generic [ref=e3185]: МП
+                  - generic [ref=e3186]: Орел
+                - generic [ref=e3198]:
+                  - generic [ref=e3199]: Карпова Анджела
+                  - generic [ref=e3200]: МП
+                  - generic [ref=e3201]: Воронеж
+                - generic [ref=e3212]:
+                  - generic [ref=e3213]:
+                    - generic [ref=e3214]: Ковалкина Алеся
+                    - generic [ref=e3215]: МП
+                    - generic [ref=e3216]: Калининград
+                  - link "kovalkina.alesya@orney.ru" [ref=e3220] [cursor=pointer]:
+                    - /url: mailto:kovalkina.alesya@orney.ru
+                - generic [ref=e3231]:
+                  - generic [ref=e3232]:
+                    - generic [ref=e3233]: Марюхин Алексей
+                    - generic [ref=e3234]: МП
+                    - generic [ref=e3235]: Тверь
+                  - link "maryukhin.alexey@orney.ru" [ref=e3239] [cursor=pointer]:
+                    - /url: mailto:maryukhin.alexey@orney.ru
+            - generic [ref=e3243]:
+              - 'button "PFO Sonin · РМ: Сонин Сергей Валерьевич 5 ТМ 10 МП 16 чел." [ref=e3244]':
+                - generic [ref=e3245]:
+                  - generic [ref=e3252]: PFO Sonin
+                  - generic [ref=e3253]: "· РМ: Сонин Сергей Валерьевич"
+                - generic [ref=e3254]:
+                  - generic [ref=e3255]: 5 ТМ
+                  - generic [ref=e3256]: 10 МП
+                  - generic [ref=e3257]: 16 чел.
+              - generic [ref=e3258]:
+                - generic [ref=e3265]:
+                  - generic [ref=e3266]:
+                    - generic [ref=e3267]: Сонин Сергей Валерьевич
+                    - generic [ref=e3268]: РМ
+                    - generic [ref=e3269]: Казань
+                  - link "sergey.sonin@orney.ru" [ref=e3273] [cursor=pointer]:
+                    - /url: mailto:sergey.sonin@orney.ru
+                - generic [ref=e3283]:
+                  - generic [ref=e3284]:
+                    - generic [ref=e3285]: Косых Ирина Николаевна
+                    - generic [ref=e3286]: ТМ
+                    - generic [ref=e3287]: Нижний Новгород
+                  - link "irina.kosykh@orney.ru" [ref=e3291] [cursor=pointer]:
+                    - /url: mailto:irina.kosykh@orney.ru
+                - generic [ref=e3301]:
+                  - generic [ref=e3302]:
+                    - generic [ref=e3303]: Кузнецова Ольга Николаевна
+                    - generic [ref=e3304]: ТМ
+                    - generic [ref=e3305]: Ульяновск
+                  - link "olga.kuznetsova@worldmedicine.ru" [ref=e3309] [cursor=pointer]:
+                    - /url: mailto:olga.kuznetsova@worldmedicine.ru
+                - generic [ref=e3319]:
+                  - generic [ref=e3320]:
+                    - generic [ref=e3321]: Малина Евгения
+                    - generic [ref=e3322]: ТМ
+                    - generic [ref=e3323]: Казань
+                  - link "evgeniya.malina@orney.ru" [ref=e3327] [cursor=pointer]:
+                    - /url: mailto:evgeniya.malina@orney.ru
+                - generic [ref=e3337]:
+                  - generic [ref=e3338]:
+                    - generic [ref=e3339]: Парфенова Лилия Александровна
+                    - generic [ref=e3340]: ТМ
+                    - generic [ref=e3341]: Саратов
+                  - link "lily.parfenova@orney.ru" [ref=e3345] [cursor=pointer]:
+                    - /url: mailto:lily.parfenova@orney.ru
+                - generic [ref=e3355]:
+                  - generic [ref=e3356]:
+                    - generic [ref=e3357]: Пшеницына Оксана Викторовна
+                    - generic [ref=e3358]: ТМ
+                    - generic [ref=e3359]: Тольятти
+                  - link "oksana.pshenicina@orney.ru" [ref=e3363] [cursor=pointer]:
+                    - /url: mailto:oksana.pshenicina@orney.ru
+                - generic [ref=e3374]:
+                  - generic [ref=e3375]:
+                    - generic [ref=e3376]: Верхорубова Екатерина
+                    - generic [ref=e3377]: МП
+                    - generic [ref=e3378]: Киров
+                  - link "verhorubova.ekaterina@orney.ru" [ref=e3382] [cursor=pointer]:
+                    - /url: mailto:verhorubova.ekaterina@orney.ru
+                - generic [ref=e3394]:
+                  - generic [ref=e3395]: Ермолаева Надежда
+                  - generic [ref=e3396]: МП
+                  - generic [ref=e3397]: Нижний Новгород
+                - generic [ref=e3408]:
+                  - generic [ref=e3409]:
+                    - generic [ref=e3410]: Жмылева Валерия
+                    - generic [ref=e3411]: МП
+                    - generic [ref=e3412]: Казань
+                  - link "valeria.zhmyleva@orney.ru" [ref=e3416] [cursor=pointer]:
+                    - /url: mailto:valeria.zhmyleva@orney.ru
+                - generic [ref=e3427]:
+                  - generic [ref=e3428]:
+                    - generic [ref=e3429]: Коровина Наталья
+                    - generic [ref=e3430]: МП
+                    - generic [ref=e3431]: Саранск
+                  - link "nataliya.korovina@orney.ru" [ref=e3435] [cursor=pointer]:
+                    - /url: mailto:nataliya.korovina@orney.ru
+                - generic [ref=e3446]:
+                  - generic [ref=e3447]:
+                    - generic [ref=e3448]: Косых Анна Михайловна
+                    - generic [ref=e3449]: МП
+                    - generic [ref=e3450]: Нижний Новгород
+                  - link "anna.kosykh@orney.ru" [ref=e3454] [cursor=pointer]:
+                    - /url: mailto:anna.kosykh@orney.ru
+                - generic [ref=e3465]:
+                  - generic [ref=e3466]:
+                    - generic [ref=e3467]: Логинова Наталья
+                    - generic [ref=e3468]: МП
+                    - generic [ref=e3469]: Саратов
+                  - link "natalya.loginova@orney.ru" [ref=e3473] [cursor=pointer]:
+                    - /url: mailto:natalya.loginova@orney.ru
+                - generic [ref=e3485]:
+                  - generic [ref=e3486]: Торопова Евгения
+                  - generic [ref=e3487]: МП
+                  - generic [ref=e3488]: Нижний Новгород
+                - generic [ref=e3499]:
+                  - generic [ref=e3500]:
+                    - generic [ref=e3501]: Шакурова Раиля
+                    - generic [ref=e3502]: МП
+                    - generic [ref=e3503]: Самара
+                  - link "railya.shakurova@orney.ru" [ref=e3507] [cursor=pointer]:
+                    - /url: mailto:railya.shakurova@orney.ru
+                - generic [ref=e3518]:
+                  - generic [ref=e3519]:
+                    - generic [ref=e3520]: Шестакова Марина Вадимовна
+                    - generic [ref=e3521]: МП
+                    - generic [ref=e3522]: Йошкар-Ола
+                  - link "marina.shestakova@orney.ru" [ref=e3526] [cursor=pointer]:
+                    - /url: mailto:marina.shestakova@orney.ru
+                - generic [ref=e3537]:
+                  - generic [ref=e3538]:
+                    - generic [ref=e3539]: Ялакова Алима
+                    - generic [ref=e3540]: МП
+                    - generic [ref=e3541]: Казань
+                  - link "alima.yalakova@orney.ru" [ref=e3545] [cursor=pointer]:
+                    - /url: mailto:alima.yalakova@orney.ru
+            - generic [ref=e3549]:
+              - 'button "SFD Abbasov · РМ: Аббасов Эльмир Фаххрадин Оглы 2 ТМ 8 МП 11 чел." [ref=e3550]':
+                - generic [ref=e3551]:
+                  - generic [ref=e3558]: SFD Abbasov
+                  - generic [ref=e3559]: "· РМ: Аббасов Эльмир Фаххрадин Оглы"
+                - generic [ref=e3560]:
+                  - generic [ref=e3561]: 2 ТМ
+                  - generic [ref=e3562]: 8 МП
+                  - generic [ref=e3563]: 11 чел.
+              - generic [ref=e3564]:
+                - generic [ref=e3571]:
+                  - generic [ref=e3572]:
+                    - generic [ref=e3573]: Аббасов Эльмир Фаххрадин Оглы
+                    - generic [ref=e3574]: РМ
+                    - generic [ref=e3575]: Краснодар
+                  - link "elmir.abbasov@orney.ru" [ref=e3579] [cursor=pointer]:
+                    - /url: mailto:elmir.abbasov@orney.ru
+                - generic [ref=e3589]:
+                  - generic [ref=e3590]:
+                    - generic [ref=e3591]: Варламова Анна Дмитриевна
+                    - generic [ref=e3592]: ТМ
+                    - generic [ref=e3593]: Краснодар
+                  - link "anna.varlamova@orney.ru" [ref=e3597] [cursor=pointer]:
+                    - /url: mailto:anna.varlamova@orney.ru
+                - generic [ref=e3607]:
+                  - generic [ref=e3608]:
+                    - generic [ref=e3609]: Сабанова Алина Хасановна
+                    - generic [ref=e3610]: ТМ
+                    - generic [ref=e3611]: Нальчик
+                  - link "alinassabanova@orney.ru" [ref=e3615] [cursor=pointer]:
+                    - /url: mailto:alinassabanova@orney.ru
+                - generic [ref=e3626]:
+                  - generic [ref=e3627]:
+                    - generic [ref=e3628]: Варламов Роман
+                    - generic [ref=e3629]: МП
+                    - generic [ref=e3630]: Краснодар
+                  - link "roman.varlamov@orney.ru" [ref=e3634] [cursor=pointer]:
+                    - /url: mailto:roman.varlamov@orney.ru
+                - generic [ref=e3645]:
+                  - generic [ref=e3646]:
+                    - generic [ref=e3647]: Голубова Ирина
+                    - generic [ref=e3648]: МП
+                    - generic [ref=e3649]: Ростов-на-Дону
+                  - link "irina.golubova@orney.ru" [ref=e3653] [cursor=pointer]:
+                    - /url: mailto:irina.golubova@orney.ru
+                - generic [ref=e3664]:
+                  - generic [ref=e3665]:
+                    - generic [ref=e3666]: Евстифеева Ольга Дмитриевна
+                    - generic [ref=e3667]: МП
+                    - generic [ref=e3668]: Краснодар
+                  - link "olga.evstifeeva@orney.ru" [ref=e3672] [cursor=pointer]:
+                    - /url: mailto:olga.evstifeeva@orney.ru
+                - generic [ref=e3683]:
+                  - generic [ref=e3684]:
+                    - generic [ref=e3685]: Козуев Кенже
+                    - generic [ref=e3686]: МП
+                    - generic [ref=e3687]: Ростов-на-Дону
+                  - link "kozuev.kenzhe@orney.ru" [ref=e3691] [cursor=pointer]:
+                    - /url: mailto:kozuev.kenzhe@orney.ru
+                - generic [ref=e3702]:
+                  - generic [ref=e3703]:
+                    - generic [ref=e3704]: Лукожева Фаина
+                    - generic [ref=e3705]: МП
+                    - generic [ref=e3706]: Владикавказ
+                  - link "faina.bekisheva@orney.ru" [ref=e3710] [cursor=pointer]:
+                    - /url: mailto:faina.bekisheva@orney.ru
+                - generic [ref=e3721]:
+                  - generic [ref=e3722]:
+                    - generic [ref=e3723]: Новикова Олеся Валерьевна
+                    - generic [ref=e3724]: МП
+                    - generic [ref=e3725]: Краснодар
+                  - link "olesya.novikova@orney.ru" [ref=e3729] [cursor=pointer]:
+                    - /url: mailto:olesya.novikova@orney.ru
+                - generic [ref=e3741]:
+                  - generic [ref=e3742]: Сорокина Ольга Владимировна
+                  - generic [ref=e3743]: МП
+                  - generic [ref=e3744]: Севастополь
+                - generic [ref=e3755]:
+                  - generic [ref=e3756]:
+                    - generic [ref=e3757]: Филиппова Елена Геннадиевна
+                    - generic [ref=e3758]: МП
+                    - generic [ref=e3759]: Сочи
+                  - link "elena.filippova@orney.ru" [ref=e3763] [cursor=pointer]:
+                    - /url: mailto:elena.filippova@orney.ru
+            - generic [ref=e3767]:
+              - 'button "SFD Guseyn · РМ: Гусейн Ульви 0 ТМ 2 МП 3 чел." [ref=e3768]':
+                - generic [ref=e3769]:
+                  - generic [ref=e3776]: SFD Guseyn
+                  - generic [ref=e3777]: "· РМ: Гусейн Ульви"
+                - generic [ref=e3778]:
+                  - generic [ref=e3779]: 0 ТМ
+                  - generic [ref=e3780]: 2 МП
+                  - generic [ref=e3781]: 3 чел.
+              - generic [ref=e3782]:
+                - generic [ref=e3789]:
+                  - generic [ref=e3790]:
+                    - generic [ref=e3791]: Гусейн Ульви
+                    - generic [ref=e3792]: РМ
+                    - generic [ref=e3793]: Симферополь
+                  - link "ulvi.huseyn@orney.ru" [ref=e3797] [cursor=pointer]:
+                    - /url: mailto:ulvi.huseyn@orney.ru
+                - generic [ref=e3808]:
+                  - generic [ref=e3809]:
+                    - generic [ref=e3810]: Гасанова Тамара Андреевна
+                    - generic [ref=e3811]: МП
+                    - generic [ref=e3812]: Симферополь
+                  - link "tamara.gasanova@orney.ru" [ref=e3816] [cursor=pointer]:
+                    - /url: mailto:tamara.gasanova@orney.ru
+                - generic [ref=e3827]:
+                  - generic [ref=e3828]:
+                    - generic [ref=e3829]: Радаева Елена
+                    - generic [ref=e3830]: МП
+                    - generic [ref=e3831]: Севастополь
+                  - link "elena.radayeva@orney.ru" [ref=e3835] [cursor=pointer]:
+                    - /url: mailto:elena.radayeva@orney.ru
+            - generic [ref=e3839]:
+              - 'button "SFD Shtefanova · РМ: Штефанова Оксана Евгеньевна 0 ТМ 2 МП 3 чел." [ref=e3840]':
+                - generic [ref=e3841]:
+                  - generic [ref=e3848]: SFD Shtefanova
+                  - generic [ref=e3849]: "· РМ: Штефанова Оксана Евгеньевна"
+                - generic [ref=e3850]:
+                  - generic [ref=e3851]: 0 ТМ
+                  - generic [ref=e3852]: 2 МП
+                  - generic [ref=e3853]: 3 чел.
+              - generic [ref=e3854]:
+                - generic [ref=e3861]:
+                  - generic [ref=e3862]:
+                    - generic [ref=e3863]: Штефанова Оксана Евгеньевна
+                    - generic [ref=e3864]: РМ
+                    - generic [ref=e3865]: Волгоград
+                  - link "oksana.shtephanova@orney.ru" [ref=e3869] [cursor=pointer]:
+                    - /url: mailto:oksana.shtephanova@orney.ru
+                - generic [ref=e3880]:
+                  - generic [ref=e3881]:
+                    - generic [ref=e3882]: Гуров Алексей
+                    - generic [ref=e3883]: МП
+                    - generic [ref=e3884]: Астрахань
+                  - link "aleksey.gurov@orney.ru" [ref=e3888] [cursor=pointer]:
+                    - /url: mailto:aleksey.gurov@orney.ru
+                - generic [ref=e3899]:
+                  - generic [ref=e3900]:
+                    - generic [ref=e3901]: Щербаченко Сергей
+                    - generic [ref=e3902]: МП
+                    - generic [ref=e3903]: Волгоград
+                  - link "sergey.sherbachenko@orney.ru" [ref=e3907] [cursor=pointer]:
+                    - /url: mailto:sergey.sherbachenko@orney.ru
+            - generic [ref=e3911]:
+              - 'button "SibFD Milchenko · РМ: Мильченко Михаил Валентинович 2 ТМ 10 МП 13 чел." [ref=e3912]':
+                - generic [ref=e3913]:
+                  - generic [ref=e3920]: SibFD Milchenko
+                  - generic [ref=e3921]: "· РМ: Мильченко Михаил Валентинович"
+                - generic [ref=e3922]:
+                  - generic [ref=e3923]: 2 ТМ
+                  - generic [ref=e3924]: 10 МП
+                  - generic [ref=e3925]: 13 чел.
+              - generic [ref=e3926]:
+                - generic [ref=e3933]:
+                  - generic [ref=e3934]:
+                    - generic [ref=e3935]: Мильченко Михаил Валентинович
+                    - generic [ref=e3936]: РМ
+                    - generic [ref=e3937]: Новосибирск
+                  - link "mikhail.milchenko@orney.ru" [ref=e3941] [cursor=pointer]:
+                    - /url: mailto:mikhail.milchenko@orney.ru
+                - generic [ref=e3951]:
+                  - generic [ref=e3952]:
+                    - generic [ref=e3953]: Тоболина Алла Фридриховна
+                    - generic [ref=e3954]: ТМ
+                    - generic [ref=e3955]: Новосибирск
+                  - link "alla.tobolina@orney.ru" [ref=e3959] [cursor=pointer]:
+                    - /url: mailto:alla.tobolina@orney.ru
+                - generic [ref=e3969]:
+                  - generic [ref=e3970]:
+                    - generic [ref=e3971]: Федина Жанна
+                    - generic [ref=e3972]: ТМ
+                    - generic [ref=e3973]: undefined
+                  - link "zhanna.fedina@orney.ru" [ref=e3977] [cursor=pointer]:
+                    - /url: mailto:zhanna.fedina@orney.ru
+                - generic [ref=e3988]:
+                  - generic [ref=e3989]:
+                    - generic [ref=e3990]: Бикбаева Зульфия Якубовна
+                    - generic [ref=e3991]: МП
+                    - generic [ref=e3992]: Омск
+                  - link "zulfiya.bikbaeva@orney.ru" [ref=e3996] [cursor=pointer]:
+                    - /url: mailto:zulfiya.bikbaeva@orney.ru
+                - generic [ref=e4007]:
+                  - generic [ref=e4008]:
+                    - generic [ref=e4009]: Болотова Светлана Станиславовна
+                    - generic [ref=e4010]: МП
+                    - generic [ref=e4011]: Барнаул
+                  - link "bolotova.svetlana@orney.ru" [ref=e4015] [cursor=pointer]:
+                    - /url: mailto:bolotova.svetlana@orney.ru
+                - generic [ref=e4026]:
+                  - generic [ref=e4027]:
+                    - generic [ref=e4028]: Бормотова Елена
+                    - generic [ref=e4029]: МП
+                    - generic [ref=e4030]: Красноярск
+                  - link "bormotova.elena@orney.ru" [ref=e4034] [cursor=pointer]:
+                    - /url: mailto:bormotova.elena@orney.ru
+                - generic [ref=e4045]:
+                  - generic [ref=e4046]:
+                    - generic [ref=e4047]: Булантаева Наталья
+                    - generic [ref=e4048]: МП
+                    - generic [ref=e4049]: Новосибирск
+                  - link "natalya.bulantaeva@orney.ru" [ref=e4053] [cursor=pointer]:
+                    - /url: mailto:natalya.bulantaeva@orney.ru
+                - generic [ref=e4064]:
+                  - generic [ref=e4065]:
+                    - generic [ref=e4066]: Вымятнина Елена
+                    - generic [ref=e4067]: МП
+                    - generic [ref=e4068]: Новосибирск
+                  - link "vymyatnina.elena@orney.ru" [ref=e4072] [cursor=pointer]:
+                    - /url: mailto:vymyatnina.elena@orney.ru
+                - generic [ref=e4083]:
+                  - generic [ref=e4084]:
+                    - generic [ref=e4085]: Дробот Наталья
+                    - generic [ref=e4086]: МП
+                    - generic [ref=e4087]: Иркутск
+                  - link "drobot.natalya@orney.ru" [ref=e4091] [cursor=pointer]:
+                    - /url: mailto:drobot.natalya@orney.ru
+                - generic [ref=e4102]:
+                  - generic [ref=e4103]:
+                    - generic [ref=e4104]: Курманалина Алия
+                    - generic [ref=e4105]: МП
+                    - generic [ref=e4106]: Омск
+                  - link "aliya.kurmanalina@orney.ru" [ref=e4110] [cursor=pointer]:
+                    - /url: mailto:aliya.kurmanalina@orney.ru
+                - generic [ref=e4121]:
+                  - generic [ref=e4122]:
+                    - generic [ref=e4123]: Лунева Анастасия Сергеевна
+                    - generic [ref=e4124]: МП
+                    - generic [ref=e4125]: Кемерово
+                  - link "anastasiya.luneva@orney.ru" [ref=e4129] [cursor=pointer]:
+                    - /url: mailto:anastasiya.luneva@orney.ru
+                - generic [ref=e4140]:
+                  - generic [ref=e4141]:
+                    - generic [ref=e4142]: Степанова Оксана Николаевна
+                    - generic [ref=e4143]: МП
+                    - generic [ref=e4144]: Омск
+                  - link "oksana.stepanova@orney.ru" [ref=e4148] [cursor=pointer]:
+                    - /url: mailto:oksana.stepanova@orney.ru
+                - generic [ref=e4159]:
+                  - generic [ref=e4160]:
+                    - generic [ref=e4161]: Сыртланова Асия
+                    - generic [ref=e4162]: МП
+                    - generic [ref=e4163]: Новокузнецк
+                  - link "asia.sertlanova@orney.ru" [ref=e4167] [cursor=pointer]:
+                    - /url: mailto:asia.sertlanova@orney.ru
+            - generic [ref=e4171]:
+              - 'button "UFD Tagieva · РМ: Тагиева Самира Юсиф Кызы 0 ТМ 6 МП 7 чел." [ref=e4172]':
+                - generic [ref=e4173]:
+                  - generic [ref=e4180]: UFD Tagieva
+                  - generic [ref=e4181]: "· РМ: Тагиева Самира Юсиф Кызы"
+                - generic [ref=e4182]:
+                  - generic [ref=e4183]: 0 ТМ
+                  - generic [ref=e4184]: 6 МП
+                  - generic [ref=e4185]: 7 чел.
+              - generic [ref=e4186]:
+                - generic [ref=e4193]:
+                  - generic [ref=e4194]:
+                    - generic [ref=e4195]: Тагиева Самира Юсиф Кызы
+                    - generic [ref=e4196]: РМ
+                    - generic [ref=e4197]: Челябинск
+                  - link "samira.tagiyeva@orney.ru" [ref=e4201] [cursor=pointer]:
+                    - /url: mailto:samira.tagiyeva@orney.ru
+                - generic [ref=e4212]:
+                  - generic [ref=e4213]:
+                    - generic [ref=e4214]: Акылбекова Нурайым
+                    - generic [ref=e4215]: МП
+                    - generic [ref=e4216]: Судак
+                  - link "nuraim.akilbekova@orney.ru" [ref=e4220] [cursor=pointer]:
+                    - /url: mailto:nuraim.akilbekova@orney.ru
+                - generic [ref=e4231]:
+                  - generic [ref=e4232]:
+                    - generic [ref=e4233]: Антонова Светлана Николаевна
+                    - generic [ref=e4234]: МП
+                    - generic [ref=e4235]: Челябинск
+                  - link "svetlana.antonova@orney.ru" [ref=e4239] [cursor=pointer]:
+                    - /url: mailto:svetlana.antonova@orney.ru
+                - generic [ref=e4250]:
+                  - generic [ref=e4251]:
+                    - generic [ref=e4252]: Галкина Татьяна Владимировна
+                    - generic [ref=e4253]: МП
+                    - generic [ref=e4254]: Челябинск
+                  - link "tatyana.galkina@orney.ru" [ref=e4258] [cursor=pointer]:
+                    - /url: mailto:tatyana.galkina@orney.ru
+                - generic [ref=e4269]:
+                  - generic [ref=e4270]:
+                    - generic [ref=e4271]: Кулик Галина Борисовна
+                    - generic [ref=e4272]: МП
+                    - generic [ref=e4273]: Екатеринбург
+                  - link "galina.kulik@orney.ru" [ref=e4277] [cursor=pointer]:
+                    - /url: mailto:galina.kulik@orney.ru
+                - generic [ref=e4288]:
+                  - generic [ref=e4289]:
+                    - generic [ref=e4290]: Никитина Ирина Александровна
+                    - generic [ref=e4291]: МП
+                    - generic [ref=e4292]: Магнитогорск
+                  - link "irina.nikitina@orney.ru" [ref=e4296] [cursor=pointer]:
+                    - /url: mailto:irina.nikitina@orney.ru
+                - generic [ref=e4307]:
+                  - generic [ref=e4308]:
+                    - generic [ref=e4309]: Тулина Елена
+                    - generic [ref=e4310]: МП
+                    - generic [ref=e4311]: Новосибирск
+                  - link "elena.tulina@orney.ru" [ref=e4315] [cursor=pointer]:
+                    - /url: mailto:elena.tulina@orney.ru
+  - generic [ref=e576]: "15"

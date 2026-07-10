@@ -185,8 +185,14 @@ const DashboardView = () => {
   // Глобальные фильтры (месяцы + метрика) — общие для всей системы.
   // wmRussiaData нужен в depsах useMemo чтобы дашборд пересчитывался после
   // загрузки файла без перезагрузки страницы.
-  const { selectedMonths } = useGlobalFilters();
+  const { selectedMonths, metric } = useGlobalFilters();
   const { wmRussiaData } = useSharedData();
+  const isRubles = metric !== 'packages';
+  // Значение KPI в выбранной метрике: рубли или упаковки.
+  const fmtMetricValue = (revenue: number, units: number) =>
+    isRubles ? formatCurrency(revenue) : `${formatNumber(units)} уп.`;
+  // Процент со знаком без двойного «+-» (раньше `+${x}%` давало «+-100.0%»).
+  const fmtChange = (pct: number) => `${pct >= 0 ? '+' : ''}${pct.toFixed(1)}%`;
 
   // Динамические годы — раньше был хардкод 2024/2025/2026, который сломался
   // бы 2027-01-01. Берём текущий год из системы.
@@ -212,11 +218,18 @@ const DashboardView = () => {
   const totalBudget2025 = BUDGET_PFO_2025.total;
   const planExecution = totalBudget2025 > 0 ? (stats2025.totalRevenue / totalBudget2025) * 100 : 0;
 
+  const hasNextYearData = stats2026.totalRevenue > 0 || stats2026.totalUnits > 0;
   const kpiCards = [
-    { title: `Продажи ${yearCurrent}`, value: formatCurrency(stats2025.totalRevenue), change: `+${growthPercent.toFixed(1)}%`, trend: 'up', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: `План: ${formatCurrency(totalBudget2025)}` },
-    { title: `Продажи ${yearNext} (прогноз)`, value: formatCurrency(stats2026.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `План: ${formatCurrency(stats2026.totalRevenue * 1.15)}` },
+    { title: `Продажи ${yearCurrent}`, value: fmtMetricValue(stats2025.totalRevenue, stats2025.totalUnits), change: fmtChange(growthPercent), trend: growthPercent >= 0 ? 'up' : 'down', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: `План: ${formatCurrency(totalBudget2025)}` },
+    // Прогноз следующего года показываем только когда за него есть данные —
+    // раньше карточка выводила «0 ₽ / +-100.0%» сразу после входа.
+    hasNextYearData
+      ? { title: `Продажи ${yearNext} (прогноз)`, value: fmtMetricValue(stats2026.totalRevenue, stats2026.totalUnits), change: fmtChange(growth2026Percent), trend: growth2026Percent >= 0 ? 'up' : 'down', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `План: ${formatCurrency(stats2026.totalRevenue * 1.15)}` }
+      : { title: `Продажи ${yearNext} (прогноз)`, value: '— нет данных', change: '', trend: 'neutral', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `Данные за ${yearNext} ещё не загружены` },
     { title: 'Выполнение плана', value: `${planExecution.toFixed(1)}%`, change: `${formatCurrency(totalBudget2025)}`, trend: planExecution > 100 ? 'up' : 'neutral', icon: Target, gradient: planExecution > 100 ? 'from-green-500 to-green-600' : 'from-yellow-500 to-yellow-600', color: planExecution > 100 ? 'green' : 'yellow' },
-    { title: `Рост vs ${yearCurrent}`, value: formatCurrency(stats2026.totalRevenue - stats2025.totalRevenue), change: `+${growth2026Percent.toFixed(1)}%`, trend: 'up', icon: ArrowUpRight, gradient: 'from-blue-500 to-blue-600', color: 'blue' },
+    // Рост к прошлому году (раньше сравнивался пустой yearNext с yearCurrent
+    // и карточка показывала «-34 906 730 ₽» — минус всю выручку).
+    { title: `Рост vs ${yearPrev}`, value: fmtMetricValue(stats2025.totalRevenue - stats2024.totalRevenue, stats2025.totalUnits - stats2024.totalUnits), change: fmtChange(growthPercent), trend: growthPercent >= 0 ? 'up' : 'down', icon: ArrowUpRight, gradient: 'from-blue-500 to-blue-600', color: 'blue' },
   ];
 
   const salesTrendData = getMonthlyDynamics();
@@ -568,7 +581,7 @@ export function DirectorWMDashboard({ allMedReps, activeSection, onRoleSwitch, m
         {/* Кнопка назад */}
         {onBackToMDLP && (
           <button
-            onClick={onBackToMDLP}
+            onClick={() => onBackToMDLP()}
             className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-slate-100 to-slate-50 hover:from-slate-200 hover:to-slate-100 rounded-xl text-slate-700 transition-all border border-slate-200 hover:border-slate-300 shadow-sm hover:shadow-md group font-medium"
           >
             <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />

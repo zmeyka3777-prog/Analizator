@@ -180,6 +180,33 @@ export default function ProductsAnalyticsWithEdit() {
     return { totalRevenue, totalUnits, growth };
   }, [enrichedData]);
 
+  // Экспорт таблицы препаратов в CSV (кнопка «Экспорт» в шапке).
+  const handleExportCSV = () => {
+    const year = dateSettings.currentYear;
+    const rows = [
+      ['Препарат', `Выручка ${year} (₽)`, `Упаковки ${year}`, `Выручка ${year - 1} (₽)`, 'Рост, %'],
+      ...filteredProducts.map(item => {
+        const growth = item.prevYearRevenue > 0
+          ? ((item.totalRevenue - item.prevYearRevenue) / item.prevYearRevenue) * 100
+          : 0;
+        return [
+          item.product.shortName || item.product.name,
+          Math.round(item.totalRevenue),
+          Math.round(item.totalUnits),
+          Math.round(item.prevYearRevenue),
+          item.prevYearRevenue > 0 ? growth.toFixed(1) : '—',
+        ];
+      }),
+    ];
+    const csv = '﻿' + rows.map(r => r.join(';')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `products_${year}_${Date.now()}.csv`;
+    link.click();
+    URL.revokeObjectURL(link.href);
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -196,7 +223,7 @@ export default function ProductsAnalyticsWithEdit() {
             <Plus className="w-4 h-4 mr-2" />
             Добавить препарат
           </Button>
-          <Button className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700">
+          <Button onClick={handleExportCSV} className="bg-gradient-to-r from-cyan-600 to-blue-600 text-white hover:from-cyan-700 hover:to-blue-700">
             <Download className="w-4 h-4 mr-2" />
             Экспорт
           </Button>
