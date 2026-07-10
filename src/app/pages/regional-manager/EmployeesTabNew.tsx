@@ -68,8 +68,10 @@ export function EmployeesTabNew() {
     // Делим факт пропорционально между МП на территории
     const mpsOnTerritory = allMPs.filter(m => m.territory === mp.territory).length || 1;
     const mpFact = Math.round(totalFact / mpsOnTerritory);
-    const mpPlan = Object.values(mp.productPlans).reduce((s, v) => s + v, 0) || Math.round(mpFact * 1.1);
-    const pct = mpPlan > 0 ? Math.round((mpFact / mpPlan) * 100) : 0;
+    // План МП не выдумываем из факта (был факт×1.1). Берём заданный productPlans,
+    // иначе 0 → «план не задан».
+    const mpPlan = Object.values(mp.productPlans).reduce((s, v) => s + v, 0);
+    const pct = mpPlan > 0 ? Math.round((mpFact / mpPlan) * 100) : null;
     return { fact: mpFact, plan: mpPlan, pct };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, allMPs, wmRussiaData, selectedMonths]);
@@ -195,10 +197,10 @@ export function EmployeesTabNew() {
                           </div>
                           <div className="flex items-center gap-4">
                             <div className="text-right">
-                              <p className={`text-sm font-medium ${stats.pct >= 90 ? 'text-emerald-400' : stats.pct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
-                                {stats.pct}%
+                              <p className={`text-sm font-medium ${stats.pct === null ? 'text-white/40' : stats.pct >= 90 ? 'text-emerald-400' : stats.pct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
+                                {stats.pct === null ? 'план не задан' : `${stats.pct}%`}
                               </p>
-                              <p className="text-white/40 text-xs">{stats.fact.toLocaleString('ru-RU')} / {stats.plan.toLocaleString('ru-RU')}</p>
+                              <p className="text-white/40 text-xs">{stats.fact.toLocaleString('ru-RU')}{stats.plan > 0 ? ` / ${stats.plan.toLocaleString('ru-RU')}` : ''}</p>
                             </div>
                             <button
                               onClick={() => setSelectedMP(mp)}

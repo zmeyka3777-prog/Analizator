@@ -20,17 +20,20 @@ interface WMRussiaSidebarProps {
 
 const menuItemsByRole: Record<WMUserRole, MenuItem[]> = {
   medrep: [
+    { id: 'upload', label: 'Загрузка данных', icon: '⬆️' },
     { id: 'my-sales', label: 'Мои продажи', icon: '📊' },
     { id: 'dynamics', label: 'Динамика', icon: '📈' },
     { id: 'my-kpi', label: 'Мои KPI', icon: '🎯' },
   ],
   territory_manager: [
+    { id: 'upload', label: 'Загрузка данных', icon: '⬆️' },
     { id: 'my-territory', label: 'Моя территория', icon: '📊' },
     { id: 'team', label: 'Команда', icon: '👥' },
     { id: 'compare', label: 'Сравнительная аналитика', icon: '📈' },
     { id: 'territory-kpi', label: 'KPI территории', icon: '🎯' },
   ],
   manager: [
+    { id: 'upload', label: 'Загрузка данных', icon: '⬆️' },
     { id: 'district-dashboard', label: 'Дашборд округа', icon: '📊' },
     { id: 'all-medreps', label: 'Все медпреды', icon: '👥' },
     { id: 'analytics', label: 'Аналитика по препаратам', icon: '📈' },
@@ -87,15 +90,17 @@ export function WMRussiaSidebar({
 }: WMRussiaSidebarProps) {
   const [isOpen, setIsOpen] = useState(false);
   const menuItems = menuItemsByRole[userRole] || [];
+  // «Главная» — первый пункт-дашборд, а не «Загрузка» (загрузка ведёт в MDLP-режим).
+  const homeItem = menuItems.find(m => m.id !== 'upload') || menuItems[0];
 
   const sidebarContent = (
     <>
-      {/* Logo — клик возвращает на первый пункт меню (главную) */}
+      {/* Logo — клик возвращает на главную вкладку кабинета */}
       <div className="wm-sidebar-logo p-5 border-b border-slate-200">
         <button
           type="button"
           onClick={() => {
-            if (menuItems.length > 0) onNavigate(menuItems[0].id);
+            if (homeItem) onNavigate(homeItem.id);
             setIsOpen(false);
           }}
           className="flex items-center gap-3 w-full text-left hover:opacity-80 transition-opacity"

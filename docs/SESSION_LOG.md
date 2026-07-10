@@ -5,6 +5,31 @@
 
 ---
 
+## Сессия 2026-07-09/10 (аудит всего сайта + единый источник загрузки + де-мок)
+
+### Что сделано и проверено вживую (Playwright)
+- **🔴 T.startsWith crash РЕШЁН** (корень найден sourcemaps): `onClick={onBackToMDLP}` передавал MouseEvent в `navigateTo` → `activeTab` становился объектом → `activeTab.startsWith` падал. Фикс: `onClick={() => onBackToMDLP()}` в 4 местах (DirectorWMDashboard, WMRussiaApp ×2, WMRussiaSidebar) + typeof-guard в App.tsx onBackToMDLP. Возврат директора в МДЛП больше не белый экран.
+- **Калькулятор бюджета**: `totalRevenue * 1000` завышал выручку в 1000× ([BudgetCalculatorEnhanced.tsx:746,752](src/app/pages/director/BudgetCalculatorEnhanced.tsx)) — убрано. + CSV `\\n`→`\n`, sort-мутация state → `[...arr].sort()`.
+- **Переключатель Рубли/Упаковки на дашборде директора** заработал (metric из useGlobalFilters). KPI «Продажи 2027» больше не «0 ₽ / +-100.0%» → «— нет данных».
+- **Мёртвые кнопки «Экспорт»** (TerritoriesAnalytics, ProductsAnalyticsWithEdit) → реальный CSV. KPI «Препаратов» вёл на несуществующую вкладку 'drugs' → 'abc'.
+- **IDOR budget-scenarios** (server/index.ts): GET/POST/PUT брали userId из URL/body без сверки с JWT → любой мог читать/писать чужие сценарии. Фикс: userId только из JWT + owner-check в PUT (как в DELETE). Проверено 5/5 API-тестами.
+- **Единый источник загрузки для всех ролей**: пункт «⬆️ Загрузка данных» в сайдбар medrep/TM/manager → тот же MDLP-экран загрузки (per-user), возврат кнопкой «Мой округ/динамика». Проверено вживую (medrep round-trip).
+- **Де-мок планов**: убран `факт×1.1` в [SharedDataContext.tsx](src/context/SharedDataContext.tsx) (medrep/TM → «план не задан»); RM Overview+Products → реальный `regional_plans` через новый хук [useRegionalPlans.ts](src/hooks/useRegionalPlans.ts). Проверено вживую (RM: «План: 100» реальный, «—» где нет).
+- **Де-мок medrep**: реальная помесячная динамика из `monthlyFact` (было размазывание по весам), убран фейк-рейтинг `position:1`, текст empty-state «загрузите сами» вместо «администратором/директором».
+- Пароль БД обновлён в .env (POSTGRESQL_PASSWORD), старый вычищен из файлов памяти.
+
+### Осталось (следующая сессия)
+- **Фаза 3 — сотрудники**: [EmployeesTabNew.tsx](src/app/pages/regional-manager/EmployeesTabNew.tsx) + RM employeeCount всё ещё на mock `data/employees.ts` (Иванов/Петрова/Малина). Перевести на `/api/admin/employees` (107 CRM) — крупный рерайт: иерархия RM→TM→MP по crm_group + сломанные TODO сохранения в Edit/Add модалках.
+- **Фаза 4 — ТМ**: TerritoryManagerDashboard показывает регионы как «медпредставителей» — переименовать.
+- Директорские medium-находки (аудит): ProductsAnalyticsWithEdit draft/published рассинхрон; TerritoriesAnalytics — Math.random в модалках не-ПФО округов, хардкод подписей годов; ReportsTabLight — handleSave/handleGenerate не пишут на сервер + stale selectedMonths в deps.
+- Полный список ~50 находок аудита: workflow journal `subagents/workflows/wf_eb0ed6cd-3a4/journal.jsonl`.
+
+### Известные не-регрессии
+- `validateDOMNesting` warning (button в button) в EmployeesTabNew — пред-существующий, не краш.
+- tsc: пред-существующий тех-долг (`unknown`-типы в App.tsx wm-вкладках, `Role` в AppLayout) — не из этой сессии.
+
+---
+
 ## Последняя сессия: 2026-05-25 — 2026-05-28 (марафон: фильтры, планы РМ, иерархия сотрудников)
 
 ### Что сделано

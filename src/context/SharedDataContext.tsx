@@ -362,7 +362,10 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       const productKey = getWmProductKey(record.drug);
       if (productKey && grouped[regionKey].products[productKey]) {
         grouped[regionKey].products[productKey].fact += record.packages || 0;
-        grouped[regionKey].products[productKey].plan += Math.round((record.packages || 0) * 1.1);
+        // План НЕ выдумываем из факта (раньше был факт×1.1 → вечные 90.9%).
+        // Реальный план приходит из regional_plans (мерджится ниже, где роль
+        // авторизована). Медпред/ТМ без источника плана → план остаётся 0
+        // («план не задан»), а не фейковый.
       }
       grouped[regionKey].totalMoney += record.sales || 0;
 
@@ -411,7 +414,9 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         alfectoFact: data.products['alfecto']?.fact || 0,
         totalPackagesPlan: totalPlan,
         totalPackagesFact: totalFact,
-        totalMoneyPlan: Math.round(data.totalMoney * 1.1),
+        // Деньги-план не выдумываем (был факт×1.1). Реальный план в regional_plans
+        // хранится только в упаковках; денежный план не задаётся → 0 («не задан»).
+        totalMoneyPlan: 0,
         totalMoneyFact: data.totalMoney,
         monthlyFact: data.monthlyFact,
       };

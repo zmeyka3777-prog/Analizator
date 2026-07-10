@@ -7,6 +7,7 @@ import { PRODUCTS } from '@/data/salesData';
 import { getSalesData, TERRITORIES } from '@/data/salesData';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
+import { useRegionalPlans } from '@/hooks/useRegionalPlans';
 
 const MONTHS_SHORT = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 const MONTHS_FULL = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -24,6 +25,21 @@ export function ProductsTab() {
   // Реактивность на загрузку файла + глобальные фильтры (месяцы).
   const { wmRussiaData } = useSharedData();
   const { selectedMonths } = useGlobalFilters();
+  // Реальные планы РМ (regional_plans). product_id == PRODUCTS.id, month 1-12.
+  const planRows = useRegionalPlans(year, wmRussiaData);
+
+  // План по продукту (сумма по месяцам с учётом фильтра) и по продукту+месяцу.
+  const { planByProduct, planByProductMonth } = useMemo(() => {
+    const s = selectedMonths.length ? new Set(selectedMonths) : null;
+    const byProduct: Record<string, number> = {};
+    const byProductMonth: Record<string, number> = {};
+    for (const p of planRows) {
+      byProductMonth[`${p.product_id}|${p.month}`] = (byProductMonth[`${p.product_id}|${p.month}`] || 0) + (p.plan_units || 0);
+      if (s && !s.has(p.month)) continue;
+      byProduct[p.product_id] = (byProduct[p.product_id] || 0) + (p.plan_units || 0);
+    }
+    return { planByProduct: byProduct, planByProductMonth: byProductMonth };
+  }, [planRows, selectedMonths]);
 
   // Сводка по всем продуктам
   const productSummary = useMemo(() => {
@@ -31,8 +47,8 @@ export function ProductsTab() {
       const pData = getSalesData({ productId: product.id, year, months: selectedMonths });
       const totalUnits = pData.reduce((s, d) => s + d.units, 0);
       const totalRevenue = pData.reduce((s, d) => s + d.revenue, 0);
-      const plan = product.quota2025;
-      const pct = plan > 0 ? Math.round((totalUnits / plan) * 100) : 0;
+      const plan = planByProduct[product.id] || 0;
+      const pct = plan > 0 ? Math.round((totalUnits / plan) * 100) : null;
 
       return {
         product,
@@ -41,24 +57,21 @@ export function ProductsTab() {
         plan,
         pct,
         color: COLORS[i % COLORS.length],
-        budget2025: product.budget2025,
       };
     }).sort((a, b) => b.totalUnits - a.totalUnits);
-  }, [year, wmRussiaData, selectedMonths]);
+  }, [year, wmRussiaData, selectedMonths, planByProduct]);
 
-  // Данные выбранного продукта: план-факт по месяцам
+  // Данные выбранного продукта: план-факт по месяцам (план РЕАЛЬНЫЙ из
+  // regional_plans по месяцам, а не синтетическая сезонность от quota2025).
   const selectedDetail = useMemo(() => {
     if (!selectedProductId) return null;
     const product = PRODUCTS.find(p => p.id === selectedProductId);
     if (!product) return null;
 
-    const monthlyPlan = product.quota2025 / 12;
-    const seasonality = [0.95, 0.88, 1.02, 1.05, 0.98, 0.92, 0.85, 0.90, 1.08, 1.15, 1.18, 1.04];
-
     const months = MONTHS_SHORT.map((month, idx) => {
       const mData = getSalesData({ productId: selectedProductId, year, month: idx + 1 });
       const fact = mData.reduce((s, d) => s + d.units, 0);
-      const plan = Math.round(monthlyPlan * seasonality[idx]);
+      const plan = planByProductMonth[`${selectedProductId}|${idx + 1}`] || 0;
       return { month, plan, fact, delta: fact - plan };
     });
 
@@ -93,12 +106,14 @@ export function ProductsTab() {
             <div className="mt-2">
               <div className="flex justify-between text-xs mb-1">
                 <span className="text-white/50">Выполнение</span>
-                <span className={pct >= 90 ? 'text-emerald-400' : pct >= 70 ? 'text-yellow-400' : 'text-red-400'}>{pct}%</span>
+                <span className={pct === null ? 'text-white/40' : pct >= 90 ? 'text-emerald-400' : pct >= 70 ? 'text-yellow-400' : 'text-red-400'}>
+                  {pct === null ? 'план не задан' : `${pct}%`}
+                </span>
               </div>
               <div className="w-full bg-white/10 rounded-full h-1.5">
                 <div
                   className="h-1.5 rounded-full transition-all"
-                  style={{ width: `${Math.min(pct, 100)}%`, backgroundColor: pct >= 90 ? '#10b981' : pct >= 70 ? '#f59e0b' : '#ef4444' }}
+                  style={{ width: `${pct === null ? 0 : Math.min(pct, 100)}%`, backgroundColor: (pct ?? 0) >= 90 ? '#10b981' : (pct ?? 0) >= 70 ? '#f59e0b' : '#ef4444' }}
                 />
               </div>
             </div>
@@ -141,17 +156,18 @@ export function ProductsTab() {
               </thead>
               <tbody>
                 {selectedDetail.months.map((m, i) => {
-                  const pct = m.plan > 0 ? Math.round((m.fact / m.plan) * 100) : 0;
+                  const hasPlan = m.plan > 0;
+                  const pct = hasPlan ? Math.round((m.fact / m.plan) * 100) : null;
                   return (
                     <tr key={i} className="border-b border-white/5">
                       <td className="text-white py-2 pr-4">{MONTHS_FULL[i]}</td>
-                      <td className="text-white/80 text-right py-2 px-4">{m.plan.toLocaleString('ru-RU')}</td>
+                      <td className="text-white/80 text-right py-2 px-4">{hasPlan ? m.plan.toLocaleString('ru-RU') : '—'}</td>
                       <td className="text-white text-right py-2 px-4">{m.fact.toLocaleString('ru-RU')}</td>
-                      <td className={`text-right py-2 px-4 ${m.delta >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                        {m.delta >= 0 ? '+' : ''}{m.delta.toLocaleString('ru-RU')}
+                      <td className={`text-right py-2 px-4 ${hasPlan ? (m.delta >= 0 ? 'text-emerald-400' : 'text-red-400') : 'text-white/40'}`}>
+                        {hasPlan ? `${m.delta >= 0 ? '+' : ''}${m.delta.toLocaleString('ru-RU')}` : '—'}
                       </td>
-                      <td className={`text-right py-2 pl-4 ${pct >= 90 ? 'text-emerald-400' : pct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
-                        {pct}%
+                      <td className={`text-right py-2 pl-4 ${pct === null ? 'text-white/40' : pct >= 90 ? 'text-emerald-400' : pct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
+                        {pct === null ? '—' : `${pct}%`}
                       </td>
                     </tr>
                   );

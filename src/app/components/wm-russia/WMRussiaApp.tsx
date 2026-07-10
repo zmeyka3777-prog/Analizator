@@ -361,9 +361,10 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
         );
         const medRepData = applyMonthsFilter(merged, selectedMonths);
         medRepData.name = currentUser.name;
-        const ranking = filteredSalesData.length > 0
-          ? { position: 1, total: filteredSalesData.length }
-          : { position: 0, total: 0 };
+        // Рейтинг среди медпредов недоступен: из-за per-user изоляции медпред
+        // видит только свои данные, сравнить не с кем. Раньше был фейковый
+        // «Место 1». total=0 → карточка рейтинга показывает «—».
+        const ranking = { position: 0, total: 0 };
         return <MedRepDashboard medRepData={medRepData} ranking={ranking} activeSection={activeSection} />;
       }
 
@@ -438,7 +439,17 @@ export function WMRussiaApp({ onBackToMDLP, mdlpUserId, initialUser, onLogoutToM
           userRole={currentUser.role}
           userName={currentUser.name}
           activeSection={activeSection}
-          onNavigate={setActiveSection}
+          onNavigate={(section) => {
+            // «Загрузка данных» — единый источник для всех ролей: ведёт на тот же
+            // MDLP-экран загрузки (в контексте своего userId), а не на отдельную
+            // вкладку кабинета. После загрузки юзер возвращается в кабинет кнопкой
+            // «Мой округ/территория/динамика», и wmRussiaData пересчитывается.
+            if (section === 'upload') {
+              onBackToMDLP?.('upload');
+              return;
+            }
+            setActiveSection(section);
+          }}
           onLogout={handleLogout}
           onBackToMDLP={() => onBackToMDLP?.()}
         />

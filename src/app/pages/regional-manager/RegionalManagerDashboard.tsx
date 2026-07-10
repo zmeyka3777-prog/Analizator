@@ -11,6 +11,7 @@ import { EmployeesTabNew } from './EmployeesTabNew';
 import { PlansTab } from './PlansTab';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
+import { useRegionalPlans, sumPlanUnits } from '@/hooks/useRegionalPlans';
 
 const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
 
@@ -44,12 +45,27 @@ function OverviewTab() {
     [yearData],
   );
 
-  // План = сумма quota2025 по всем продуктам
+  // Реальный план из regional_plans (то, что РМ ввёл во вкладке «Планы»),
+  // а не хардкод quota2025 из каталога. Учитываем фильтр месяцев.
+  const planRows = useRegionalPlans(year, wmRussiaData);
   const totalPlan = useMemo(
-    () => PRODUCTS.reduce((sum, p) => sum + p.quota2025, 0),
-    [],
+    () => sumPlanUnits(planRows, selectedMonths),
+    [planRows, selectedMonths],
   );
-  const completion = totalPlan > 0 ? Math.round((totalUnits / totalPlan) * 100) : 0;
+  const hasPlan = totalPlan > 0;
+  const completion = hasPlan ? Math.round((totalUnits / totalPlan) * 100) : 0;
+
+  // План по каждому препарату из regional_plans (product_id == PRODUCTS.id,
+  // маппинг не нужен). Учитываем фильтр месяцев.
+  const planByProduct = useMemo(() => {
+    const s = selectedMonths.length ? new Set(selectedMonths) : null;
+    const map: Record<string, number> = {};
+    for (const p of planRows) {
+      if (s && !s.has(p.month)) continue;
+      map[p.product_id] = (map[p.product_id] || 0) + (p.plan_units || 0);
+    }
+    return map;
+  }, [planRows, selectedMonths]);
 
   // Количество сотрудников: только подчинённые текущего регионального менеджера ПФО
   // (4 ТМ + их МП — обычно 13). Раньше показывали EMPLOYEES.filter(active) = 74
@@ -88,26 +104,27 @@ function OverviewTab() {
     });
   }, [year, wmRussiaData, selectedMonths]);
 
-  // Топ-5 препаратов
+  // Топ-5 препаратов. План берём реальный из regional_plans (planByProduct),
+  // а не хардкод quota2025. Где плана нет — pct = null («не задан»).
   const topProducts = useMemo(() => {
     return PRODUCTS.map(product => {
       const pData = getSalesData({ productId: product.id, year, months: selectedMonths });
       const units = pData.reduce((s, d) => s + d.units, 0);
-      const plan = product.quota2025;
-      const pct = plan > 0 ? Math.round((units / plan) * 100) : 0;
-      return { name: product.shortName || product.name, units, plan, pct, budget2025: product.budget2025 };
+      const plan = planByProduct[product.id] || 0;
+      const pct = plan > 0 ? Math.round((units / plan) * 100) : null;
+      return { name: product.shortName || product.name, units, plan, pct };
     })
       .sort((a, b) => b.units - a.units)
       .slice(0, 5);
-  }, [year, wmRussiaData, selectedMonths]);
+  }, [year, wmRussiaData, selectedMonths, planByProduct]);
 
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KPICard title="Продажи (упак.)" value={totalUnits.toLocaleString('ru-RU')} subtitle={`План: ${totalPlan.toLocaleString('ru-RU')}`} color="blue" />
+        <KPICard title="Продажи (упак.)" value={totalUnits.toLocaleString('ru-RU')} subtitle={hasPlan ? `План: ${totalPlan.toLocaleString('ru-RU')}` : 'План не задан'} color="blue" />
         <KPICard title="Выручка" value={`${(totalRevenue / 1_000_000).toFixed(1)} млн`} subtitle={`${year} год`} color="green" />
-        <KPICard title="Выполнение плана" value={`${completion}%`} subtitle={completion >= 90 ? 'В норме' : 'Требует внимания'} color={completion >= 90 ? 'green' : completion >= 70 ? 'yellow' : 'red'} />
+        <KPICard title="Выполнение плана" value={hasPlan ? `${completion}%` : '—'} subtitle={hasPlan ? (completion >= 90 ? 'В норме' : 'Требует внимания') : 'План не задан во вкладке «Планы»'} color={hasPlan ? (completion >= 90 ? 'green' : completion >= 70 ? 'yellow' : 'red') : 'blue'} />
         <KPICard title="Сотрудники" value={String(employeeCount)} subtitle="Активных" color="purple" />
       </div>
 
@@ -154,10 +171,10 @@ function OverviewTab() {
               <div className="w-48 bg-white/10 rounded-full h-2.5">
                 <div
                   className="h-2.5 rounded-full"
-                  style={{ width: `${Math.min(p.pct, 100)}%`, backgroundColor: p.pct >= 90 ? '#10b981' : p.pct >= 70 ? '#f59e0b' : '#ef4444' }}
+                  style={{ width: `${p.pct !== null ? Math.min(p.pct, 100) : 0}%`, backgroundColor: (p.pct ?? 0) >= 90 ? '#10b981' : (p.pct ?? 0) >= 70 ? '#f59e0b' : '#ef4444' }}
                 />
               </div>
-              <span className="text-white/80 w-16 text-right">{p.pct}%</span>
+              <span className="text-white/80 w-16 text-right">{p.pct !== null ? `${p.pct}%` : '—'}</span>
               <span className="text-white/60 w-28 text-right">{p.units.toLocaleString('ru-RU')} уп.</span>
             </div>
           ))}

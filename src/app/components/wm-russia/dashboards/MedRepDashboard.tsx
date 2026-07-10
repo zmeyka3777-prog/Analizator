@@ -41,6 +41,9 @@ const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'И�
 // ==================== TAB: МОИ ПРОДАЖИ ====================
 function SalesTab({ medRepData, ranking }: { medRepData: MedRepData; ranking: { position: number; total: number } }) {
   const productSales = getMedRepProductSales(medRepData);
+  // План задан только если он реально пришёл (из regional_plans). Медпред без
+  // источника плана → hasPlan=false, показываем «не задан» вместо фейковых %.
+  const hasPlan = medRepData.totalPackagesPlan > 0;
   const overallCompletion = calcCompletionPercent(medRepData.totalPackagesFact, medRepData.totalPackagesPlan);
   const moneyCompletion = calcCompletionPercent(medRepData.totalMoneyFact, medRepData.totalMoneyPlan);
   const pieData = productSales.map(p => ({ name: p.productName, value: p.fact, color: p.color }));
@@ -52,10 +55,10 @@ function SalesTab({ medRepData, ranking }: { medRepData: MedRepData; ranking: { 
       {/* KPI Cards */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         {[
-          { label: 'Упаковки план', value: fmt(medRepData.totalPackagesPlan), pct: null, color: 'from-blue-500/20 to-blue-600/10 border-blue-500/30' },
-          { label: 'Упаковки факт', value: fmt(medRepData.totalPackagesFact), pct: overallCompletion, color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30' },
-          { label: 'Деньги план', value: fmtMoney(medRepData.totalMoneyPlan), pct: null, color: 'from-purple-500/20 to-purple-600/10 border-purple-500/30' },
-          { label: 'Деньги факт', value: fmtMoney(medRepData.totalMoneyFact), pct: moneyCompletion, color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30' },
+          { label: 'Упаковки план', value: hasPlan ? fmt(medRepData.totalPackagesPlan) : 'не задан', pct: null, color: 'from-blue-500/20 to-blue-600/10 border-blue-500/30' },
+          { label: 'Упаковки факт', value: fmt(medRepData.totalPackagesFact), pct: hasPlan ? overallCompletion : null, color: 'from-emerald-500/20 to-emerald-600/10 border-emerald-500/30' },
+          { label: 'Деньги план', value: medRepData.totalMoneyPlan > 0 ? fmtMoney(medRepData.totalMoneyPlan) : 'не задан', pct: null, color: 'from-purple-500/20 to-purple-600/10 border-purple-500/30' },
+          { label: 'Деньги факт', value: fmtMoney(medRepData.totalMoneyFact), pct: medRepData.totalMoneyPlan > 0 ? moneyCompletion : null, color: 'from-amber-500/20 to-amber-600/10 border-amber-500/30' },
         ].map(({ label, value, pct, color }) => (
           <div key={label} className={`bg-gradient-to-br ${color} backdrop-blur-md rounded-2xl p-5 border`}>
             <p className="text-xs text-gray-400 mb-1">{label}</p>
@@ -74,26 +77,36 @@ function SalesTab({ medRepData, ranking }: { medRepData: MedRepData; ranking: { 
         {/* Gauge */}
         <div className={CARD + ' p-6 flex flex-col items-center justify-center'}>
           <p className="text-sm text-gray-400 mb-4 font-medium">Выполнение плана</p>
-          <div className="relative w-36 h-36">
-            <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
-              <circle
-                cx="50" cy="50" r="45"
-                stroke={completionColor(overallCompletion)}
-                strokeWidth="8" fill="none" strokeLinecap="round"
-                strokeDasharray={circumference}
-                strokeDashoffset={dashOffset}
-                className="transition-all duration-700"
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-2xl font-black text-white">{overallCompletion.toFixed(0)}%</span>
-              <span className="text-xs text-gray-500">упаковки</span>
+          {hasPlan ? (
+            <>
+              <div className="relative w-36 h-36">
+                <svg className="w-full h-full -rotate-90" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="45" stroke="rgba(255,255,255,0.08)" strokeWidth="8" fill="none" />
+                  <circle
+                    cx="50" cy="50" r="45"
+                    stroke={completionColor(overallCompletion)}
+                    strokeWidth="8" fill="none" strokeLinecap="round"
+                    strokeDasharray={circumference}
+                    strokeDashoffset={dashOffset}
+                    className="transition-all duration-700"
+                  />
+                </svg>
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <span className="text-2xl font-black text-white">{overallCompletion.toFixed(0)}%</span>
+                  <span className="text-xs text-gray-500">упаковки</span>
+                </div>
+              </div>
+              <p className="mt-4 text-xs text-gray-400 text-center">
+                {fmt(medRepData.totalPackagesFact)} из {fmt(medRepData.totalPackagesPlan)} упаковок
+              </p>
+            </>
+          ) : (
+            <div className="w-36 h-36 flex flex-col items-center justify-center text-center">
+              <span className="text-4xl mb-2">📄</span>
+              <span className="text-sm text-gray-400">План не задан</span>
+              <span className="text-xs text-gray-500 mt-1">{fmt(medRepData.totalPackagesFact)} упак. факт</span>
             </div>
-          </div>
-          <p className="mt-4 text-xs text-gray-400 text-center">
-            {fmt(medRepData.totalPackagesFact)} из {fmt(medRepData.totalPackagesPlan)} упаковок
-          </p>
+          )}
         </div>
 
         {/* Pie */}
@@ -142,16 +155,20 @@ function SalesTab({ medRepData, ranking }: { medRepData: MedRepData; ranking: { 
                         <span className="text-gray-300">{product.productName}</span>
                       </div>
                     </td>
-                    <td className="text-right px-4 py-3 text-gray-400">{fmt(product.plan)}</td>
+                    <td className="text-right px-4 py-3 text-gray-400">{product.plan > 0 ? fmt(product.plan) : '—'}</td>
                     <td className="text-right px-4 py-3 text-white font-medium">{fmt(product.fact)}</td>
                     <td className="text-right px-4 py-3">
-                      <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${completionBadge(product.completionPercent)}`}>
-                        {product.completionPercent.toFixed(1)}%
-                      </span>
+                      {product.plan > 0 ? (
+                        <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${completionBadge(product.completionPercent)}`}>
+                          {product.completionPercent.toFixed(1)}%
+                        </span>
+                      ) : (
+                        <span className="text-xs text-gray-500">—</span>
+                      )}
                     </td>
                     <td className="px-6 py-3">
                       <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
-                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${capped}%`, backgroundColor: product.color }} />
+                        <div className="h-full rounded-full transition-all duration-500" style={{ width: `${product.plan > 0 ? capped : 0}%`, backgroundColor: product.color }} />
                       </div>
                     </td>
                   </tr>
@@ -177,27 +194,30 @@ function DynamicsTab({ medRepData }: { medRepData: MedRepData }) {
   const productSales = getMedRepProductSales(medRepData);
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
 
-  // Генерируем помесячные данные (синтетика на базе факта)
+  // Помесячные данные из РЕАЛЬНОГО monthlyFact (раньше был синтетический
+  // размазанный по захардкоженным весам). Месячный тотал — реальный из данных;
+  // разбивка по продуктам — пропорционально годовой доле продукта (реальной
+  // помесячной разбивки ПО ПРОДУКТАМ в выгрузке нет, только суммарно по месяцу).
   const monthlyData = useMemo(() => {
-    // Распределение по месяцам (условное — плавная кривая с сезонностью)
-    const weights = [0.06, 0.07, 0.08, 0.09, 0.10, 0.09, 0.07, 0.08, 0.10, 0.10, 0.09, 0.07];
+    const mf = medRepData.monthlyFact || {};
+    const annualFact = productSales.reduce((s, p) => s + p.fact, 0) || 1;
     return MONTHS.map((month, i) => {
+      const monthNum = i + 1;
+      const realMonthTotal = mf[monthNum]?.packages || 0;
       const row: Record<string, string | number> = { month };
-      let totalFact = 0;
       let totalPlan = 0;
       productSales.forEach(p => {
-        const fact = Math.round(p.fact * weights[i]);
-        const plan = Math.round(p.plan / 12);
-        row[`${p.productId}_fact`] = fact;
+        const share = p.fact / annualFact;
+        row[`${p.productId}_fact`] = Math.round(realMonthTotal * share);
+        const plan = p.plan > 0 ? Math.round(p.plan / 12) : 0;
         row[`${p.productId}_plan`] = plan;
-        totalFact += fact;
         totalPlan += plan;
       });
-      row.totalFact = totalFact;
+      row.totalFact = realMonthTotal;
       row.totalPlan = totalPlan;
       return row;
     });
-  }, [productSales]);
+  }, [productSales, medRepData.monthlyFact]);
 
   // Кумулятивные данные
   const cumulativeData = useMemo(() => {
@@ -355,8 +375,17 @@ function KPITab({ medRepData, ranking }: { medRepData: MedRepData; ranking: { po
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className={`bg-gradient-to-br from-cyan-500/20 to-cyan-600/10 border-cyan-500/30 backdrop-blur-md rounded-2xl p-5 border`}>
           <p className="text-xs text-gray-400 mb-1">Рейтинг в округе</p>
-          <p className="text-3xl font-black text-white">{ranking.position}<span className="text-lg text-gray-400">/{ranking.total}</span></p>
-          <p className="text-xs mt-1 text-cyan-400 font-medium">Топ {ratingPct.toFixed(0)}%</p>
+          {ranking.total > 0 ? (
+            <>
+              <p className="text-3xl font-black text-white">{ranking.position}<span className="text-lg text-gray-400">/{ranking.total}</span></p>
+              <p className="text-xs mt-1 text-cyan-400 font-medium">Топ {ratingPct.toFixed(0)}%</p>
+            </>
+          ) : (
+            <>
+              <p className="text-3xl font-black text-white">—</p>
+              <p className="text-xs mt-1 text-gray-500">нет данных для сравнения</p>
+            </>
+          )}
         </div>
         <div className={`bg-gradient-to-br from-emerald-500/20 to-emerald-600/10 border-emerald-500/30 backdrop-blur-md rounded-2xl p-5 border`}>
           <p className="text-xs text-gray-400 mb-1">Выполнение (упак.)</p>
@@ -553,7 +582,7 @@ export function MedRepDashboard({ medRepData, ranking, activeSection }: MedRepDa
             </svg>
           </div>
           <p className="text-white font-semibold">Нет данных для отображения</p>
-          <p className="text-gray-400 text-sm">Данные за ваш период ещё не загружены администратором или директором. После загрузки выгрузки МДЛП показатели появятся автоматически — обновлять страницу не нужно.</p>
+          <p className="text-gray-400 text-sm">Загрузите свою выгрузку МДЛП в разделе «⬆️ Загрузка данных» (слева в меню). После загрузки все показатели вашего кабинета посчитаются автоматически — обновлять страницу не нужно.</p>
         </div>
       </div>
     );
@@ -569,9 +598,11 @@ export function MedRepDashboard({ medRepData, ranking, activeSection }: MedRepDa
           </h2>
           <p className="text-gray-400 text-sm mt-0.5">{medRepData.territory}, {medRepData.district}</p>
         </div>
-        <span className={`text-sm px-3 py-1.5 rounded-full border font-medium ${completionBadge(calcCompletionPercent(medRepData.totalPackagesFact, medRepData.totalPackagesPlan))}`}>
-          Место {ranking.position} из {ranking.total}
-        </span>
+        {ranking.total > 0 && (
+          <span className={`text-sm px-3 py-1.5 rounded-full border font-medium ${completionBadge(calcCompletionPercent(medRepData.totalPackagesFact, medRepData.totalPackagesPlan))}`}>
+            Место {ranking.position} из {ranking.total}
+          </span>
+        )}
       </div>
 
       {/* Tabs */}
