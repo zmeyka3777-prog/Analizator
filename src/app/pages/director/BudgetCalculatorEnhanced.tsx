@@ -104,6 +104,33 @@ export default function BudgetCalculatorEnhanced() {
 
   const [savedScenarios, setSavedScenarios] = useState<any[]>([]);
 
+  // Сохранённые сценарии из БД (budget_scenarios) — раньше жили только в
+  // state и стирались при reload/переключении вкладки.
+  React.useEffect(() => {
+    const token = localStorage.getItem('wm_auth_token');
+    let userId: number | null = null;
+    try {
+      const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+      if (raw) userId = Number(JSON.parse(raw)?.id) || null;
+    } catch { /* битый localStorage */ }
+    if (!token || !userId) return;
+    fetch(`/api/budget-scenarios/${userId}`, { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : [])
+      .then((rows: any[]) => {
+        if (!Array.isArray(rows)) return;
+        setSavedScenarios(rows.map(r => ({
+          id: r.id,
+          name: r.name,
+          districtName: r.districtShares?.districtName,
+          savedAt: r.createdAt,
+          medicines: Array.isArray(r.drugs) ? r.drugs : [],
+          territories: r.districtShares?.territories || [],
+          serverId: r.id,
+        })));
+      })
+      .catch(err => console.warn('[Калькулятор] Не удалось загрузить сценарии:', err));
+  }, []);
+
   const currentDistrict = selectedDistrict 
     ? FEDERAL_DISTRICTS.find(d => d.id === selectedDistrict) 
     : null;
@@ -244,12 +271,15 @@ export default function BudgetCalculatorEnhanced() {
     }));
   };
 
-  // Сохранение сценария
-  const saveScenario = () => {
+  // Сохранение сценария — персистим в БД (budget_scenarios). Раньше сценарий
+  // жил только в state, а window.location.reload() сразу стирал и его, и все
+  // правки объёмов/цен — кнопка была фактически «удалить всё введённое».
+  const saveScenario = async () => {
     if (!activeScenario || !selectedDistrict) return;
 
     // Сохраняем бюджет 2026 в округ
-    const totalBudget2026 = calculateTotals().totalTerritoryBudget;
+    const totals = calculateTotals();
+    const totalBudget2026 = totals.totalTerritoryBudget;
     updateBudget2026(selectedDistrict, totalBudget2026);
 
     const savedScenario = {
@@ -260,10 +290,36 @@ export default function BudgetCalculatorEnhanced() {
     };
 
     setSavedScenarios(prev => [...prev, savedScenario]);
-    alert(`✅ Бюджет сохранен!\n\nСценарий: "${activeScenario.name}"\nОкруг: ${currentDistrict?.shortName}\nБюджет 2026: ${formatCurrency(totalBudget2026)}`);
-    
-    // Перезагружаем округа для обновления данных
-    window.location.reload();
+
+    try {
+      const token = localStorage.getItem('wm_auth_token');
+      const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+      const userId = raw ? Number(JSON.parse(raw)?.id) || null : null;
+      if (token && userId) {
+        const res = await fetch('/api/budget-scenarios', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({
+            userId,
+            name: `${activeScenario.name} — ${currentDistrict?.shortName || selectedDistrict}`,
+            currentBudget: currentDistrict?.territories?.reduce((s, t) => s + (t.budget2025 || 0), 0) * 1000 || 0,
+            growthPercent: 15,
+            targetBudget: totalBudget2026,
+            drugs: activeScenario.medicines || [],
+            districtShares: {
+              districtId: selectedDistrict,
+              districtName: currentDistrict?.name,
+              territories: activeScenario.territories || [],
+            },
+          }),
+        });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      }
+      alert(`✅ Бюджет сохранен!\n\nСценарий: "${activeScenario.name}"\nОкруг: ${currentDistrict?.shortName}\nБюджет 2026: ${formatCurrency(totalBudget2026)}`);
+    } catch (err) {
+      console.error('[Калькулятор] Ошибка сохранения сценария в БД:', err);
+      alert('⚠️ Сценарий сохранён локально, но не записался в базу. Проверьте соединение и попробуйте ещё раз.');
+    }
   };
 
   // Экспорт в CSV

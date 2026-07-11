@@ -87,6 +87,7 @@ const ADMIN_SECTION_MAP: Record<string, AdminTab> = {
   'products-management': 'products',
   'territories-management': 'territories',
   'data-management': 'data',
+  'years-management': 'years',
   'system-settings': 'settings',
   'upload': 'upload',
   'activity-log': 'logs',
@@ -114,16 +115,31 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [generatedPassword, setGeneratedPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [logs] = useState<LogEntry[]>([
-    {
-      id: '1',
-      timestamp: new Date().toISOString(),
-      action: 'Вход в систему',
-      user: currentUser?.fullName || 'Администратор',
-      details: 'Успешная авторизация',
-      level: 'info',
-    },
-  ]);
+  // Реальный журнал аудита из БД audit_log (раньше была одна фейк-запись,
+  // создававшаяся в момент рендера). Сервер пишет туда login, CRUD
+  // пользователей/сотрудников/препаратов/территорий, очистку данных.
+  const [logs, setLogs] = useState<LogEntry[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    const token = localStorage.getItem('wm_auth_token');
+    if (!token) return;
+    fetch('/api/admin/audit-log?limit=100', { headers: { 'Authorization': `Bearer ${token}` } })
+      .then(r => r.ok ? r.json() : { entries: [] })
+      .then((data: any) => {
+        if (cancelled || !Array.isArray(data?.entries)) return;
+        setLogs(data.entries.map((e: any) => ({
+          id: String(e.id),
+          timestamp: e.created_at,
+          action: e.action,
+          user: e.user_name || e.user_email || `user #${e.user_id ?? '—'}`,
+          details: [e.entity_type, e.metadata ? JSON.stringify(e.metadata) : '']
+            .filter(Boolean).join(' · ').slice(0, 120),
+          level: /удал|очистк/i.test(e.action || '') ? 'warning' : 'info',
+        })));
+      })
+      .catch(err => console.warn('[AdminDashboard] Не удалось загрузить журнал:', err));
+    return () => { cancelled = true; };
+  }, []);
 
   // Форма нового пользователя
   const [newUserForm, setNewUserForm] = useState({

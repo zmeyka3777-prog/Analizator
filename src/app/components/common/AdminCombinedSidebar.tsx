@@ -39,6 +39,7 @@ const MANAGEMENT_ITEMS: Array<NavItem & { mdlp?: boolean }> = [
   { id: 'products-management', label: 'Препараты', icon: Package },
   { id: 'territories-management', label: 'Территории', icon: MapIcon },
   { id: 'data-management', label: 'Управление периодами', icon: Calendar },
+  { id: 'years-management', label: 'Годы', icon: Calendar },
   { id: 'upload', label: 'Загрузка файлов МДЛП', icon: Upload, mdlp: true },
 ];
 

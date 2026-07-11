@@ -14,6 +14,26 @@ export function createAdminRouter(
 ) {
   const router = Router();
 
+  // Запись в журнал аудита. Ошибки записи не должны ронять основную
+  // операцию — журнал вторичен, поэтому catch с логом.
+  const logAudit = async (
+    userId: number | undefined,
+    action: string,
+    entityType: string,
+    entityId?: number | null,
+    metadata?: Record<string, unknown>,
+  ) => {
+    try {
+      await safeQuery(
+        `INSERT INTO world_medicine.audit_log (user_id, action, entity_type, entity_id, metadata, created_at)
+         VALUES ($1, $2, $3, $4, $5::jsonb, NOW())`,
+        [userId ?? null, action, entityType, entityId ?? null, JSON.stringify(metadata || {})]
+      );
+    } catch (err) {
+      console.warn('[Audit] Не удалось записать событие:', action, err);
+    }
+  };
+
   // ==================== USER MANAGEMENT ====================
 
   // Get all users
@@ -49,6 +69,7 @@ export function createAdminRouter(
          VALUES ($1, $2, $3, $4) RETURNING id, email, name, role, created_at`,
         [email, passwordHash, name, role || 'analyst']
       );
+      await logAudit(req.userId, 'Создан пользователь', 'user', result.rows[0]?.id, { email, name, role: role || 'analyst' });
       res.status(201).json({ user: result.rows[0] });
     } catch (error: any) {
       console.error('[Admin] Error creating user:', error);
@@ -94,6 +115,7 @@ export function createAdminRouter(
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
+      await logAudit(req.userId, 'Изменён пользователь', 'user', userId, { email, name, role, passwordChanged: !!password });
       res.json({ user: result.rows[0] });
     } catch (error: any) {
       console.error('[Admin] Error updating user:', error);
@@ -109,6 +131,7 @@ export function createAdminRouter(
         return res.status(400).json({ error: 'Нельзя удалить собственный аккаунт' });
       }
       await safeQuery(`DELETE FROM world_medicine.users WHERE id = $1`, [userId]);
+      await logAudit(req.userId, 'Удалён пользователь', 'user', userId);
       res.json({ success: true });
     } catch (error: any) {
       console.error('[Admin] Error deleting user:', error);
@@ -158,6 +181,7 @@ export function createAdminRouter(
          VALUES ($1, $2, $3, $4) RETURNING *`,
         [employee_name, role, manager_name || null, regions || null]
       );
+      await logAudit(req.userId, 'Создан сотрудник', 'employee', result.rows[0]?.id, { employee_name, role });
       res.status(201).json({ employee: result.rows[0] });
     } catch (error: any) {
       console.error('[Admin] Error creating employee:', error);
@@ -182,6 +206,7 @@ export function createAdminRouter(
       if (result.rows.length === 0) {
         return res.status(404).json({ error: 'Сотрудник не найден' });
       }
+      await logAudit(req.userId, 'Изменён сотрудник', 'employee', id, { employee_name, role });
       res.json({ employee: result.rows[0] });
     } catch (error: any) {
       console.error('[Admin] Error updating employee:', error);
@@ -194,6 +219,7 @@ export function createAdminRouter(
     try {
       const id = Number(req.params.id);
       await safeQuery(`DELETE FROM world_medicine.employees_data WHERE id = $1`, [id]);
+      await logAudit(req.userId, 'Удалён сотрудник', 'employee', id);
       res.json({ success: true });
     } catch (error: any) {
       console.error('[Admin] Error deleting employee:', error);
@@ -230,6 +256,7 @@ export function createAdminRouter(
          RETURNING *`,
         [drug_name, price_per_unit]
       );
+      await logAudit(req.userId, 'Изменена цена препарата', 'drug_price', result.rows[0]?.id, { drug_name, price_per_unit });
       res.json({ price: result.rows[0] });
     } catch (error: any) {
       console.error('[Admin] Error upserting drug price:', error);
@@ -257,6 +284,7 @@ export function createAdminRouter(
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
         [code, name, full_name || null, short_name || null, price || 0, quota2025 || 0, budget2025 || 0, category || null, sort_order || 0]
       );
+      await logAudit(req.userId, 'Создан препарат', 'product', result.rows[0]?.id, { code, name });
       res.status(201).json({ product: result.rows[0] });
     } catch (error: any) {
       if (error.code === '23505') return res.status(409).json({ error: 'Препарат с таким кодом уже существует' });
@@ -277,6 +305,7 @@ export function createAdminRouter(
         [name, full_name, short_name, price, quota2025, budget2025, category, is_active, sort_order, id]
       );
       if (result.rows.length === 0) return res.status(404).json({ error: 'Препарат не найден' });
+      await logAudit(req.userId, 'Изменён препарат', 'product', id, { name, price, quota2025 });
       res.json({ product: result.rows[0] });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка обновления препарата' });
@@ -286,6 +315,7 @@ export function createAdminRouter(
   router.delete('/products/:id', authMiddleware, requireRole('admin'), async (req: AuthRequest, res: Response) => {
     try {
       await safeQuery(`DELETE FROM world_medicine.products WHERE id = $1`, [Number(req.params.id)]);
+      await logAudit(req.userId, 'Удалён препарат', 'product', Number(req.params.id));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка удаления препарата' });
@@ -318,6 +348,7 @@ export function createAdminRouter(
         `INSERT INTO world_medicine.federal_districts (id, name, short_name, color, icon, sort_order) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *`,
         [id, name, short_name || null, color || null, icon || null, sort_order || 0]
       );
+      await logAudit(req.userId, 'Создан округ', 'district', null, { id, name });
       res.status(201).json({ district: result.rows[0] });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка создания округа' });
@@ -332,6 +363,7 @@ export function createAdminRouter(
         [name, short_name, color, icon, sort_order, req.params.id]
       );
       if (result.rows.length === 0) return res.status(404).json({ error: 'Округ не найден' });
+      await logAudit(req.userId, 'Изменён округ', 'district', null, { id: req.params.id, name });
       res.json({ district: result.rows[0] });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка обновления округа' });
@@ -341,6 +373,7 @@ export function createAdminRouter(
   router.delete('/districts/:id', authMiddleware, requireRole('admin'), async (req: AuthRequest, res: Response) => {
     try {
       await safeQuery(`DELETE FROM world_medicine.federal_districts WHERE id=$1`, [req.params.id]);
+      await logAudit(req.userId, 'Удалён округ', 'district', null, { id: req.params.id });
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка удаления округа' });
@@ -355,6 +388,7 @@ export function createAdminRouter(
         `INSERT INTO world_medicine.territories (id, district_id, name, budget2025, budget2026, coefficient, sort_order) VALUES ($1,$2,$3,$4,$5,$6,$7) RETURNING *`,
         [id, district_id, name, budget2025 || 0, budget2026 || 0, coefficient || 0, sort_order || 0]
       );
+      await logAudit(req.userId, 'Создана территория', 'territory', null, { id, name, district_id });
       res.status(201).json({ territory: result.rows[0] });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка создания территории' });
@@ -369,6 +403,7 @@ export function createAdminRouter(
         [name, budget2025, budget2026, coefficient, sort_order, req.params.id]
       );
       if (result.rows.length === 0) return res.status(404).json({ error: 'Территория не найдена' });
+      await logAudit(req.userId, 'Изменена территория', 'territory', null, { id: req.params.id, name, budget2025, budget2026 });
       res.json({ territory: result.rows[0] });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка обновления территории' });
@@ -378,6 +413,7 @@ export function createAdminRouter(
   router.delete('/territories/:id', authMiddleware, requireRole('admin'), async (req: AuthRequest, res: Response) => {
     try {
       await safeQuery(`DELETE FROM world_medicine.territories WHERE id=$1`, [req.params.id]);
+      await logAudit(req.userId, 'Удалена территория', 'territory', null, { id: req.params.id });
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: 'Ошибка удаления территории' });

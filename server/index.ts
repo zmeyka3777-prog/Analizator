@@ -520,6 +520,13 @@ app.post("/api/auth/login", authLimiter, async (req, res) => {
 
     await storage.updateUserLastLogin(user.id);
 
+    // Журнал аудита: вход в систему (не роняем login при ошибке записи).
+    safeQuery(
+      `INSERT INTO world_medicine.audit_log (user_id, action, entity_type, metadata, created_at)
+       VALUES ($1, 'Вход в систему', 'auth', $2::jsonb, NOW())`,
+      [user.id, JSON.stringify({ email: user.email, role: user.role })]
+    ).catch(err => console.warn('[Audit] login:', err?.message));
+
     const jti = crypto.randomBytes(16).toString('hex');
     const token = jwt.sign(
       { userId: user.id, role: user.role },
@@ -1843,7 +1850,14 @@ app.delete("/api/database/clear-data", authMiddleware, async (req: AuthRequest, 
   try {
     const userId = req.userId!;
     const { clearType } = req.body; // 'rawRows', 'all', 'oldYears'
-    
+
+    // Журнал аудита: очистка данных — критичное действие.
+    safeQuery(
+      `INSERT INTO world_medicine.audit_log (user_id, action, entity_type, metadata, created_at)
+       VALUES ($1, 'Очистка данных', 'database', $2::jsonb, NOW())`,
+      [userId, JSON.stringify({ clearType })]
+    ).catch(err => console.warn('[Audit] clear-data:', err?.message));
+
     if (clearType === 'rawRows') {
       await safeQuery(`
         DELETE FROM world_medicine.yearly_sales_data 

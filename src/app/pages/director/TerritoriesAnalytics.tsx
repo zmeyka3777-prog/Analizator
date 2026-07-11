@@ -8,7 +8,6 @@ import { getFederalDistricts, FederalDistrict, Territory } from '@/data/federalD
 import { getYears } from '@/utils/dateUtils';
 import { getSalesData } from '@/data/salesData';
 import { PRODUCTS } from '@/data/salesData';
-import { getPlanByTerritory } from '@/data/regionalPlansManager';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 import {

@@ -58,6 +58,7 @@ const menuItemsByRole: Record<WMUserRole, MenuItem[]> = {
     { id: 'products-management', label: 'Препараты', icon: '💊' },
     { id: 'territories-management', label: 'Территории', icon: '🗺️' },
     { id: 'data-management', label: 'Управление периодами', icon: '📅' },
+    { id: 'years-management', label: 'Годы', icon: '🗓️' },
     { id: 'system-settings', label: 'Настройки системы', icon: '⚙️' },
     { id: 'activity-log', label: 'Журнал активности', icon: '📋' },
     { id: 'db-stats', label: 'Статистика БД', icon: '📊' },

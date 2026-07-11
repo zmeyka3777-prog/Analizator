@@ -252,6 +252,25 @@ async function initSchema(): Promise<void> {
     `);
     console.log('[DB] Таблица employees_data готова');
 
+    // Журнал аудита: login, CRUD пользователей/сотрудников/препаратов/
+    // территорий, очистка данных. Читается админом в «Журнале активности».
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS world_medicine.audit_log (
+        id SERIAL PRIMARY KEY,
+        user_id INTEGER,
+        action VARCHAR(100) NOT NULL,
+        entity_type VARCHAR(50) NOT NULL,
+        entity_id INTEGER,
+        old_value JSONB,
+        new_value JSONB,
+        ip_address VARCHAR(45),
+        user_agent TEXT,
+        metadata JSONB,
+        created_at TIMESTAMP DEFAULT NOW() NOT NULL
+      )
+    `);
+    console.log('[DB] Таблица audit_log готова');
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS world_medicine.products (
         id SERIAL PRIMARY KEY,

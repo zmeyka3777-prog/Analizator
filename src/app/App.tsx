@@ -17,7 +17,7 @@ import loginImage from '../../attached_assets/Gemini_Generated_Image_b1t8s2b1t8s
 import { SavedReport, UserProfile } from '../types';
 import { Logo } from '../components/common';
 import { CHART_COLORS, getPerformanceColor } from '../config/chartColors';
-import { api, clearAuth, getAuthToken, uploadFileToServer, getFileProcessingStatus, getDatabaseStats, clearDatabaseData, resetStuckUploads, type DatabaseStats, fetchTabData, fetchTabMetadata, type TabMetadata } from '../lib/api';
+import { api, adminApi, clearAuth, getAuthToken, uploadFileToServer, getFileProcessingStatus, getDatabaseStats, clearDatabaseData, resetStuckUploads, type DatabaseStats, fetchTabData, fetchTabMetadata, type TabMetadata } from '../lib/api';
 import { useTabData, invalidateTabCache } from '../hooks/useTabData';
 import { parseFile, aggregateData, type ParsedData, type AggregatedData } from '../utils/fileParser';
 import { MultiSelect, type MultiSelectOption } from './components/ui/multi-select';
@@ -780,6 +780,37 @@ export default function MDLPAnalyzerPro() {
   } | null>(null);
   const [managerTerritories, setManagerTerritories] = useState<Record<string, string[]>>(() => ({ ...defaultManagerTerritories }));
   const [editingManager, setEditingManager] = useState<string | null>(null);
+
+  // Дополняем список менеджеров реальными РМ из CRM (employees_data):
+  // хардкод defaultManagerTerritories остаётся как fallback/дефолт регионов,
+  // но реальные РМ с их регионами из БД имеют приоритет. Для ролей без
+  // доступа к /api/admin/employees (medrep/TM) fetch тихо падает — остаётся дефолт.
+  useEffect(() => {
+    if (!currentUser) return;
+    adminApi.getEmployees()
+      .then((res: any) => {
+        const employees: any[] = res?.employees || [];
+        const rms = employees.filter(e =>
+          e.hierarchy_level === 1 || e.role === 'regional_manager' || e.role === 'manager'
+        );
+        if (rms.length === 0) return;
+        setManagerTerritories(prev => {
+          const next = { ...prev };
+          for (const rm of rms) {
+            const name = String(rm.employee_name || '').trim();
+            if (!name) continue;
+            const regions = String(rm.regions || '')
+              .split(',').map((r: string) => r.trim()).filter(Boolean);
+            // Реальные регионы из CRM приоритетнее дефолта; если в CRM
+            // регионов нет — не затираем существующие (в т.ч. правки юзера).
+            if (regions.length > 0) next[name] = regions;
+            else if (!next[name]) next[name] = [];
+          }
+          return next;
+        });
+      })
+      .catch(() => { /* нет доступа (роль) или сеть — остаётся дефолт */ });
+  }, [currentUser]);
   const [compareTab, setCompareTab] = useState(0); // 0 - Год к году, 1 - Кварталы, 2 - Месяцы
   const [showPlanEditDialog, setShowPlanEditDialog] = useState(false);
   const [showReportPreview, setShowReportPreview] = useState(false);
@@ -2212,7 +2243,34 @@ export default function MDLPAnalyzerPro() {
   // Функции для скачивания отчетов
   const getReportData = (reportType: string): { data: any[]; columns: string[]; title: string } => {
     const MONTH_NAMES = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-    
+
+    // Фильтры топбара применяются ко ВСЕМ отчётам, которые строятся из
+    // сырых строк. Раньше 6 из 9 отчётов игнорировали фильтры (юзер выбрал
+    // регион — а «Ежемесячный»/«ABC» считались по всем данным), из-за чего
+    // итоги между отчётами не сходились.
+    const mgrRegions = selectedManagers.length > 0 ? getManagerRegions(selectedManagers) : [];
+    const monthShortSet = globalSelectedMonths.length > 0 && globalSelectedMonths.length < 12
+      ? new Set(globalSelectedMonths.map(m => MONTH_NUM_TO_SHORT[m]))
+      : null;
+    const rowMatchesFilters = (row: any): boolean => {
+      const drug = row.drugName || row.complexDrugName || row.drug;
+      if (selectedDrugs.length > 0 && !selectedDrugs.includes(drug)) return false;
+      const region = row.region || row.receiverRegion;
+      if (selectedRegions.length > 0 && !selectedRegions.includes(region)) return false;
+      if (mgrRegions.length > 0 && !mgrRegions.includes(region)) return false;
+      if (selectedYears.length > 0 && row.year != null && !selectedYears.includes(String(row.year))) return false;
+      if (selectedFederalDistricts.length > 0 && !selectedFederalDistricts.includes(row.federalDistrict)) return false;
+      if (selectedDisposalTypes.length > 0 && selectedDisposalTypes.length < defaultDisposalTypes.length
+          && !selectedDisposalTypes.includes(row.disposalType)) return false;
+      if (selectedContractorGroups.length > 0) {
+        const cg = String(row.contractorGroup || '');
+        if (!selectedContractorGroups.some(g => cg.includes(g))) return false;
+      }
+      if (monthShortSet && row.month && !monthShortSet.has(row.month)) return false;
+      return true;
+    };
+    const reportRows = rawParsedRows.filter(rowMatchesFilters);
+
     switch (reportType) {
       case 'Ежемесячный': {
         const monthSales = new Map<string, number>();
@@ -2220,7 +2278,7 @@ export default function MDLPAnalyzerPro() {
           'Янв': 0, 'Фев': 1, 'Мар': 2, 'Апр': 3, 'Май': 4, 'Июн': 5,
           'Июл': 6, 'Авг': 7, 'Сен': 8, 'Окт': 9, 'Ноя': 10, 'Дек': 11,
         };
-        rawParsedRows.forEach(row => {
+        reportRows.forEach(row => {
           if (row.month && row.year) {
             const mIdx = MONTH_SHORT_TO_IDX[row.month];
             const monthName = mIdx !== undefined ? MONTH_NAMES[mIdx] : row.month;
@@ -2248,7 +2306,7 @@ export default function MDLPAnalyzerPro() {
       }
       case 'Детализация региона': {
         const cityData = new Map<string, { region: string; sales: number }>();
-        rawParsedRows.forEach(row => {
+        reportRows.forEach(row => {
           const city = row.city || row.receiverCity;
           const region = row.region || row.receiverRegion || '';
           if (!city) return;
@@ -2291,7 +2349,7 @@ export default function MDLPAnalyzerPro() {
       }
       case 'ABC-анализ': {
         const drugSales = new Map<string, number>();
-        rawParsedRows.forEach(row => {
+        reportRows.forEach(row => {
           const drug = row.drugName || row.complexDrugName || row.drug;
           if (!drug) return;
           drugSales.set(drug, (drugSales.get(drug) || 0) + (Number(row.quantity) || 0));
@@ -2317,7 +2375,7 @@ export default function MDLPAnalyzerPro() {
       }
       case 'По препаратам': {
         const drugSales = new Map<string, number>();
-        rawParsedRows.forEach(row => {
+        reportRows.forEach(row => {
           const drug = row.drugName || row.complexDrugName || row.drug;
           if (!drug) return;
           drugSales.set(drug, (drugSales.get(drug) || 0) + (Number(row.quantity) || 0));
@@ -2330,7 +2388,7 @@ export default function MDLPAnalyzerPro() {
       }
       case 'Прогнозный': {
         const yearSales = new Map<number, number>();
-        rawParsedRows.forEach(row => {
+        reportRows.forEach(row => {
           const year = row.year || (row.date ? new Date(row.date).getFullYear() : null);
           if (!year) return;
           yearSales.set(year, (yearSales.get(year) || 0) + (Number(row.quantity) || 0));
@@ -2346,7 +2404,7 @@ export default function MDLPAnalyzerPro() {
         return { data, columns: ['Год', 'Продажи', 'Рост'], title: 'Прогнозный отчет' };
       }
       case 'Сводный годовой': {
-        const totalSales = rawParsedRows.reduce((s, r) => s + (Number(r.quantity) || 0), 0);
+        const totalSales = reportRows.reduce((s, r) => s + (Number(r.quantity) || 0), 0);
         const regionsCount = (tabData?.regionSales || []).length;
         const drugsCount = drugsList.length;
         const contragentsCount = (tabData?.contragentSales || []).length;
@@ -2355,12 +2413,12 @@ export default function MDLPAnalyzerPro() {
           { metric: 'Регионов', value: String(regionsCount) },
           { metric: 'Препаратов', value: String(drugsCount) },
           { metric: 'Контрагентов', value: String(contragentsCount) },
-          { metric: 'Записей обработано', value: String(rawParsedRows.length) }
+          { metric: 'Записей обработано', value: String(reportRows.length) }
         ];
         return { data, columns: ['Показатель', 'Значение'], title: 'Сводный годовой отчет' };
       }
       case 'Все данные': {
-        const data = rawParsedRows.slice(0, 1000).map(row => ({
+        const data = reportRows.slice(0, 1000).map(row => ({
           date: row.date || row.operationDate || (row.month && row.year ? `${row.month} ${row.year}` : ''),
           drug: row.drug || row.drugName || row.complexDrugName || '',
           quantity: row.quantity || 0,
@@ -5401,29 +5459,50 @@ export default function MDLPAnalyzerPro() {
                 </div>
               </div>
 
-              {/* История импорта/экспорта */}
+              {/* История операций — реальные загрузки из upload_history
+                  (раньше здесь были три захардкоженные фейк-записи). */}
               <div className="mt-4 border rounded-xl p-4">
-                <h4 className="font-semibold text-slate-700 mb-3">История операций</h4>
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="font-semibold text-slate-700">История операций</h4>
+                  <button
+                    onClick={async () => {
+                      try {
+                        const history = await api.uploadHistory.getAll();
+                        setUploadHistoryList(history);
+                      } catch (e) { console.error('Ошибка загрузки истории:', e); }
+                    }}
+                    className="text-xs text-indigo-600 hover:text-indigo-800 flex items-center gap-1"
+                  >
+                    <RefreshCw size={12} /> Обновить
+                  </button>
+                </div>
                 <div className="space-y-2">
-                  {[
-                    { date: '15.01.2026 14:30', action: 'Экспорт всех данных', format: 'Excel', status: 'Успешно', size: '2.4 МБ' },
-                    { date: '12.01.2026 09:15', action: 'Импорт планов продаж', format: 'CSV', status: 'Успешно', size: '156 КБ' },
-                    { date: '10.01.2026 16:45', action: 'Экспорт отчетов', format: 'JSON', status: 'Успешно', size: '892 КБ' },
-                  ].map((log, i) => (
-                    <div key={i} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg text-xs">
-                      <div className="flex-1">
-                        <div className="font-medium text-slate-700">{log.action}</div>
-                        <div className="text-slate-500">{log.date}</div>
+                  {uploadHistoryList.slice(0, 5).map((log) => (
+                    <div key={log.id} className="flex items-center justify-between p-3 bg-slate-50 rounded-lg text-xs">
+                      <div className="flex-1 min-w-0">
+                        <div className="font-medium text-slate-700 truncate">Импорт: {log.filename}</div>
+                        <div className="text-slate-500">{log.uploadedAt ? new Date(log.uploadedAt).toLocaleString('ru-RU') : '—'}</div>
                       </div>
-                      <div className="text-right">
-                        <div className="font-medium text-slate-600">{log.format}</div>
-                        <div className="text-slate-500">{log.size}</div>
+                      <div className="text-right mx-3">
+                        <div className="font-medium text-slate-600">{log.yearPeriod ? `${log.yearPeriod} г.` : '—'}</div>
+                        <div className="text-slate-500">{log.rowsCount != null ? `${log.rowsCount.toLocaleString('ru-RU')} строк` : ''}</div>
                       </div>
-                      <div className="ml-4">
-                        <span className="px-2 py-1 bg-emerald-100 text-emerald-700 rounded font-medium">{log.status}</span>
+                      <div className="ml-2">
+                        <span className={`px-2 py-1 rounded font-medium ${
+                          log.status === 'success' ? 'bg-emerald-100 text-emerald-700'
+                          : log.status === 'processing' ? 'bg-amber-100 text-amber-700'
+                          : 'bg-red-100 text-red-700'
+                        }`}>
+                          {log.status === 'success' ? 'Успешно' : log.status === 'processing' ? 'Обработка' : 'Ошибка'}
+                        </span>
                       </div>
                     </div>
                   ))}
+                  {uploadHistoryList.length === 0 && (
+                    <p className="text-xs text-slate-400 text-center py-3">
+                      Операций пока нет — история появится после загрузки файлов. Нажмите «Обновить».
+                    </p>
+                  )}
                 </div>
               </div>
             </div>
