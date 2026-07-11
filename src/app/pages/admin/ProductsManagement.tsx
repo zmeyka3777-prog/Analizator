@@ -129,11 +129,14 @@ export default function ProductsManagement() {
   };
 
   const removeProduct = async (id: string) => {
+    const prod = products.find(p => p.id === id);
+    if (!window.confirm(`Удалить препарат «${prod?.name || id}»? Действие необратимо.`)) return;
     try {
       await adminApi.deleteProduct(Number(id));
       setProducts(prev => prev.filter(p => p.id !== id));
     } catch (err: any) {
       console.error('[ProductsManagement] Ошибка удаления:', err);
+      alert('Не удалось удалить препарат. Попробуйте ещё раз.');
     }
   };
 

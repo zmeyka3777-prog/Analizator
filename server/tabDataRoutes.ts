@@ -9,6 +9,12 @@ interface AuthRequest extends Request {
 }
 
 function hasActiveFilters(filters: any): boolean {
+  // ВАЖНО: месяцы (selectedMonths) СПЕЦИАЛЬНО не форсят загрузку compact rows —
+  // загрузка всех 313K строк упирается в statement_timeout БД и роняет дашборд.
+  // Помесячные структуры (monthlySales, combinedData) уже месяц-гранулярны и
+  // фильтруются в applyFilters без compact rows. Compact rows грузятся только
+  // при «дорогих» фильтрах (препараты/регионы/типы выбытия/ФО/контрагенты),
+  // и месяц-фильтр применяется поверх них, если они уже загружены.
   return (
     (filters.selectedDisposalTypes?.length || 0) > 0 ||
     (filters.selectedRegions?.length || 0) > 0 ||
@@ -408,16 +414,27 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
     selectedRegions = [],
     selectedYears = [],
     selectedMonth = '',
+    selectedMonths = [],
     selectedDisposalTypes = [],
     selectedFederalDistricts = [],
     selectedContractorGroups = [],
   } = filters;
+
+  // Единый предикат месяца: приоритет у мульти-фильтра (глобальные месяцы),
+  // затем одиночный selectedMonth (wm-режим). Пустые оба = все месяцы.
+  const monthSet: Set<string> = new Set(selectedMonths);
+  const monthMatches = (m: string): boolean => {
+    if (monthSet.size > 0) return monthSet.has(m);
+    if (selectedMonth) return m === selectedMonth;
+    return true;
+  };
 
   const noFilter =
     selectedDrugs.length === 0 &&
     selectedRegions.length === 0 &&
     selectedYears.length === 0 &&
     !selectedMonth &&
+    selectedMonths.length === 0 &&
     selectedDisposalTypes.length === 0 &&
     selectedFederalDistricts.length === 0 &&
     selectedContractorGroups.length === 0;
@@ -439,7 +456,7 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
       const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(row.region);
       const matchesFD = selectedFederalDistricts.length === 0 || selectedFederalDistricts.includes(row.federalDistrict);
       const matchesYear = selectedYears.length === 0 || selectedYears.includes(String(row.year));
-      const matchesMonth = !selectedMonth || row.month === selectedMonth;
+      const matchesMonth = monthMatches(row.month);
       const matchesDT = selectedDisposalTypes.length === 0 || selectedDisposalTypes.includes(row.disposalType);
       const matchesCG = selectedContractorGroups.length === 0 ||
         selectedContractorGroups.some((g: string) => (row.contractorGroup || '').includes(g));
@@ -495,7 +512,7 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
           selectedDrugs.some((d: string) => crow.drug?.includes(d) || d.includes(crow.drug));
         const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(crow.region);
         const matchesYear = selectedYears.length === 0 || selectedYears.includes(String(crow.year));
-        const matchesMonth2 = !selectedMonth || crow.month === selectedMonth;
+        const matchesMonth2 = monthMatches(crow.month);
         const matchesDT = selectedDisposalTypes.length === 0 || selectedDisposalTypes.includes(crow.disposalType);
         const matchesFD = selectedFederalDistricts.length === 0 || selectedFederalDistricts.includes(crow.federalDistrict);
         const matchesCG = selectedContractorGroups.length === 0 ||
@@ -837,8 +854,8 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
   }).map((d: any) => hasDisposalFilter ? ({ ...d, sales: Math.round(d.sales * globalDisposalRatio) }) : d) || [];
 
   let combinedFiltered = merged.combinedData;
-  if (selectedMonth && combinedFiltered) {
-    combinedFiltered = combinedFiltered.filter((c: any) => c.month === selectedMonth);
+  if ((selectedMonth || monthSet.size > 0) && combinedFiltered) {
+    combinedFiltered = combinedFiltered.filter((c: any) => monthMatches(c.month));
   }
   if (selectedYears.length > 0 && combinedFiltered) {
     combinedFiltered = combinedFiltered.map((c: any) => {
@@ -874,8 +891,8 @@ function applyFilters(merged: any, filters: any, compactRows: any[] | null, cont
       return !m.year || selectedYears.includes(String(m.year));
     });
   }
-  if (selectedMonth && monthlySalesFiltered) {
-    monthlySalesFiltered = monthlySalesFiltered.filter((m: any) => m.month === selectedMonth);
+  if ((selectedMonth || monthSet.size > 0) && monthlySalesFiltered) {
+    monthlySalesFiltered = monthlySalesFiltered.filter((m: any) => monthMatches(m.month));
   }
   if (hasDisposalFilter && monthlySalesFiltered) {
     monthlySalesFiltered = monthlySalesFiltered.map((m: any) => ({ ...m, sales: Math.round(m.sales * globalDisposalRatio) }));
@@ -1015,6 +1032,11 @@ function parseFilters(query: any): any {
     console.log(`[parseFilters] wmMonth=${query.wmMonth} → selectedMonth=${selectedMonth}`);
   }
 
+  // Глобальный мульти-фильтр месяцев (короткие RU-имена: 'Янв'..'Дек').
+  // Приходит из общего фильтра шапки MDLP. Пустой = все месяцы.
+  const selectedMonths = safeParseArray(query.months)
+    .map((m: string) => FULL_TO_SHORT_MONTH[m] || m);
+
   const selectedDrugs = safeParseArray(query.drugs);
   const selectedDisposalTypes = safeParseArray(query.disposalTypes);
   const selectedFederalDistricts = safeParseArray(query.federalDistricts);
@@ -1027,6 +1049,7 @@ function parseFilters(query: any): any {
     selectedRegions: combinedRegions,
     selectedYears,
     selectedMonth,
+    selectedMonths,
     selectedDisposalTypes,
     selectedFederalDistricts,
     selectedContractorGroups,
@@ -2401,10 +2424,17 @@ export function createTabDataRouter(authMiddleware: any) {
         selectedRegions = [],
         selectedYears = [],
         selectedMonth = '',
+        selectedMonths = [],
         selectedDisposalTypes = [],
         selectedFederalDistricts = [],
         selectedContractorGroups = [],
       } = filters;
+      const monthSet2: Set<string> = new Set(selectedMonths);
+      const monthMatches2 = (m: string): boolean => {
+        if (monthSet2.size > 0) return monthSet2.has(m);
+        if (selectedMonth) return m === selectedMonth;
+        return true;
+      };
 
       for (const row of allRows) {
         if (!row.city || !row.region) continue;
@@ -2415,7 +2445,7 @@ export function createTabDataRouter(authMiddleware: any) {
           selectedDrugs.some((d: string) => row.drug?.includes(d) || d.includes(row.drug));
         const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(row.region);
         const matchesYear = selectedYears.length === 0 || selectedYears.includes(String(row.year));
-        const matchesMonth = !selectedMonth || row.month === selectedMonth;
+        const matchesMonth = monthMatches2(row.month);
         const matchesDT = selectedDisposalTypes.length === 0 || selectedDisposalTypes.includes(row.disposalType);
         const matchesFD = selectedFederalDistricts.length === 0 || selectedFederalDistricts.includes(row.federalDistrict);
         const matchesCG = selectedContractorGroups.length === 0 ||
@@ -2443,7 +2473,7 @@ export function createTabDataRouter(authMiddleware: any) {
           selectedDrugs.some((d: string) => row.drug?.includes(d) || d.includes(row.drug));
         const matchesRegion = selectedRegions.length === 0 || selectedRegions.includes(row.region);
         const matchesYear = selectedYears.length === 0 || selectedYears.includes(String(row.year));
-        const matchesMonth = !selectedMonth || row.month === selectedMonth;
+        const matchesMonth = monthMatches2(row.month);
         const matchesDT = selectedDisposalTypes.length === 0 || selectedDisposalTypes.includes(row.disposalType);
         const matchesFD = selectedFederalDistricts.length === 0 || selectedFederalDistricts.includes(row.federalDistrict);
         const matchesCG = selectedContractorGroups.length === 0 ||

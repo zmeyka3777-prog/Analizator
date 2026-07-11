@@ -65,6 +65,10 @@ async function fetchApi<T>(endpoint: string, options?: RequestInit & { auth?: bo
     const error = await response.json().catch(() => ({ error: 'Ошибка сервера' }));
     if (response.status === 401) {
       clearAuth();
+      // Сообщаем приложению, что сессия истекла — App/WMRussiaApp покажут
+      // форму входа вместо «пустого» экрана с нулями (типичная жалоба после
+      // протухания 24-часового JWT).
+      try { window.dispatchEvent(new Event('auth-expired')); } catch { /* SSR */ }
     }
     throw new Error(error.error || 'Ошибка запроса');
   }

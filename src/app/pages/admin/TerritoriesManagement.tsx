@@ -106,11 +106,13 @@ export default function TerritoriesManagement() {
   };
 
   const removeTerritory = async (territoryId: string) => {
+    if (!window.confirm('Удалить территорию? Действие необратимо.')) return;
     try {
       await adminApi.deleteTerritory(territoryId);
       await loadDistricts();
     } catch (err) {
       console.error('[TerritoriesManagement] Ошибка удаления территории:', err);
+      alert('Не удалось удалить территорию. Попробуйте ещё раз.');
     }
   };
 

@@ -178,6 +178,17 @@ const apiLimiter = rateLimit({
   legacyHeaders: false,
 });
 
+// Отдельный жёсткий лимит на платный AI-эндпоинт (OpenAI) — 10 запросов/мин
+// на IP. Без него авторизованный пользователь мог слать до 100/мин и
+// раздувать расходы по OPENAI_API_KEY.
+const aiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  message: { error: "Слишком много запросов к AI-аналитике. Подождите минуту." },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
 interface AuthRequest extends Request {
   userId?: number;
   userRole?: string;
@@ -730,7 +741,10 @@ app.get("/api/contragents", authMiddleware, async (req, res) => {
   }
 });
 
-app.get("/api/sales", authMiddleware, async (req, res) => {
+// Legacy-эндпоинт над таблицей `sales` без per-user изоляции. Клиентом не
+// используется (данные идут через yearly_sales_data). Закрыт requireAdmin,
+// чтобы обычный пользователь не мог читать чужие/общие строки.
+app.get("/api/sales", authMiddleware, requireAdmin, async (req, res) => {
   try {
     const { drugId, territoryId, year } = req.query;
     const salesList = await storage.getSalesByFilters({
@@ -1092,13 +1106,13 @@ app.post("/api/yearly-data", authMiddleware, async (req: AuthRequest, res) => {
 
 import { generateAnalyticsComment } from "./replit_integrations/analytics";
 
-app.post("/api/analytics/generate-comment", authMiddleware, async (req: AuthRequest, res) => {
+app.post("/api/analytics/generate-comment", authMiddleware, aiLimiter, async (req: AuthRequest, res) => {
   try {
     const { salesData } = req.body;
     if (!salesData) {
       return res.status(400).json({ error: "Данные для анализа не предоставлены" });
     }
-    
+
     const comment = await generateAnalyticsComment(salesData);
     res.json({ comment });
   } catch (error) {

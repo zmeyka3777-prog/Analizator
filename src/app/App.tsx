@@ -28,6 +28,7 @@ import { ErrorBoundary } from '../components/ErrorBoundary';
 import { ChartErrorBoundary } from './components/common/ChartErrorBoundary';
 import { useSharedData, MDLPSaleRecord } from '../context/SharedDataContext';
 import { useGlobalFilters } from '../context/GlobalFiltersContext';
+import { MONTH_NUM_TO_SHORT } from '../utils/months';
 import { GlobalFilterControls } from './components/common/GlobalFilterControls';
 import { DrugPriceEntry, findDrugPrice, convertToMoney, formatMoney, formatMoneyFull, formatPackages, formatValue, convertTotal, convertDrugBreakdownToRubles, formatDual, calcRublesRatio } from '../lib/priceUtils';
 // wmMockUsers удалены из App.tsx — пользователь строится напрямую из currentUser
@@ -50,6 +51,10 @@ export default function MDLPAnalyzerPro() {
   
   // Shared data context for syncing between MDLP and WM Russia
   const { setMdlpData, wmRussiaData, wmRussiaSummary } = useSharedData();
+  // Глобальная метрика Рубли/Упаковки из общего фильтра в шапке.
+  // Раньше isMoney был захардкожен в false и весь рублёвый код-путь графиков
+  // был мёртвым — теперь переключатель реально управляет отображением.
+  const { metric: globalMetric, selectedMonths: globalSelectedMonths } = useGlobalFilters();
   
   const [uploadedData, setUploadedData] = useState<AggregatedData | null>(null);
   const [rawParsedRows, setRawParsedRows] = useState<any[]>([]);
@@ -115,8 +120,10 @@ export default function MDLPAnalyzerPro() {
   const [selectedDistrictForDrilldown, setSelectedDistrictForDrilldown] = useState<string | null>(null);
   const [selectedContractorGroupForDrilldown, setSelectedContractorGroupForDrilldown] = useState<string | null>(null);
 
-  const [displayMode] = useState<'packages' | 'money'>('packages');
-  const isMoney = false; // Always show both packages + rubles simultaneously
+  // Метрика графиков: 'money' когда в глобальном фильтре выбраны «Рубли».
+  // Таблицы всё равно показывают оба значения («X уп. | Y ₽») через fmtValue.
+  const displayMode: 'packages' | 'money' = globalMetric === 'rubles' ? 'money' : 'packages';
+  const isMoney = displayMode === 'money';
 
   const MoneySpan = useCallback(({ value }: { value: number | null }) => {
     if (value === null || isNaN(value as number)) return <span>—</span>;
@@ -163,9 +170,12 @@ export default function MDLPAnalyzerPro() {
     return calcRublesRatio(ds, drugPrices);
   }, [tabData?.drugSales, uploadedData?.drugSales, drugPrices]);
 
+  // Конвертация упаковок → рубли для графиков в режиме «Рубли».
+  // Используется только в isMoney-ветках чартов; rublesRatio — средний
+  // коэффициент цена/упаковка по текущей выборке.
   const toRubles = useCallback((packages: number): number => {
-    return packages; // Charts always use packages as primary axis
-  }, []);
+    return Math.round(packages * rublesRatio);
+  }, [rublesRatio]);
 
   const fmtValue = useCallback((packages: number): React.ReactNode => {
     const money = Math.round(packages * rublesRatio);
@@ -566,7 +576,8 @@ export default function MDLPAnalyzerPro() {
     drugs: selectedDrugs, regions: selectedRegions, years: selectedYears,
     disposalTypes: selectedDisposalTypes, federalDistricts: selectedFederalDistricts,
     contractorGroups: selectedContractorGroups, managers: selectedManagers,
-  }), [selectedDrugs, selectedRegions, selectedYears, selectedDisposalTypes, selectedFederalDistricts, selectedContractorGroups, selectedManagers]);
+    months: globalSelectedMonths, // глобальный фильтр месяцев — перезапрашиваем при смене
+  }), [selectedDrugs, selectedRegions, selectedYears, selectedDisposalTypes, selectedFederalDistricts, selectedContractorGroups, selectedManagers, globalSelectedMonths]);
 
   const isFetchingTabRef = useRef(false);
   const tabFetchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -621,6 +632,11 @@ export default function MDLPAnalyzerPro() {
       if (selectedManagers.length > 0) {
         const mgrRegions = getManagerRegions(selectedManagers);
         if (mgrRegions.length > 0) params.managerRegions = mgrRegions;
+      }
+      // Глобальный фильтр месяцев → короткие RU-имена ('Мар'), которые
+      // сервер сверяет с row.month в compact rows.
+      if (globalSelectedMonths.length > 0 && globalSelectedMonths.length < 12) {
+        params.months = globalSelectedMonths.map(m => MONTH_NUM_TO_SHORT[m]).filter(Boolean);
       }
       if (isWmTab) {
         params.wmYear = wmSelectedYear;
@@ -1775,6 +1791,21 @@ export default function MDLPAnalyzerPro() {
     // Очищаем данные прежнего юзера в SharedDataProvider
     window.dispatchEvent(new Event('user-changed'));
   };
+
+  // Сессия истекла (401 от сервера) — выкидываем на форму входа вместо
+  // «пустого» экрана с нулями. Событие шлёт fetchApi при любом 401.
+  useEffect(() => {
+    const handler = () => {
+      setCurrentUser(null);
+      setShowUserSelect(true);
+      setDataLoaded(false);
+      setActiveTab('upload');
+      setAppMode('mdlp');
+      window.dispatchEvent(new Event('user-changed'));
+    };
+    window.addEventListener('auth-expired', handler);
+    return () => window.removeEventListener('auth-expired', handler);
+  }, []);
 
   const navigateTo = (tab) => {
     setNavHistory(prev => [...prev, activeTab]);
@@ -3905,17 +3936,10 @@ export default function MDLPAnalyzerPro() {
                   )}
                 </div>
 
-                {/* Фильтр по периодам */}
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <BarChart3 size={14} className="text-blue-600" />
-                  <MultiSelect
-                    options={periodOptions}
-                    selected={selectedPeriods}
-                    onChange={setSelectedPeriods}
-                    placeholder="Период"
-                    className="border-blue-300 bg-gradient-to-r from-blue-50 to-blue-100 text-blue-700"
-                  />
-                </div>
+                {/* Фильтр «Период» (Год/Квартал/Месяц/Неделя) убран: он никуда
+                    не передавался и не перестраивал данные — вводил в
+                    заблуждение. Фильтрация по месяцам — через глобальные
+                    фильтры справа (чекбоксы месяцев), по годам — селект «Года». */}
 
                 {/* Глобальные фильтры: месяцы (чекбоксы) + метрика Рубли/Упаковки.
                     Применяются ко всем дашбордам через GlobalFiltersContext. */}

@@ -178,10 +178,15 @@ export default function EmployeesManagement() {
   };
 
   const handleDelete = async (id: number) => {
+    const emp = employees.find(e => e.id === id);
+    if (!window.confirm(`Удалить сотрудника «${emp?.employee_name || id}»? Действие необратимо.`)) return;
     try {
       await adminApi.deleteEmployee(id);
       setEmployees(prev => prev.filter(e => e.id !== id));
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+      alert('Не удалось удалить сотрудника. Попробуйте ещё раз.');
+    }
   };
 
   // Статистика

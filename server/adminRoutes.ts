@@ -65,6 +65,13 @@ export function createAdminRouter(
       const values: any[] = [];
       let paramIdx = 1;
 
+      // Валидация роли по списку допустимых — иначе опечатка ('managr')
+      // ломала бы роутинг: у пользователя не было бы своего дашборда.
+      const VALID_ROLES = ['admin', 'director', 'manager', 'territory_manager', 'medrep', 'analyst'];
+      if (role !== undefined && !VALID_ROLES.includes(role)) {
+        return res.status(400).json({ error: `Недопустимая роль: ${role}` });
+      }
+
       if (email) { updates.push(`email = $${paramIdx++}`); values.push(email); }
       if (name) { updates.push(`name = $${paramIdx++}`); values.push(name); }
       if (role) { updates.push(`role = $${paramIdx++}`); values.push(role); }

@@ -62,7 +62,8 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
 } from 'recharts';
-import { PRODUCTS, TERRITORIES, getTotalStats, aggregateByProduct, getMonthlyDynamics, getMonthlyDynamicsUnits, BUDGET_PFO_2025 } from '@/data/salesData';
+import { PRODUCTS, TERRITORIES, getTotalStats, aggregateByProduct, getMonthlyDynamics, getMonthlyDynamicsUnits, getMonthlyDynamicsDynamic, getMonthlyDynamicsUnitsDynamic, BUDGET_PFO_2025 } from '@/data/salesData';
+import { useRegionalPlans, sumPlanUnits } from '@/hooks/useRegionalPlans';
 import { FEDERAL_DISTRICTS, getTotalRussiaBudget2025, getDistrictStats, FederalDistrict } from '@/data/federalDistricts';
 import ProductsAnalyticsWithEdit from '@/app/pages/director/ProductsAnalyticsWithEdit';
 import BudgetCalculatorEnhanced from '@/app/pages/director/BudgetCalculatorEnhanced';
@@ -215,18 +216,26 @@ const DashboardView = () => {
 
   const growthPercent = stats2024.totalRevenue > 0 ? ((stats2025.totalRevenue - stats2024.totalRevenue) / stats2024.totalRevenue) * 100 : 0;
   const growth2026Percent = stats2025.totalRevenue > 0 ? ((stats2026.totalRevenue - stats2025.totalRevenue) / stats2025.totalRevenue) * 100 : 0;
-  const totalBudget2025 = BUDGET_PFO_2025.total;
-  const planExecution = totalBudget2025 > 0 ? (stats2025.totalRevenue / totalBudget2025) * 100 : 0;
+
+  // «Выполнение плана» — из реальных планов РМ (regional_plans, упаковки),
+  // а не из хардкода BUDGET_PFO_2025 (580 млн). Сравниваем факт-упаковки с
+  // план-упаковками. Нет планов РМ → «план не задан», не выдумываем.
+  const rmPlans = useRegionalPlans(yearCurrent, wmRussiaData);
+  const planUnitsTotal = sumPlanUnits(rmPlans, selectedMonths);
+  const hasRmPlan = planUnitsTotal > 0;
+  const planExecution = hasRmPlan ? (stats2025.totalUnits / planUnitsTotal) * 100 : 0;
 
   const hasNextYearData = stats2026.totalRevenue > 0 || stats2026.totalUnits > 0;
   const kpiCards = [
-    { title: `Продажи ${yearCurrent}`, value: fmtMetricValue(stats2025.totalRevenue, stats2025.totalUnits), change: fmtChange(growthPercent), trend: growthPercent >= 0 ? 'up' : 'down', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: `План: ${formatCurrency(totalBudget2025)}` },
+    { title: `Продажи ${yearCurrent}`, value: fmtMetricValue(stats2025.totalRevenue, stats2025.totalUnits), change: fmtChange(growthPercent), trend: growthPercent >= 0 ? 'up' : 'down', icon: TrendingUp, gradient: 'from-emerald-500 to-emerald-600', color: 'emerald', subtitle: hasRmPlan ? `План РМ: ${formatNumber(planUnitsTotal)} уп.` : 'План РМ не задан' },
     // Прогноз следующего года показываем только когда за него есть данные —
     // раньше карточка выводила «0 ₽ / +-100.0%» сразу после входа.
     hasNextYearData
       ? { title: `Продажи ${yearNext} (прогноз)`, value: fmtMetricValue(stats2026.totalRevenue, stats2026.totalUnits), change: fmtChange(growth2026Percent), trend: growth2026Percent >= 0 ? 'up' : 'down', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `План: ${formatCurrency(stats2026.totalRevenue * 1.15)}` }
       : { title: `Продажи ${yearNext} (прогноз)`, value: '— нет данных', change: '', trend: 'neutral', icon: Target, gradient: 'from-purple-500 to-purple-600', color: 'purple', subtitle: `Данные за ${yearNext} ещё не загружены` },
-    { title: 'Выполнение плана', value: `${planExecution.toFixed(1)}%`, change: `${formatCurrency(totalBudget2025)}`, trend: planExecution > 100 ? 'up' : 'neutral', icon: Target, gradient: planExecution > 100 ? 'from-green-500 to-green-600' : 'from-yellow-500 to-yellow-600', color: planExecution > 100 ? 'green' : 'yellow' },
+    hasRmPlan
+      ? { title: 'Выполнение плана', value: `${planExecution.toFixed(1)}%`, change: `план ${formatNumber(planUnitsTotal)} уп.`, trend: planExecution > 100 ? 'up' : 'neutral', icon: Target, gradient: planExecution > 100 ? 'from-green-500 to-green-600' : 'from-yellow-500 to-yellow-600', color: planExecution > 100 ? 'green' : 'yellow' }
+      : { title: 'Выполнение плана', value: '— план не задан', change: 'РМ не заполнили планы', trend: 'neutral', icon: Target, gradient: 'from-slate-400 to-slate-500', color: 'slate' },
     // Рост к прошлому году (раньше сравнивался пустой yearNext с yearCurrent
     // и карточка показывала «-34 906 730 ₽» — минус всю выручку).
     { title: `Рост vs ${yearPrev}`, value: fmtMetricValue(stats2025.totalRevenue - stats2024.totalRevenue, stats2025.totalUnits - stats2024.totalUnits), change: fmtChange(growthPercent), trend: growthPercent >= 0 ? 'up' : 'down', icon: ArrowUpRight, gradient: 'from-blue-500 to-blue-600', color: 'blue' },
@@ -234,6 +243,14 @@ const DashboardView = () => {
 
   const salesTrendData = getMonthlyDynamics();
   const salesTrendUnitsData = getMonthlyDynamicsUnits();
+
+  // Динамические года для графика динамики (3 последних года).
+  // Раньше график хардкодил year2024/2025/2026 и 1 января следующего года
+  // терял свежий год. Ключи `year${год}` совпадают с getMonthlyDynamicsDynamic.
+  const chartYears = [yearCurrent - 2, yearPrev, yearCurrent];
+  const chartColors = ['#94a3b8', '#06b6d4', '#a855f7'];
+  const salesTrendDynamic = getMonthlyDynamicsDynamic();
+  const salesTrendUnitsDynamic = getMonthlyDynamicsUnitsDynamic();
 
   // AI прогнозирование
   const generateAIForecast = () => {
@@ -355,7 +372,7 @@ const DashboardView = () => {
         <div className="xl:col-span-2 bg-white/80 backdrop-blur-xl rounded-3xl shadow-xl border border-white/20 p-6">
           <h3 className="text-lg font-bold text-slate-800 mb-6 flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-cyan-500" />
-            Динамика продаж 2024-2025-2026
+            Динамика продаж {chartYears.join('-')}
           </h3>
           <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
             <div>
@@ -364,20 +381,22 @@ const DashboardView = () => {
                 <span className="text-sm font-semibold text-slate-700">Продажи в рублях (₽)</span>
               </div>
               <ResponsiveContainer width="100%" height={300}>
-                <ComposedChart data={salesTrendData}>
+                <ComposedChart data={salesTrendDynamic}>
                   <defs>
-                    <linearGradient id="colorSales2024" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} /><stop offset="95%" stopColor="#94a3b8" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="colorSales2025" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} /><stop offset="95%" stopColor="#06b6d4" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="colorSales2026" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} /><stop offset="95%" stopColor="#a855f7" stopOpacity={0} /></linearGradient>
+                    {chartYears.map((y, i) => (
+                      <linearGradient key={y} id={`colorSales${y}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={chartColors[i]} stopOpacity={0.3} /><stop offset="95%" stopColor={chartColors[i]} stopOpacity={0} /></linearGradient>
+                    ))}
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '11px' }} />
                   <YAxis stroke="#94a3b8" style={{ fontSize: '11px' }} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: 'none', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} formatter={(value: any) => `${formatNumber(value)} ₽`} />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Area type="monotone" dataKey="year2024" name="2024" stroke="#94a3b8" fill="url(#colorSales2024)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="year2025" name="2025" stroke="#06b6d4" fill="url(#colorSales2025)" strokeWidth={3} />
-                  <Line type="monotone" dataKey="year2026" name="2026" stroke="#a855f7" strokeWidth={3} dot={false} />
+                  {chartYears.map((y, i) => (
+                    i === chartYears.length - 1
+                      ? <Line key={y} type="monotone" dataKey={`year${y}`} name={String(y)} stroke={chartColors[i]} strokeWidth={3} dot={false} />
+                      : <Area key={y} type="monotone" dataKey={`year${y}`} name={String(y)} stroke={chartColors[i]} fill={`url(#colorSales${y})`} strokeWidth={i === 1 ? 3 : 2} />
+                  ))}
                 </ComposedChart>
               </ResponsiveContainer>
             </div>
@@ -387,20 +406,22 @@ const DashboardView = () => {
                 <span className="text-sm font-semibold text-slate-700">Продажи в упаковках (шт.)</span>
               </div>
               <ResponsiveContainer width="100%" height={300}>
-                <ComposedChart data={salesTrendUnitsData}>
+                <ComposedChart data={salesTrendUnitsDynamic}>
                   <defs>
-                    <linearGradient id="colorUnits2024" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#94a3b8" stopOpacity={0.3} /><stop offset="95%" stopColor="#94a3b8" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="colorUnits2025" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#06b6d4" stopOpacity={0.3} /><stop offset="95%" stopColor="#06b6d4" stopOpacity={0} /></linearGradient>
-                    <linearGradient id="colorUnits2026" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#a855f7" stopOpacity={0.3} /><stop offset="95%" stopColor="#a855f7" stopOpacity={0} /></linearGradient>
+                    {chartYears.map((y, i) => (
+                      <linearGradient key={y} id={`colorUnits${y}`} x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor={chartColors[i]} stopOpacity={0.3} /><stop offset="95%" stopColor={chartColors[i]} stopOpacity={0} /></linearGradient>
+                    ))}
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                   <XAxis dataKey="month" stroke="#94a3b8" style={{ fontSize: '11px' }} />
                   <YAxis stroke="#94a3b8" style={{ fontSize: '11px' }} />
                   <Tooltip contentStyle={{ backgroundColor: 'rgba(255, 255, 255, 0.95)', border: 'none', borderRadius: '12px', boxShadow: '0 10px 30px rgba(0,0,0,0.1)' }} formatter={(value: any) => `${formatNumber(value)} упак.`} />
                   <Legend wrapperStyle={{ fontSize: '12px' }} />
-                  <Area type="monotone" dataKey="year2024" name="2024" stroke="#94a3b8" fill="url(#colorUnits2024)" strokeWidth={2} />
-                  <Area type="monotone" dataKey="year2025" name="2025" stroke="#06b6d4" fill="url(#colorUnits2025)" strokeWidth={3} />
-                  <Line type="monotone" dataKey="year2026" name="2026" stroke="#a855f7" strokeWidth={3} dot={false} />
+                  {chartYears.map((y, i) => (
+                    i === chartYears.length - 1
+                      ? <Line key={y} type="monotone" dataKey={`year${y}`} name={String(y)} stroke={chartColors[i]} strokeWidth={3} dot={false} />
+                      : <Area key={y} type="monotone" dataKey={`year${y}`} name={String(y)} stroke={chartColors[i]} fill={`url(#colorUnits${y})`} strokeWidth={i === 1 ? 3 : 2} />
+                  ))}
                 </ComposedChart>
               </ResponsiveContainer>
             </div>

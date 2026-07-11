@@ -237,11 +237,15 @@ export default function AdminDashboard({ activeSection }: { activeSection?: stri
 
   const handleDeleteUser = async (userId: string) => {
     if (userId === currentUser?.id) return;
+    const user = users.find(u => u.id === userId);
+    // Подтверждение — удаление пользователя необратимо.
+    if (!window.confirm(`Удалить пользователя «${user?.fullName || userId}»? Действие необратимо.`)) return;
     try {
       await adminApi.deleteUser(Number(userId));
       setUsers(prev => prev.filter(u => u.id !== userId));
     } catch (err: any) {
       console.error('[AdminDashboard] Ошибка удаления:', err);
+      alert('Не удалось удалить пользователя. Попробуйте ещё раз.');
     }
   };
 
