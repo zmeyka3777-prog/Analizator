@@ -2553,9 +2553,13 @@ export default function MDLPAnalyzerPro() {
     'Экспорт'
   ];
 
-  // Фиксированные года для фильтра
-  const fixedYears = ['2024', '2025', '2026'];
-  
+  // Года для фильтра — из реально загруженных данных (availableYears),
+  // fallback на текущие три года пока данных нет. Раньше хардкод 2024-2026
+  // не давал отфильтровать 2023/2027 и предлагал пустые года.
+  const filterYears = availableYears.length > 0
+    ? [...availableYears].map(String).sort()
+    : [String(new Date().getFullYear() - 1), String(new Date().getFullYear()), String(new Date().getFullYear() + 1)];
+
   // Опции периодов для MultiSelect
   const periodOptions: MultiSelectOption[] = [
     { value: 'year', label: 'Год' },
@@ -2563,10 +2567,10 @@ export default function MDLPAnalyzerPro() {
     { value: 'month', label: 'Месяц' },
     { value: 'week', label: 'Неделя' }
   ];
-  
+
   // Опции для мульти-селектов
   const drugsOptions: MultiSelectOption[] = drugsList.map(d => ({ value: d, label: d }));
-  const yearsOptions: MultiSelectOption[] = fixedYears.map(y => ({ value: y, label: y + ' год' }));
+  const yearsOptions: MultiSelectOption[] = filterYears.map(y => ({ value: y, label: y + ' год' }));
   const regionsOptions: MultiSelectOption[] = regionsList.map(r => ({ value: r, label: r }));
   const disposalTypeOptions: MultiSelectOption[] = defaultDisposalTypes.map(t => ({ value: t, label: t }));
   const contractorGroupsOptions: MultiSelectOption[] = contractorGroupsList.map(g => ({ value: g, label: g }));
@@ -3956,9 +3960,14 @@ export default function MDLPAnalyzerPro() {
               </div>
             </div>
             
-            {/* Показываем текущие фильтры */}
+            {/* Показываем текущие фильтры (реальные выбранные значения,
+                раньше «Все округа» было захардкожено и врало при фильтре) */}
             <div className="mt-2 text-xs text-slate-500 overflow-x-auto">
-              <span className="font-medium text-slate-700">{getDrugName()}</span> • Все округа • {getYearName()}
+              <span className="font-medium text-slate-700">{getDrugName()}</span>
+              {' • '}{selectedFederalDistricts.length > 0 ? selectedFederalDistricts.map(fd => fd.replace(/[Фф]едеральный округ/, 'ФО')).join(', ') : 'Все округа'}
+              {selectedRegions.length > 0 && <> • {selectedRegions.join(', ')}</>}
+              {selectedManagers.length > 0 && <> • {selectedManagers.join(', ')}</>}
+              {' • '}{getYearName()}
             </div>
           </div>
         )}

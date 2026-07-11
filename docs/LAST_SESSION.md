@@ -1,34 +1,24 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-07-11 19:38
+**Дата:** 2026-07-11 19:53
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-.playwright-mcp/page-2026-07-11T16-30-18-821Z.yml
 docs/SESSION_LOG.md
-src/app/components/AddEmployeeModal.tsx
-src/app/components/EditEmployeeModal.tsx
-src/app/components/MPDetailModal.tsx
-src/app/components/director/tabs/ReportsTabLight.tsx
-src/app/components/wm-russia/dashboards/TerritoryManagerDashboard.tsx
-src/app/pages/director/EmployeesAnalytics.tsx
-src/app/pages/director/ProductsAnalyticsWithEdit.tsx
+src/app/App.tsx
 src/app/pages/director/TerritoriesAnalytics.tsx
-src/app/pages/regional-manager/EmployeesTabNew.tsx
-src/app/pages/regional-manager/RegionalManagerDashboard.tsx
-src/data/employees.ts
 ```
 
 ## Последние 5 коммитов
 
 ```
+d6b3708 Auto-save at end of session
 3c68518 Auto-save at end of session
 1ae9afa Auto-save at end of session
 29a2bf1 Auto-save at end of session
 ee9d330 Auto-save at end of session
-8c2c317 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)

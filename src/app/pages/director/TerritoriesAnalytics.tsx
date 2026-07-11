@@ -305,30 +305,38 @@ export default function TerritoriesAnalytics() {
   }, [districtsAnalytics, searchQuery, sortBy]);
 
   // ==================== ДАННЫЕ ДЛЯ ГРАФИКОВ ====================
+  // Подписи серий строятся из тех же переменных, что и данные — раньше
+  // хардкод «Выручка 2024/2025» подписывал данные 2025/2026 чужими годами.
+  const revKeyPrev = `Выручка ${prevYear}`;
+  const revKeyCurrent = `Выручка ${currentYear}`;
+  const revKeyNext = `Прогноз ${nextYear}`;
+  const unitsKeyPrev = `Упаковки ${prevYear}`;
+  const unitsKeyCurrent = `Упаковки ${currentYear}`;
+
   // Сравнение округов - выручка
   const districtComparisonData = useMemo(() => {
     return filteredDistricts.map(item => ({
       name: item.district.shortName,
-      'Выручка 2024': Math.round(item.revenue2024 / 1000000),
-      'Выручка 2025': Math.round(item.revenue2025 / 1000000),
-      'Прогноз 2026': Math.round(item.revenue2026 / 1000000),
+      [revKeyPrev]: Math.round(item.revenue2024 / 1000000),
+      [revKeyCurrent]: Math.round(item.revenue2025 / 1000000),
+      [revKeyNext]: Math.round(item.revenue2026 / 1000000),
     }));
-  }, [filteredDistricts]);
+  }, [filteredDistricts, revKeyPrev, revKeyCurrent, revKeyNext]);
 
   // График сравнения по упаковкам
   const districtComparisonUnitsData = useMemo(() => {
     return filteredDistricts.map(item => {
-      const units2024 = Math.round(item.revenue2024 / 3500); // средняя цена
-      const units2026 = Math.round(item.revenue2026 / 3500);
-      
+      const unitsPrev = Math.round(item.revenue2024 / 3500); // средняя цена
+      const unitsNext = Math.round(item.revenue2026 / 3500);
+
       return {
         name: item.district.shortName,
-        'Упаковки 2024': Math.round(units2024 / 1000),
-        'Упаковки 2025': Math.round(item.units2025 / 1000),
-        'Прогноз 2026': Math.round(units2026 / 1000),
+        [unitsKeyPrev]: Math.round(unitsPrev / 1000),
+        [unitsKeyCurrent]: Math.round(item.units2025 / 1000),
+        [revKeyNext]: Math.round(unitsNext / 1000),
       };
     });
-  }, [filteredDistricts]);
+  }, [filteredDistricts, unitsKeyPrev, unitsKeyCurrent, revKeyNext]);
 
   // Радар-диаграмма топ-округов
   const topDistrictsRadar = useMemo(() => {
@@ -460,9 +468,9 @@ export default function TerritoriesAnalytics() {
                 formatter={(value: any) => `${value} млн ₽`}
               />
               <Legend />
-              <Bar dataKey="Выручка 2024" fill="#94a3b8" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="Выручка 2025" fill="#06b6d4" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="Прогноз 2026" fill="#10b981" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={revKeyPrev} fill="#94a3b8" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={revKeyCurrent} fill="#06b6d4" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={revKeyNext} fill="#10b981" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
@@ -483,9 +491,9 @@ export default function TerritoriesAnalytics() {
                 formatter={(value: any) => `${value} тыс. упак.`}
               />
               <Legend />
-              <Bar dataKey="Упаковки 2024" fill="#94a3b8" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="Упаковки 2025" fill="#06b6d4" radius={[8, 8, 0, 0]} />
-              <Bar dataKey="Прогноз 2026" fill="#10b981" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={unitsKeyPrev} fill="#94a3b8" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={unitsKeyCurrent} fill="#06b6d4" radius={[8, 8, 0, 0]} />
+              <Bar dataKey={revKeyNext} fill="#10b981" radius={[8, 8, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </div>
