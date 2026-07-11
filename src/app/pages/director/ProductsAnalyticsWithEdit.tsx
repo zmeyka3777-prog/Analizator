@@ -28,7 +28,7 @@ import {
 } from 'recharts';
 import { getSalesData, aggregateByProduct, getMonthlyDynamics, TERRITORIES } from '@/data/salesData';
 import { Product } from '@/types/product.types';
-import { getAllProducts, updateProduct, addProduct, deleteProduct } from '@/data/productsManager';
+import { getAllProducts, updateProduct, addProduct, deleteProduct, publishProductsDraft } from '@/data/productsManager';
 import EditModal from '@/app/components/modals/EditModal';
 import { useDateContext } from '@/contexts/DateContext';
 import { useSharedData } from '@/context/SharedDataContext';
@@ -72,13 +72,18 @@ export default function ProductsAnalyticsWithEdit() {
   }, []);
 
   // Обработчики редактирования
+  // add/update/delete пишут в draft-хранилище, а список читается из
+  // published — без publishProductsDraft() правка была невидима (кнопка
+  // «Сохранить» выглядела сломанной).
   const handleSaveProduct = (data: any) => {
     if (isAddingNew) {
-      const newProduct = addProduct(data);
+      addProduct(data);
+      publishProductsDraft();
       setProducts(getAllProducts());
       setIsAddingNew(false);
     } else if (editingProduct) {
       updateProduct(editingProduct.id, data);
+      publishProductsDraft();
       setProducts(getAllProducts());
       setEditingProduct(null);
     }
@@ -87,6 +92,7 @@ export default function ProductsAnalyticsWithEdit() {
   const handleDeleteProduct = () => {
     if (editingProduct) {
       deleteProduct(editingProduct.id);
+      publishProductsDraft();
       setProducts(getAllProducts());
       setEditingProduct(null);
     }

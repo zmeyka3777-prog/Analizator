@@ -5,7 +5,7 @@ import {
 } from 'recharts';
 import { PRODUCTS } from '@/data/salesData';
 import { getSalesData, TERRITORIES } from '@/data/salesData';
-import { EMPLOYEES, getSubordinates } from '@/data/employees';
+import { adminApi } from '@/lib/api';
 import { ProductsTab } from './ProductsTab';
 import { EmployeesTabNew } from './EmployeesTabNew';
 import { PlansTab } from './PlansTab';
@@ -67,15 +67,23 @@ function OverviewTab() {
     return map;
   }, [planRows, selectedMonths]);
 
-  // Количество сотрудников: только подчинённые текущего регионального менеджера ПФО
-  // (4 ТМ + их МП — обычно 13). Раньше показывали EMPLOYEES.filter(active) = 74
-  // (всех в системе), что давало рассинхрон с вкладкой "Все медпреды".
-  const employeeCount = useMemo(() => {
-    const currentRM = EMPLOYEES.find(e => e.role === 'regional_manager' && e.territory === 'Приволжский ФО');
-    if (!currentRM) return 0;
-    const tms = getSubordinates(currentRM.id);
-    const mps = tms.flatMap(tm => getSubordinates(tm.id));
-    return [...tms, ...mps].filter(e => e.status === 'active').length;
+  // Количество сотрудников — реальные ТМ+МП PFO-групп из CRM
+  // (/api/admin/employees), а не mock data/employees.ts.
+  const [employeeCount, setEmployeeCount] = React.useState(0);
+  React.useEffect(() => {
+    let cancelled = false;
+    adminApi.getEmployees()
+      .then(res => {
+        if (cancelled) return;
+        const pfo = (res.employees || []).filter((e: any) => (e.crm_group || '').toUpperCase().startsWith('PFO'));
+        const count = pfo.filter((e: any) =>
+          e.hierarchy_level === 2 || e.hierarchy_level === 3 ||
+          ['territory_manager', 'territorial_manager', 'medrep', 'med_rep'].includes(e.role)
+        ).length;
+        setEmployeeCount(count);
+      })
+      .catch(() => { if (!cancelled) setEmployeeCount(0); });
+    return () => { cancelled = true; };
   }, []);
 
   // Продажи по территориям (pie chart)

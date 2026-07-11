@@ -1,88 +1,185 @@
-import React, { useState, useMemo } from 'react';
+// ==================== СОТРУДНИКИ (КАБИНЕТ РМ, РЕАЛЬНЫЕ ДАННЫЕ) ====================
+// Источник: /api/admin/employees (107 реальных сотрудников из CRM xlsx),
+// доступ requireMinRole('manager'). РМ видит сотрудников своих PFO-групп
+// (PFO Sonin, PFO Orudjov, PFO Samadova, PFO Nechaeva) с иерархией РМ → ТМ → МП.
+//
+// Заменяет прежний mock-таб на data/employees.ts (Иванов/Петрова/Малина) со
+// сломанными Edit/Add модалками (onSave был TODO-заглушкой). Управление
+// списком сотрудников — в панели администратора; здесь read-only аналитика.
+//
+// «Продажи в регионах» сотрудника — честный факт из загруженной выгрузки МДЛП
+// по регионам, закреплённым за ним в CRM (поле regions). Это продажи
+// территории, а не персональные — делить поровну между людьми не пытаемся.
+
+import React, { useState, useMemo, useEffect } from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
-import { EMPLOYEES, Employee, getSubordinates, getEmployeeById } from '@/data/employees';
+import { adminApi } from '@/lib/api';
 import { getSalesData } from '@/data/salesData';
-import { MPDetailModal } from '@/app/components/MPDetailModal';
-import { EditEmployeeModal } from '@/app/components/EditEmployeeModal';
-import { AddEmployeeModal } from '@/app/components/AddEmployeeModal';
 import { useSharedData } from '@/context/SharedDataContext';
 import { useGlobalFilters } from '@/context/GlobalFiltersContext';
 
-const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+interface CrmEmployee {
+  id: number;
+  employee_name: string;
+  role: string;
+  manager_name: string | null;
+  regions: string | null;
+  crm_group: string | null;
+  position: string | null;
+  city: string | null;
+  email: string | null;
+  hierarchy_level: number | null;
+}
 
-const MONTHS = ['Янв', 'Фев', 'Мар', 'Апр', 'Май', 'Июн', 'Июл', 'Авг', 'Сен', 'Окт', 'Ноя', 'Дек'];
+const ROLE_LABELS: Record<string, string> = {
+  director: 'Директор',
+  regional_manager: 'РМ', manager: 'РМ',
+  territory_manager: 'ТМ', territorial_manager: 'ТМ',
+  medrep: 'МП', med_rep: 'МП',
+};
+
+const ROLE_BADGES: Record<string, string> = {
+  regional_manager: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  manager: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
+  territory_manager: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+  territorial_manager: 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30',
+  medrep: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+  med_rep: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
+};
+
+const isTM = (e: CrmEmployee) => e.hierarchy_level === 2 || e.role === 'territory_manager' || e.role === 'territorial_manager';
+const isMP = (e: CrmEmployee) => e.hierarchy_level === 3 || e.role === 'medrep' || e.role === 'med_rep';
+const isRM = (e: CrmEmployee) => e.hierarchy_level === 1 || e.role === 'regional_manager' || e.role === 'manager';
+
+function levelIndent(e: CrmEmployee): number {
+  if (isTM(e)) return 20;
+  if (isMP(e)) return 40;
+  return 0;
+}
 
 export function EmployeesTabNew() {
-  // Текущий РМ (первый regional_manager из ПФО)
-  const currentRM = useMemo(
-    () => EMPLOYEES.find(e => e.role === 'regional_manager' && e.territory === 'Приволжский ФО'),
-    [],
-  );
+  const [employees, setEmployees] = useState<CrmEmployee[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(new Set());
 
-  // Подчинённые ТМ
-  const subordinateTMs = useMemo(
-    () => (currentRM ? getSubordinates(currentRM.id) : []),
-    [currentRM],
-  );
-
-  // Все МП под всеми ТМ
-  const allMPs = useMemo(
-    () => subordinateTMs.flatMap(tm => getSubordinates(tm.id)),
-    [subordinateTMs],
-  );
-
-  // Актуальный год — раньше был хардкод 2025 и факт по МП всегда был 0.
   const year = new Date().getFullYear();
-  // Реактивность: после загрузки файла getMPStats пересчитает + фильтр месяцев.
+  // Реактивность: после загрузки файла продажи по регионам пересчитаются.
   const { wmRussiaData } = useSharedData();
   const { selectedMonths } = useGlobalFilters();
 
-  const [expandedTM, setExpandedTM] = useState<string | null>(null);
-  const [selectedMP, setSelectedMP] = useState<Employee | null>(null);
-  const [editingEmployee, setEditingEmployee] = useState<Employee | null>(null);
-  const [showAddModal, setShowAddModal] = useState(false);
+  useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    adminApi.getEmployees()
+      .then(res => {
+        if (cancelled) return;
+        setEmployees((res.employees || []) as CrmEmployee[]);
+        setError(null);
+      })
+      .catch(err => {
+        if (cancelled) return;
+        setError(err?.message || 'Ошибка загрузки сотрудников');
+      })
+      .finally(() => { if (!cancelled) setLoading(false); });
+    return () => { cancelled = true; };
+  }, [wmRussiaData]);
+
+  // РМ ПФО видит только PFO-группы CRM.
+  const pfoEmployees = useMemo(
+    () => employees.filter(e => (e.crm_group || '').toUpperCase().startsWith('PFO')),
+    [employees],
+  );
+
+  const filtered = useMemo(() => {
+    if (!searchQuery.trim()) return pfoEmployees;
+    const q = searchQuery.toLowerCase();
+    return pfoEmployees.filter(e =>
+      e.employee_name.toLowerCase().includes(q) ||
+      (e.crm_group || '').toLowerCase().includes(q) ||
+      (e.city || '').toLowerCase().includes(q) ||
+      (e.regions || '').toLowerCase().includes(q)
+    );
+  }, [pfoEmployees, searchQuery]);
+
+  // Группировка по CRM-группе (PFO Sonin, PFO Orudjov, ...).
+  const grouped = useMemo(() => {
+    const map = new Map<string, CrmEmployee[]>();
+    for (const emp of filtered) {
+      const group = emp.crm_group || 'Без группы';
+      if (!map.has(group)) map.set(group, []);
+      map.get(group)!.push(emp);
+    }
+    return Array.from(map.entries()).sort((a, b) => a[0].localeCompare(b[0]));
+  }, [filtered]);
 
   // KPI
-  const totalEmployees = subordinateTMs.length + allMPs.length;
-  const tmCount = subordinateTMs.length;
-  const mpCount = allMPs.length;
+  const tmCount = pfoEmployees.filter(isTM).length;
+  const mpCount = pfoEmployees.filter(isMP).length;
+  const groupCount = new Set(pfoEmployees.map(e => e.crm_group || '')).size;
 
-  // Роли для pie chart
   const roleData = [
-    { name: 'ТМ', value: tmCount, color: '#3b82f6' },
+    { name: 'ТМ', value: tmCount, color: '#06b6d4' },
     { name: 'МП', value: mpCount, color: '#10b981' },
   ];
 
-  // Статус сотрудников
-  const activeCount = [...subordinateTMs, ...allMPs].filter(e => e.status === 'active').length;
-  const statusData = [
-    { name: 'Активные', value: activeCount, color: '#10b981' },
-    { name: 'Неактивные', value: totalEmployees - activeCount, color: '#ef4444' },
-  ];
-
-  // Рассчитать KPI для МП: план-факт. Мемоизируем по wmRussiaData чтобы
-  // после загрузки файла все строки таблицы обновились.
-  const getMPStats = React.useCallback((mp: Employee) => {
-    const salesData = getSalesData({ territory: mp.territory, year, months: selectedMonths });
-    const totalFact = salesData.reduce((s, d) => s + d.units, 0);
-    // Делим факт пропорционально между МП на территории
-    const mpsOnTerritory = allMPs.filter(m => m.territory === mp.territory).length || 1;
-    const mpFact = Math.round(totalFact / mpsOnTerritory);
-    // План МП не выдумываем из факта (был факт×1.1). Берём заданный productPlans,
-    // иначе 0 → «план не задан».
-    const mpPlan = Object.values(mp.productPlans).reduce((s, v) => s + v, 0);
-    const pct = mpPlan > 0 ? Math.round((mpFact / mpPlan) * 100) : null;
-    return { fact: mpFact, plan: mpPlan, pct };
+  // Факт продаж (упаковки) по регионам сотрудника из реальной выгрузки.
+  // Регион из CRM матчится по точному имени территории в данных; если
+  // название не совпало с выгрузкой — вклад 0 (не выдумываем).
+  const salesByEmployee = useMemo(() => {
+    const cache = new Map<string, number>();
+    const map = new Map<number, number>();
+    for (const emp of filtered) {
+      if (!emp.regions) continue;
+      let total = 0;
+      for (const raw of emp.regions.split(',')) {
+        const territory = raw.trim();
+        if (!territory) continue;
+        if (!cache.has(territory)) {
+          const data = getSalesData({ territory, year, months: selectedMonths });
+          cache.set(territory, data.reduce((s, d) => s + d.units, 0));
+        }
+        total += cache.get(territory) || 0;
+      }
+      map.set(emp.id, total);
+    }
+    return map;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [year, allMPs, wmRussiaData, selectedMonths]);
+  }, [filtered, year, selectedMonths, wmRussiaData]);
+
+  const toggleGroup = (g: string) => {
+    setCollapsedGroups(prev => {
+      const n = new Set(prev);
+      if (n.has(g)) n.delete(g); else n.add(g);
+      return n;
+    });
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="w-8 h-8 border-2 border-cyan-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="wm-card bg-red-500/10 border border-red-500/30 rounded-2xl p-6">
+        <p className="text-red-300 font-semibold">Не удалось загрузить сотрудников</p>
+        <p className="text-red-400/80 text-sm mt-1">{error}</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-          <p className="text-white/60 text-sm">Всего сотрудников</p>
-          <p className="text-2xl font-bold text-white mt-1">{totalEmployees}</p>
+          <p className="text-white/60 text-sm">Всего сотрудников ПФО</p>
+          <p className="text-2xl font-bold text-white mt-1">{pfoEmployees.length}</p>
         </div>
         <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
           <p className="text-white/60 text-sm">Территориальных менеджеров</p>
@@ -93,165 +190,113 @@ export function EmployeesTabNew() {
           <p className="text-2xl font-bold text-white mt-1">{mpCount}</p>
         </div>
         <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-5 border border-white/20">
-          <p className="text-white/60 text-sm">Активных</p>
-          <p className="text-2xl font-bold text-emerald-400 mt-1">{activeCount} / {totalEmployees}</p>
+          <p className="text-white/60 text-sm">CRM-групп</p>
+          <p className="text-2xl font-bold text-cyan-300 mt-1">{groupCount}</p>
         </div>
       </div>
 
-      {/* Pie charts */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Структура по ролям + подсказка */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
           <h3 className="text-lg font-semibold text-white mb-4">Структура по ролям</h3>
-          <ResponsiveContainer width="100%" height={200}>
+          <ResponsiveContainer width="100%" height={220}>
             <PieChart>
-              <Pie data={roleData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${value}`}>
-                {roleData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
+              <Pie data={roleData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={50} outerRadius={85} paddingAngle={3} label={({ name, value }) => `${name}: ${value}`}>
+                {roleData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
               </Pie>
               <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', color: '#fff' }} />
             </PieChart>
           </ResponsiveContainer>
         </div>
-        <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20">
-          <h3 className="text-lg font-semibold text-white mb-4">Статус сотрудников</h3>
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie data={statusData} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={80} label={({ name, value }) => `${name}: ${value}`}>
-                {statusData.map((entry, i) => (
-                  <Cell key={i} fill={entry.color} />
-                ))}
-              </Pie>
-              <Tooltip contentStyle={{ backgroundColor: 'rgba(0,0,0,0.8)', border: 'none', borderRadius: '8px', color: '#fff' }} />
-            </PieChart>
-          </ResponsiveContainer>
+        <div className="wm-card bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/20 flex flex-col justify-center">
+          <h3 className="text-lg font-semibold text-white mb-2">Данные из CRM</h3>
+          <p className="text-white/60 text-sm leading-relaxed">
+            Оргструктура загружена из CRM (реальные сотрудники ПФО, {groupCount} групп).
+            «Продажи в регионах» — факт упаковок из вашей выгрузки МДЛП по регионам,
+            закреплённым за сотрудником.
+          </p>
+          <p className="text-white/40 text-xs mt-3">
+            Добавление и редактирование сотрудников — в панели администратора.
+          </p>
         </div>
       </div>
 
-      {/* Add employee button */}
-      <div className="flex justify-end">
-        <button
-          onClick={() => setShowAddModal(true)}
-          className="px-4 py-2 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-lg hover:bg-blue-500/30 transition-all text-sm font-medium"
-        >
-          + Добавить сотрудника
-        </button>
-      </div>
+      {/* Поиск */}
+      <input
+        type="text"
+        value={searchQuery}
+        onChange={e => setSearchQuery(e.target.value)}
+        placeholder="Поиск по ФИО, группе, городу, региону..."
+        className="w-full px-4 py-2.5 rounded-xl bg-white/10 border border-white/20 text-white placeholder-white/40 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/40"
+      />
 
-      {/* TM/MP Accordion */}
+      {/* Иерархический список по CRM-группам */}
       <div className="space-y-3">
-        {subordinateTMs.map(tm => {
-          const tmMPs = getSubordinates(tm.id);
-          const isExpanded = expandedTM === tm.id;
-
+        {grouped.map(([group, members]) => {
+          const isCollapsed = collapsedGroups.has(group);
+          const rm = members.find(isRM);
+          const gTm = members.filter(isTM).length;
+          const gMp = members.filter(isMP).length;
           return (
-            <div key={tm.id} className="wm-card bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden">
-              {/* TM Header */}
+            <div key={group} className="wm-card bg-white/10 backdrop-blur-md rounded-2xl border border-white/20 overflow-hidden">
               <button
-                onClick={() => setExpandedTM(prev => (prev === tm.id ? null : tm.id))}
-                className="w-full flex items-center justify-between p-4 hover:bg-white/5 transition-all"
+                onClick={() => toggleGroup(group)}
+                className="w-full px-5 py-3 flex items-center justify-between hover:bg-white/5 transition-colors border-b border-white/10"
               >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold text-sm">
-                    {tm.firstName[0]}{tm.lastName[0]}
-                  </div>
-                  <div className="text-left">
-                    <p className="text-white font-medium">{tm.lastName} {tm.firstName} {tm.middleName || ''}</p>
-                    <p className="text-white/50 text-xs">ТМ - {tm.territory} | {tmMPs.length} МП</p>
-                  </div>
+                <div className="flex items-center gap-3 text-left">
+                  <span className="text-white/50 text-xs">{isCollapsed ? '▶' : '▼'}</span>
+                  <span className="text-sm font-bold text-white">{group}</span>
+                  {rm && <span className="text-xs text-white/50">· РМ: <span className="text-blue-300 font-medium">{rm.employee_name}</span></span>}
                 </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={(e) => { e.stopPropagation(); setEditingEmployee(tm); }}
-                    className="text-white/40 hover:text-white/80 text-xs px-2 py-1 rounded border border-white/10 hover:border-white/30 transition-all"
-                  >
-                    Ред.
-                  </button>
-                  <svg className={`w-5 h-5 text-white/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
+                <div className="flex items-center gap-2 text-xs">
+                  <span className="bg-cyan-500/15 text-cyan-300 px-2 py-1 rounded-full border border-cyan-500/25">{gTm} ТМ</span>
+                  <span className="bg-emerald-500/15 text-emerald-300 px-2 py-1 rounded-full border border-emerald-500/25">{gMp} МП</span>
+                  <span className="bg-white/10 text-white/70 px-2 py-1 rounded-full border border-white/15">{members.length} чел.</span>
                 </div>
               </button>
-
-              {/* MP List */}
-              {isExpanded && (
-                <div className="border-t border-white/10">
-                  {tmMPs.length === 0 ? (
-                    <p className="text-white/40 text-sm p-4">Нет подчинённых МП</p>
-                  ) : (
-                    tmMPs.map(mp => {
-                      const stats = getMPStats(mp);
-                      return (
-                        <div
-                          key={mp.id}
-                          className="flex items-center justify-between p-4 border-b border-white/5 last:border-b-0 hover:bg-white/5 transition-all"
-                        >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-400 font-bold text-xs">
-                              {mp.firstName[0]}{mp.lastName[0]}
+              {!isCollapsed && (
+                <div className="divide-y divide-white/5">
+                  {members.map(emp => {
+                    const sales = salesByEmployee.get(emp.id);
+                    return (
+                      <div key={emp.id} className="px-5 py-3 hover:bg-white/5 transition-colors">
+                        <div className="flex items-center gap-3" style={{ paddingLeft: levelIndent(emp) }}>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-sm font-medium text-white">{emp.employee_name}</span>
+                              <span className={`text-[10px] px-1.5 py-0.5 rounded-full border ${ROLE_BADGES[emp.role] || 'bg-white/10 text-white/60 border-white/15'}`}>
+                                {ROLE_LABELS[emp.role] || emp.role}
+                              </span>
+                              {emp.city && <span className="text-xs text-white/40">{emp.city}</span>}
                             </div>
-                            <div>
-                              <p className="text-white text-sm">{mp.lastName} {mp.firstName}</p>
-                              <p className="text-white/40 text-xs">{mp.territory}</p>
-                            </div>
+                            {emp.regions && (
+                              <p className="text-xs text-white/40 mt-0.5 truncate" title={emp.regions}>{emp.regions}</p>
+                            )}
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="text-right">
-                              <p className={`text-sm font-medium ${stats.pct === null ? 'text-white/40' : stats.pct >= 90 ? 'text-emerald-400' : stats.pct >= 70 ? 'text-yellow-400' : 'text-red-400'}`}>
-                                {stats.pct === null ? 'план не задан' : `${stats.pct}%`}
-                              </p>
-                              <p className="text-white/40 text-xs">{stats.fact.toLocaleString('ru-RU')}{stats.plan > 0 ? ` / ${stats.plan.toLocaleString('ru-RU')}` : ''}</p>
+                          {sales !== undefined && sales > 0 && (
+                            <div className="text-right shrink-0">
+                              <p className="text-sm text-white font-medium">{sales.toLocaleString('ru-RU')} уп.</p>
+                              <p className="text-[10px] text-white/40">в регионах</p>
                             </div>
-                            <button
-                              onClick={() => setSelectedMP(mp)}
-                              className="text-blue-400 hover:text-blue-300 text-xs px-2 py-1 rounded border border-blue-500/20 hover:border-blue-500/40 transition-all"
-                            >
-                              Детали
-                            </button>
-                            <button
-                              onClick={() => setEditingEmployee(mp)}
-                              className="text-white/40 hover:text-white/80 text-xs px-2 py-1 rounded border border-white/10 hover:border-white/30 transition-all"
-                            >
-                              Ред.
-                            </button>
-                          </div>
+                          )}
                         </div>
-                      );
-                    })
-                  )}
+                      </div>
+                    );
+                  })}
                 </div>
               )}
             </div>
           );
         })}
-      </div>
 
-      {/* Modals */}
-      {selectedMP && (
-        <MPDetailModal
-          employee={selectedMP}
-          onClose={() => setSelectedMP(null)}
-        />
-      )}
-      {editingEmployee && (
-        <EditEmployeeModal
-          employee={editingEmployee}
-          onClose={() => setEditingEmployee(null)}
-          onSave={(updated) => {
-            // TODO: persist to backend
-            setEditingEmployee(null);
-          }}
-        />
-      )}
-      {showAddModal && (
-        <AddEmployeeModal
-          onClose={() => setShowAddModal(false)}
-          onSave={(newEmployee) => {
-            // TODO: persist to backend
-            setShowAddModal(false);
-          }}
-        />
-      )}
+        {grouped.length === 0 && (
+          <div className="wm-card bg-white/10 rounded-2xl border border-white/20 px-6 py-12 text-center">
+            <p className="text-white/50 text-sm">
+              {searchQuery ? 'Сотрудники не найдены' : 'Список сотрудников ПФО пуст'}
+            </p>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

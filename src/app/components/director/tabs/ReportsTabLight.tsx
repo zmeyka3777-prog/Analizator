@@ -1212,17 +1212,20 @@ export default function ReportsTabLight() {
         return next;
       });
     }, 200);
-  }, [config]);
+    // selectedMonths в deps обязателен: без него отчёт строился по фильтру
+    // месяцев, зафиксированному при прошлом рендере коллбэка.
+  }, [config, selectedMonths]);
 
   const handleSave = useCallback(() => {
     if (!generatedReport) return;
+    const localId = Date.now().toString();
     const newReport: SavedReport = {
-      id: Date.now().toString(),
+      id: localId,
       name: generatedReport.title,
       template: generatedReport.config.template,
       format: generatedReport.format,
       date: new Date().toLocaleDateString('ru-RU'),
-      size: `${(Math.random() * 8 + 1).toFixed(1)} МБ`,
+      size: '—',
       status: 'ready',
       reportData: generatedReport,
     };
@@ -1230,6 +1233,35 @@ export default function ReportsTabLight() {
     setSavedNotice(true);
     if (savedNoticeTimeoutRef.current) clearTimeout(savedNoticeTimeoutRef.current);
     savedNoticeTimeoutRef.current = setTimeout(() => setSavedNotice(false), 2500);
+
+    // Персистим на сервер — иначе отчёт жил только в state и исчезал при
+    // переключении вкладки (компонент размонтируется).
+    const token = localStorage.getItem('wm_auth_token');
+    let userId: number | null = null;
+    try {
+      const raw = localStorage.getItem('mdlp_user') || localStorage.getItem('wm_russia_user');
+      if (raw) userId = Number(JSON.parse(raw)?.id) || null;
+    } catch { /* битый localStorage */ }
+    if (!token || !userId) return;
+    fetch('/api/reports', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+      body: JSON.stringify({
+        userId,
+        name: generatedReport.title,
+        type: generatedReport.config.template,
+        filters: generatedReport.config,
+        data: generatedReport,
+      }),
+    })
+      .then(r => r.ok ? r.json() : Promise.reject(new Error(`HTTP ${r.status}`)))
+      .then((saved: any) => {
+        // Подменяем локальный id серверным, чтобы удаление работало.
+        if (saved?.id != null) {
+          setSavedReports(prev => prev.map(r => r.id === localId ? { ...r, id: String(saved.id) } : r));
+        }
+      })
+      .catch(err => console.warn('[Reports] Не удалось сохранить отчёт на сервер:', err));
   }, [generatedReport]);
 
   const handleOpenFromArchive = useCallback((report: GeneratedReport) => {
@@ -1239,6 +1271,15 @@ export default function ReportsTabLight() {
 
   const handleDeleteReport = useCallback((id: string) => {
     setSavedReports(prev => prev.filter(r => r.id !== id));
+    // Серверные отчёты (числовой id из БД) удаляем и на сервере — иначе
+    // они «воскресали» при следующем входе.
+    if (!/^\d+$/.test(id) || id.length > 12) return; // Date.now()-id — локальный
+    const token = localStorage.getItem('wm_auth_token');
+    if (!token) return;
+    fetch(`/api/reports/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    }).catch(err => console.warn('[Reports] Не удалось удалить отчёт на сервере:', err));
   }, []);
 
   const navItems: { id: ReportsView; label: string; icon: React.ElementType; badge?: string | number }[] = [

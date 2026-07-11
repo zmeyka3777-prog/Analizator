@@ -18,11 +18,19 @@
 - **Де-мок medrep**: реальная помесячная динамика из `monthlyFact` (было размазывание по весам), убран фейк-рейтинг `position:1`, текст empty-state «загрузите сами» вместо «администратором/директором».
 - Пароль БД обновлён в .env (POSTGRESQL_PASSWORD), старый вычищен из файлов памяти.
 
+### Продолжение 2026-07-11 (Фаза 3-4 + директорские medium — ВСЁ СДЕЛАНО, проверено вживую)
+- **Фаза 3 — сотрудники РМ**: [EmployeesTabNew.tsx](src/app/pages/regional-manager/EmployeesTabNew.tsx) переписан на `/api/admin/employees` — PFO-группы CRM с иерархией РМ→ТМ→МП, поиск, «продажи в регионах» сотрудника из реальной выгрузки (реактивно на wmRussiaData + месяцы). Проверено вживую: 34 сотрудника ПФО, 5 ТМ, 28 МП, 3 группы — реальные (Кузнецова/Малина/Парфенова из CRM). RM employeeCount тоже на API.
+- **Удалены 5 мёртвых mock-файлов**: `data/employees.ts`, `MPDetailModal.tsx`, `EditEmployeeModal.tsx`, `AddEmployeeModal.tsx`, старый `pages/director/EmployeesAnalytics.tsx` (сломанные TODO-модалки ушли вместе с ними; управление сотрудниками — в админке).
+- **Фаза 4 — ТМ**: 6 лейблов «медпредставители» → «регионы» (заголовок, план по регионам, сравнение, «Регионы территории», рейтинг, «Лучший регион»). У ТМ без данных — честный empty-state с подсказкой «⬆️ Загрузка данных» (проверено вживую).
+- **Директор, препараты**: draft/published рассинхрон — `handleSaveProduct/handleDeleteProduct` теперь вызывают `publishProductsDraft()` → правка видна сразу.
+- **Директор, территории**: `Math.random` в DistrictDetailModal убран — все округа считаются из реальной выгрузки (не-ПФО честно показывает нули), годы динамические из getYears(). Проверено: модалка ЦФО «Выручка 0 ₽», числа детерминированные.
+- **Директор, отчёты**: `handleGenerate` deps + `selectedMonths` (отчёт больше не строится по устаревшему фильтру месяцев); `handleSave` → POST `/api/reports` (архив переживает переключение вкладок); `handleDeleteReport` → DELETE на сервере (отчёты не «воскресают»); убран фейковый размер `Math.random() МБ`.
+- tsc чистый по всем изменённым файлам. Удалён мёртвый импорт `./dashboards/AdminDashboard` (файла не существовало).
+
 ### Осталось (следующая сессия)
-- **Фаза 3 — сотрудники**: [EmployeesTabNew.tsx](src/app/pages/regional-manager/EmployeesTabNew.tsx) + RM employeeCount всё ещё на mock `data/employees.ts` (Иванов/Петрова/Малина). Перевести на `/api/admin/employees` (107 CRM) — крупный рерайт: иерархия RM→TM→MP по crm_group + сломанные TODO сохранения в Edit/Add модалках.
-- **Фаза 4 — ТМ**: TerritoryManagerDashboard показывает регионы как «медпредставителей» — переименовать.
-- Директорские medium-находки (аудит): ProductsAnalyticsWithEdit draft/published рассинхрон; TerritoriesAnalytics — Math.random в модалках не-ПФО округов, хардкод подписей годов; ReportsTabLight — handleSave/handleGenerate не пишут на сервер + stale selectedMonths в deps.
-- Полный список ~50 находок аудита: workflow journal `subagents/workflows/wf_eb0ed6cd-3a4/journal.jsonl`.
+- Хардкод-подписи годов на графиках TerritoriesAnalytics («Выручка 2024/2025», строки ~291-307, 442-467) — данные динамические, подписи нет.
+- Полный список ~50 находок аудита: workflow journal `subagents/workflows/wf_eb0ed6cd-3a4/journal.jsonl` — закрыты critical/high и большинство medium; остались low (строка «Все округа» в топбаре MDLP, хардкод yearsOptions 2024-2026, DisplayModeToggle-бейдж и др.).
+- Деплой на VPS не делался (ждёт явной команды).
 
 ### Известные не-регрессии
 - `validateDOMNesting` warning (button в button) в EmployeesTabNew — пред-существующий, не краш.

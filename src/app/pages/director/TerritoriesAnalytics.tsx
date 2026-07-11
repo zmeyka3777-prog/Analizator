@@ -605,37 +605,27 @@ function DistrictDetailModal({
   onClose: () => void;
   onSelectTerritory: (territory: Territory) => void;
 }) {
-  // Для ПФО - реальные данные, для остальных - синтетические
+  // Только реальные данные из загруженной выгрузки — для всех округов.
+  // Раньше не-ПФО округам генерировалась синтетика через Math.random
+  // (числа менялись при каждом открытии модалки); теперь честные нули,
+  // если по округу нет данных. Годы динамические, как в карточках снаружи.
   const territoriesData = useMemo(() => {
-    if (district.id === 'pfo') {
-      return district.territories.map(territory => {
-        const data2025 = getSalesData({ territory: territory.name, year: 2025 });
-        const data2024 = getSalesData({ territory: territory.name, year: 2024 });
-        const revenue2025 = data2025.reduce((sum, d) => sum + d.revenue, 0);
-        const revenue2024 = data2024.reduce((sum, d) => sum + d.revenue, 0);
-        const units2025 = data2025.reduce((sum, d) => sum + d.units, 0);
-        const growth = revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0;
-
-        // Расчет плана
-        const planRevenue = calculateTerritoryPlan(territory.name, 2025, 'revenue');
-        const planUnits = calculateTerritoryPlan(territory.name, 2025, 'units');
-
-        return { territory, revenue2025, revenue2024, units2025, growth, planRevenue, planUnits };
-      });
-    }
-
-    // Синтетические данные для остальных округов
+    const { current: yearCurrent, previous: yearPrev } = getYears();
     return district.territories.map(territory => {
-      const budget = territory.budget2025 * 1000;
-      const revenue2025 = budget * (0.7 + Math.random() * 0.3);
-      const revenue2024 = revenue2025 * 0.85;
-      const avgPrice = 3500;
-      const units2025 = Math.round(revenue2025 / avgPrice);
+      const dataCurrent = getSalesData({ territory: territory.name, year: yearCurrent });
+      const dataPrev = getSalesData({ territory: territory.name, year: yearPrev });
+      const revenue2025 = dataCurrent.reduce((sum, d) => sum + d.revenue, 0);
+      const revenue2024 = dataPrev.reduce((sum, d) => sum + d.revenue, 0);
+      const units2025 = dataCurrent.reduce((sum, d) => sum + d.units, 0);
       const growth = revenue2024 > 0 ? ((revenue2025 - revenue2024) / revenue2024) * 100 : 0;
 
-      // План = бюджет территории
-      const planRevenue = budget;
-      const planUnits = Math.round(budget / avgPrice);
+      // План: для ПФО — из коэффициентов, для остальных — бюджет территории
+      const planRevenue = district.id === 'pfo'
+        ? calculateTerritoryPlan(territory.name, yearCurrent, 'revenue')
+        : territory.budget2025 * 1000;
+      const planUnits = district.id === 'pfo'
+        ? calculateTerritoryPlan(territory.name, yearCurrent, 'units')
+        : 0;
 
       return { territory, revenue2025, revenue2024, units2025, growth, planRevenue, planUnits };
     });

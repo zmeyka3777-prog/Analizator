@@ -131,7 +131,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
           <h2 className="text-2xl font-bold bg-gradient-to-r from-cyan-400 to-blue-400 bg-clip-text text-transparent">
             Территория: {territory}
           </h2>
-          <p className="text-gray-400 text-sm mt-0.5">{district} • {medReps.length} медпредставителей</p>
+          <p className="text-gray-400 text-sm mt-0.5">{district} • {medReps.length} регионов в данных</p>
         </div>
       </div>
 
@@ -177,7 +177,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
 
       {/* Bar Chart */}
       <div className={CARD + ' p-6'}>
-        <h3 className="text-sm font-medium text-gray-400 mb-4">Выполнение плана по медпредставителям</h3>
+        <h3 className="text-sm font-medium text-gray-400 mb-4">Выполнение плана по регионам</h3>
         <div className="h-72">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 60 }}>
@@ -204,7 +204,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
       {/* Table */}
       <div className={CARD}>
         <div className="px-6 py-4 border-b border-white/10">
-          <h3 className="font-semibold text-white">Сравнение медпредставителей</h3>
+          <h3 className="font-semibold text-white">Сравнение регионов</h3>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -309,7 +309,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
 
       {activeTab === 'team' && (
         <div className="space-y-6">
-          <h3 className="text-xl font-bold text-white">Команда медпредставителей</h3>
+          <h3 className="text-xl font-bold text-white">Регионы территории</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {sortedMedReps.map((rep) => {
               const products = getMedRepProductSales(rep);
@@ -388,7 +388,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
           </div>
           {/* Таблица по медпредам */}
           <div className={CARD + ' p-6'}>
-            <h4 className="text-sm font-medium text-gray-400 mb-4">Рейтинг медпредставителей</h4>
+            <h4 className="text-sm font-medium text-gray-400 mb-4">Рейтинг регионов</h4>
             <div className="space-y-3">
               {sortedMedReps.map((rep, i) => (
                 <div key={rep.id} className="flex items-center gap-4">
@@ -425,7 +425,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
               </div>
             </div>
             <div className={CARD + ' p-5'}>
-              <p className="text-xs text-gray-500 mb-1">Медпредов в плане (≥95%)</p>
+              <p className="text-xs text-gray-500 mb-1">Регионов в плане (≥95%)</p>
               <p className="text-3xl font-black text-white">
                 {sortedMedReps.filter(r => r.packagesPercent >= 95).length} / {sortedMedReps.length}
               </p>
@@ -444,7 +444,7 @@ export function TerritoryManagerDashboard({ territory, district, medReps, active
               <p className="text-xs text-gray-400 mt-1">из {fmtMoney(territoryTotals.totalMoneyPlan)} плана</p>
             </div>
             <div className={CARD + ' p-5'}>
-              <p className="text-xs text-gray-500 mb-1">Лучший медпред</p>
+              <p className="text-xs text-gray-500 mb-1">Лучший регион</p>
               <p className="text-lg font-bold text-white">{sortedMedReps[0]?.name || '—'}</p>
               <p className="text-xs font-medium" style={{ color: completionColor(sortedMedReps[0]?.packagesPercent || 0) }}>
                 {(sortedMedReps[0]?.packagesPercent || 0).toFixed(1)}% выполнения
