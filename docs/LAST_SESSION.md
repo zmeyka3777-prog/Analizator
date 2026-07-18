@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-07-11 21:31
+**Дата:** 2026-07-18 14:28
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+c2223fc MDLP месяцы+метрика Рубли/Упаковки, попродуктовый фильтр месяцев МП/ТМ, динамические годы дашборда+AI-прогноз, 401-interceptor
+e1c5f85 Auto-save at end of session
 51d0da0 Фейки → реальные функции: audit_log end-to-end, сценарии калькулятора в БД, drill-down из regional_plans, отчёты MDLP с фильтрами, реальная история операций, вкладка Годы, менеджеры из CRM
 bc03d09 Auto-save at end of session
 f63f373 Auto-save at end of session
-d6b3708 Auto-save at end of session
-3c68518 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
