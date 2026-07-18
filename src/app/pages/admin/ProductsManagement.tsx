@@ -100,6 +100,9 @@ export default function ProductsManagement() {
         budget2025: parseInt(editForm.budget2025, 10) || 0,
       });
       await loadProducts();
+      // Пересчёт всей аналитики с новыми ценами/квотами: SharedDataContext
+      // слушает это событие → syncCatalogsFromDb + setSalesDataFromMdlp.
+      window.dispatchEvent(new Event('mdlp-data-updated'));
     } catch (err: any) {
       console.error('[ProductsManagement] Ошибка сохранения:', err);
     }

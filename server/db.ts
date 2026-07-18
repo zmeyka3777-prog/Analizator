@@ -2,6 +2,7 @@ import { drizzle } from "drizzle-orm/node-postgres";
 import pg from "pg";
 import fs from "fs";
 import * as schema from "@shared/schema";
+import { SEED_PRODUCTS, SEED_DISTRICTS } from "./catalogSeed";
 
 const { Pool } = pg;
 
@@ -301,6 +302,32 @@ async function initSchema(): Promise<void> {
     `);
     console.log('[DB] Таблица federal_districts готова');
 
+    // В БД может жить ПУСТАЯ legacy-таблица territories старой Drizzle-схемы
+    // (id integer, level, population — без district_id/budget2025). Каталожный
+    // CRUD админки ждёт новую схему. Пустую legacy переименовываем и создаём
+    // новую; непустую не трогаем (там чьи-то данные — только предупреждение).
+    try {
+      const legacyCheck = await pool.query(`
+        SELECT
+          EXISTS (SELECT 1 FROM information_schema.tables
+                  WHERE table_schema='world_medicine' AND table_name='territories') AS has_table,
+          NOT EXISTS (SELECT 1 FROM information_schema.columns
+                      WHERE table_schema='world_medicine' AND table_name='territories'
+                        AND column_name='district_id') AS is_legacy
+      `);
+      if (legacyCheck.rows[0].has_table && legacyCheck.rows[0].is_legacy) {
+        const cnt = await pool.query(`SELECT COUNT(*)::int AS n FROM world_medicine.territories`);
+        if (cnt.rows[0].n === 0) {
+          await pool.query(`ALTER TABLE world_medicine.territories RENAME TO territories_legacy`);
+          console.log('[DB] Пустая legacy-таблица territories переименована в territories_legacy');
+        } else {
+          console.warn(`[DB] territories имеет legacy-схему и ${cnt.rows[0].n} строк — каталожный CRUD территорий работать не будет, нужна ручная миграция`);
+        }
+      }
+    } catch (renameErr: any) {
+      console.warn('[DB] Проверка legacy territories:', renameErr.message);
+    }
+
     await pool.query(`
       CREATE TABLE IF NOT EXISTS world_medicine.territories (
         id VARCHAR(100) PRIMARY KEY,
@@ -313,6 +340,56 @@ async function initSchema(): Promise<void> {
       )
     `);
     console.log('[DB] Таблица territories готова');
+
+    // ==================== SEED КАТАЛОГОВ ====================
+    // Пустые таблицы каталога → первичное заполнение из статических данных
+    // (catalogSeed.ts). После этого источник правды — БД: админка правит
+    // цены/квоты/бюджеты, аналитика подтягивает их через API.
+    try {
+      const prodCount = await pool.query(`SELECT COUNT(*)::int AS n FROM world_medicine.products`);
+      if (prodCount.rows[0].n === 0) {
+        for (const p of SEED_PRODUCTS) {
+          await pool.query(
+            `INSERT INTO world_medicine.products (code, name, short_name, price, quota2025, budget2025, category, sort_order)
+             VALUES ($1,$2,$3,$4,$5,$6,$7,$8) ON CONFLICT (code) DO NOTHING`,
+            [p.code, p.name, p.short_name, p.price, p.quota2025, p.budget2025, p.category, p.sort_order]
+          );
+        }
+        console.log(`[DB] Seed: products заполнены (${SEED_PRODUCTS.length})`);
+      }
+
+      // Округа и территории сидируются НЕЗАВИСИМО (ON CONFLICT DO NOTHING
+      // делает повтор идемпотентным) — если прошлый seed упал на середине,
+      // недостающее досеется при следующем старте.
+      const distCount = await pool.query(`SELECT COUNT(*)::int AS n FROM world_medicine.federal_districts`);
+      if (distCount.rows[0].n < SEED_DISTRICTS.length) {
+        for (const d of SEED_DISTRICTS) {
+          await pool.query(
+            `INSERT INTO world_medicine.federal_districts (id, name, short_name, color, icon, sort_order)
+             VALUES ($1,$2,$3,$4,$5,$6) ON CONFLICT (id) DO NOTHING`,
+            [d.id, d.name, d.short_name, d.color, d.icon, d.sort_order]
+          );
+        }
+        console.log(`[DB] Seed: federal_districts дозаполнены (${SEED_DISTRICTS.length})`);
+      }
+
+      const terrSeedTotal = SEED_DISTRICTS.reduce((s, d) => s + d.territories.length, 0);
+      const terrCount = await pool.query(`SELECT COUNT(*)::int AS n FROM world_medicine.territories`);
+      if (terrCount.rows[0].n < terrSeedTotal) {
+        for (const d of SEED_DISTRICTS) {
+          for (const t of d.territories) {
+            await pool.query(
+              `INSERT INTO world_medicine.territories (id, district_id, name, budget2025, sort_order)
+               VALUES ($1,$2,$3,$4,$5) ON CONFLICT (id) DO NOTHING`,
+              [t.id, d.id, t.name, t.budget2025, t.sort_order]
+            );
+          }
+        }
+        console.log(`[DB] Seed: territories дозаполнены (${terrSeedTotal})`);
+      }
+    } catch (seedErr: any) {
+      console.warn('[DB] Ошибка seed каталогов:', seedErr.message);
+    }
 
     const staleResult = await pool.query(
       `UPDATE world_medicine.upload_history SET status = 'error', error_message = 'Загрузка прервана (перезапуск сервера)' WHERE status = 'processing' AND uploaded_at < NOW() - INTERVAL '30 minutes'`

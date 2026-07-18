@@ -99,6 +99,8 @@ export default function TerritoriesManagement() {
         budget2025: parseInt(editBudget, 10) || 0,
       });
       await loadDistricts();
+      // Пересчёт аналитики с новыми бюджетами территорий.
+      window.dispatchEvent(new Event('mdlp-data-updated'));
     } catch (err) {
       console.error('[TerritoriesManagement] Ошибка сохранения территории:', err);
     }

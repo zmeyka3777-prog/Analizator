@@ -2,6 +2,72 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { MedRepData, WMFederalDistrict } from '../types';
 import { setSalesDataFromMdlp } from '@/data/salesData';
 import { toMonthNum as monthToNum } from '@/utils/months';
+import { PRODUCTS } from '@/types/sales.types';
+import { FEDERAL_DISTRICTS } from '@/data/federalDistricts';
+
+// ==================== СИНХРОНИЗАЦИЯ КАТАЛОГОВ С БД ====================
+// Правки админа (цены/квоты препаратов, бюджеты территорий) живут в таблицах
+// products / territories. Перед пересчётом аналитики подтягиваем их и мутируем
+// статические каталоги IN-PLACE (те же ссылки на массивы, которые импортируют
+// все дашборды) — так revenue и планы считаются от актуальных данных БД.
+// Роли без доступа к API или офлайн → каталог остаётся статическим (fallback).
+async function syncCatalogsFromDb(token: string): Promise<void> {
+  try {
+    const [prodRes, distRes] = await Promise.all([
+      fetch('/api/admin/products', { headers: { 'Authorization': `Bearer ${token}` } }),
+      fetch('/api/admin/districts', { headers: { 'Authorization': `Bearer ${token}` } }),
+    ]);
+
+    if (prodRes.ok) {
+      const data = await prodRes.json();
+      const rows: any[] = data?.products || [];
+      for (const row of rows) {
+        if (row.is_active === false) continue;
+        const code = String(row.code || '');
+        const existing = PRODUCTS.find(p => p.id === code || p.name === row.name);
+        if (existing) {
+          if (row.price != null && Number(row.price) > 0) existing.price = Number(row.price);
+          if (row.quota2025 != null && Number(row.quota2025) > 0) existing.quota2025 = Number(row.quota2025);
+          if (row.budget2025 != null && Number(row.budget2025) > 0) existing.budget2025 = Number(row.budget2025);
+          if (row.short_name) existing.shortName = row.short_name;
+          if (row.category) existing.category = row.category;
+        } else if (code && row.name) {
+          PRODUCTS.push({
+            id: code,
+            name: row.name,
+            shortName: row.short_name || row.name,
+            price: Number(row.price) || 0,
+            category: row.category || undefined,
+            isActive: true,
+            quota2025: Number(row.quota2025) || 0,
+            budget2025: Number(row.budget2025) || undefined,
+          });
+        }
+      }
+      console.log(`[Каталог] products из БД: ${rows.length} строк применено`);
+    }
+
+    if (distRes.ok) {
+      const data = await distRes.json();
+      const rows: any[] = data?.districts || [];
+      for (const dbDist of rows) {
+        const dist = FEDERAL_DISTRICTS.find(d => d.id === dbDist.id);
+        if (!dist) continue;
+        for (const dbTerr of (dbDist.territories || [])) {
+          const terr = dist.territories.find(t => t.id === dbTerr.id || t.name === dbTerr.name);
+          if (terr && dbTerr.budget2025 != null && Number(dbTerr.budget2025) > 0) {
+            terr.budget2025 = Number(dbTerr.budget2025);
+          }
+        }
+        // Пересчёт агрегата округа после обновления бюджетов территорий.
+        dist.totalBudget2025 = dist.territories.reduce((sum, t) => sum + (t.budget2025 || 0), 0);
+      }
+      console.log(`[Каталог] territories из БД: ${rows.length} округов применено`);
+    }
+  } catch (err) {
+    console.warn('[Каталог] Синхронизация с БД не удалась (используется статический):', err);
+  }
+}
 
 export interface MDLPSaleRecord {
   drug: string;
@@ -494,6 +560,10 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       return;
     }
     if (!userId) return;
+
+    // Синхронизируем каталоги (цены/квоты препаратов, бюджеты территорий)
+    // из БД ДО пересчёта — revenue считается уже с актуальными ценами.
+    await syncCatalogsFromDb(token);
 
     // Параллельно подгружаем прайс-лист из БД. Если /api/drug-prices пуст —
     // setSalesDataFromMdlp использует fallback PRODUCTS.price из каталога.
