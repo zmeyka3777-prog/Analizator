@@ -340,6 +340,8 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
       totalMoney: number;
       // Помесячная разбивка по региону: month (1-12) → { packages, money }
       monthlyFact: Record<number, { packages: number; money: number }>;
+      // Помесячная разбивка по продуктам: month → productKey → упаковки
+      monthlyProductFact: Record<number, Record<string, number>>;
     }> = {};
 
     mdlpRecords.forEach(record => {
@@ -353,6 +355,7 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
           products: {},
           totalMoney: 0,
           monthlyFact: {},
+          monthlyProductFact: {},
         };
         WM_PRODUCTS.forEach(p => {
           grouped[regionKey].products[p.key] = { plan: 0, fact: 0 };
@@ -376,6 +379,14 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         if (!mf[monthNum]) mf[monthNum] = { packages: 0, money: 0 };
         mf[monthNum].packages += record.packages || 0;
         mf[monthNum].money += record.sales || 0;
+
+        // Попродуктовая помесячная разбивка — чтобы фильтр месяцев
+        // пересчитывал факты по каждому препарату, а не только итоги.
+        if (productKey && grouped[regionKey].products[productKey]) {
+          const mpf = grouped[regionKey].monthlyProductFact;
+          if (!mpf[monthNum]) mpf[monthNum] = {};
+          mpf[monthNum][productKey] = (mpf[monthNum][productKey] || 0) + (record.packages || 0);
+        }
       }
     });
 
@@ -419,6 +430,7 @@ export function SharedDataProvider({ children }: { children: React.ReactNode }) 
         totalMoneyPlan: 0,
         totalMoneyFact: data.totalMoney,
         monthlyFact: data.monthlyFact,
+        monthlyProductFact: data.monthlyProductFact,
       };
     });
   }, []);

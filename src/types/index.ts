@@ -286,6 +286,10 @@ export interface MedRepData {
   // totalPackagesFact/totalMoneyFact. Если выбраны месяцы — суммируем нужные.
   // Ключ: номер месяца 1-12.
   monthlyFact?: Record<number, { packages: number; money: number }>;
+  // Помесячная разбивка ПО ПРОДУКТАМ (упаковки). Ключи: месяц 1-12 → productKey
+  // ('kokarnit'…) → упаковки. Нужна чтобы фильтр месяцев пересчитывал не только
+  // итоги, но и попродуктовые факты (pie/radar/таблицы План vs Факт).
+  monthlyProductFact?: Record<number, Record<string, number>>;
 }
 
 // WM User with role and territory bindings

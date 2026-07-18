@@ -62,7 +62,7 @@ import {
   PolarAngleAxis,
   PolarRadiusAxis,
 } from 'recharts';
-import { PRODUCTS, TERRITORIES, getTotalStats, aggregateByProduct, getMonthlyDynamics, getMonthlyDynamicsUnits, getMonthlyDynamicsDynamic, getMonthlyDynamicsUnitsDynamic, BUDGET_PFO_2025 } from '@/data/salesData';
+import { PRODUCTS, TERRITORIES, getTotalStats, aggregateByProduct, getMonthlyDynamics, getMonthlyDynamicsUnits, getMonthlyDynamicsDynamic, getMonthlyDynamicsUnitsDynamic, getActiveYearsForCharts, BUDGET_PFO_2025 } from '@/data/salesData';
 import { useRegionalPlans, sumPlanUnits } from '@/hooks/useRegionalPlans';
 import { FEDERAL_DISTRICTS, getTotalRussiaBudget2025, getDistrictStats, FederalDistrict } from '@/data/federalDistricts';
 import ProductsAnalyticsWithEdit from '@/app/pages/director/ProductsAnalyticsWithEdit';
@@ -244,42 +244,44 @@ const DashboardView = () => {
   const salesTrendData = getMonthlyDynamics();
   const salesTrendUnitsData = getMonthlyDynamicsUnits();
 
-  // Динамические года для графика динамики (3 последних года).
-  // Раньше график хардкодил year2024/2025/2026 и 1 января следующего года
-  // терял свежий год. Ключи `year${год}` совпадают с getMonthlyDynamicsDynamic.
-  const chartYears = [yearCurrent - 2, yearPrev, yearCurrent];
+  // Года графика берём из реально активных лет данных (getActiveYearsForCharts) —
+  // так подписи и dataKey `year${год}` всегда совпадают с getMonthlyDynamicsDynamic.
+  // Fallback на 3 последних года, если активных ещё нет (пустое состояние).
+  const activeChartYears = getActiveYearsForCharts();
+  const chartYears = activeChartYears.length > 0
+    ? activeChartYears.slice(-3)
+    : [yearCurrent - 2, yearPrev, yearCurrent];
   const chartColors = ['#94a3b8', '#06b6d4', '#a855f7'];
   const salesTrendDynamic = getMonthlyDynamicsDynamic();
   const salesTrendUnitsDynamic = getMonthlyDynamicsUnitsDynamic();
 
-  // AI прогнозирование
+  // AI прогнозирование. Раньше жёстко: uploadedMonths2026=[1] + годы 2025/2026 —
+  // AI всегда «анализировал» только январь и выдавал «-100%», если января нет.
+  // Теперь: реальные загруженные месяцы текущего года + динамические годы.
   const generateAIForecast = () => {
-    const uploadedMonths2026 = [1];
-    const uploadedMonthsCount = uploadedMonths2026.length;
+    // Месяцы, за которые есть факт текущего года (из реальной динамики).
+    const uploadedMonths = salesTrendUnitsDynamic
+      .map((m, idx) => ({ idx: idx + 1, val: Number(m[`year${yearCurrent}`]) || 0 }))
+      .filter(m => m.val > 0)
+      .map(m => m.idx);
+    const uploadedMonthsCount = uploadedMonths.length || 1;
 
-    let total2025Period = 0;
-    let total2026Period = 0;
-
-    uploadedMonths2026.forEach(monthIndex => {
-      const monthData = salesTrendData[monthIndex - 1];
-      total2025Period += monthData.year2025;
-      total2026Period += monthData.year2026;
+    let totalPrevPeriod = 0;
+    let totalCurrentPeriod = 0;
+    uploadedMonths.forEach(monthIndex => {
+      const monthData = salesTrendDynamic[monthIndex - 1] as any;
+      totalPrevPeriod += Number(monthData?.[`year${yearPrev}`]) || 0;
+      totalCurrentPeriod += Number(monthData?.[`year${yearCurrent}`]) || 0;
     });
 
-    const periodGrowth = total2025Period > 0 ? ((total2026Period - total2025Period) / total2025Period) * 100 : 0;
-    const total2024 = salesTrendData.reduce((sum, m) => sum + m.year2024, 0);
-    const total2025 = salesTrendData.reduce((sum, m) => sum + m.year2025, 0);
-    const avgGrowth2025 = total2024 > 0 ? ((total2025 - total2024) / total2024) * 100 : 0;
-    const avgMonthly2026 = total2026Period / uploadedMonthsCount;
-    const projected2026Full = avgMonthly2026 * 12;
-    const targetGrowth = 18;
-    const projectedVsTarget = (projected2026Full / (total2025 * (1 + targetGrowth / 100))) * 100;
+    const periodGrowth = totalPrevPeriod > 0 ? ((totalCurrentPeriod - totalPrevPeriod) / totalPrevPeriod) * 100 : 0;
+    const totalPrev = salesTrendDynamic.reduce((sum, m: any) => sum + (Number(m[`year${yearPrev}`]) || 0), 0);
 
     const productsAnalysis = PRODUCTS.map(product => {
-      const sales2025 = getSalesData({ productId: product.id, year: 2025 }).filter(d => uploadedMonths2026.includes(d.month)).reduce((sum, d) => sum + d.revenue, 0);
-      const sales2026 = getSalesData({ productId: product.id, year: 2026 }).filter(d => uploadedMonths2026.includes(d.month)).reduce((sum, d) => sum + d.revenue, 0);
-      const growth = sales2025 > 0 ? ((sales2026 - sales2025) / sales2025) * 100 : 0;
-      return { name: product.shortName || product.name, sales2025, sales2026, growth, category: product.category };
+      const salesPrev = getSalesData({ productId: product.id, year: yearPrev }).filter(d => uploadedMonths.includes(d.month)).reduce((sum, d) => sum + d.revenue, 0);
+      const salesCurrent = getSalesData({ productId: product.id, year: yearCurrent }).filter(d => uploadedMonths.includes(d.month)).reduce((sum, d) => sum + d.revenue, 0);
+      const growth = salesPrev > 0 ? ((salesCurrent - salesPrev) / salesPrev) * 100 : 0;
+      return { name: product.shortName || product.name, sales2025: salesPrev, sales2026: salesCurrent, growth, category: product.category };
     }).filter(p => p.sales2025 > 0 || p.sales2026 > 0);
 
     const topGrowing = [...productsAnalysis].sort((a, b) => b.growth - a.growth).slice(0, 3);
@@ -300,13 +302,13 @@ const DashboardView = () => {
 
     if (periodGrowth >= 20) {
       emoji = '🚀';
-      recommendation = `За период ${uploadedMonthsCount === 1 ? 'январь' : `${uploadedMonthsCount} мес.`} 2026 зафиксирован рост ${periodGrowth.toFixed(1)}% к аналогичному периоду 2025. ${productsComment} Рекомендуем масштабировать успешные практики лидеров на другие территории.`;
+      recommendation = `За период ${uploadedMonthsCount === 1 ? '1 мес.' : `${uploadedMonthsCount} мес.`} ${yearCurrent} зафиксирован рост ${periodGrowth.toFixed(1)}% к аналогичному периоду ${yearPrev}. ${productsComment} Рекомендуем масштабировать успешные практики лидеров на другие территории.`;
     } else if (periodGrowth >= 15) {
       emoji = '✅';
-      recommendation = `Рост ${periodGrowth.toFixed(1)}% за ${uploadedMonthsCount === 1 ? 'январь' : `${uploadedMonthsCount} мес.`} соответствует целевым показателям. ${productsComment} Поддерживайте текущий темп и активизируйте отстающие регионы.`;
+      recommendation = `Рост ${periodGrowth.toFixed(1)}% за ${uploadedMonthsCount === 1 ? '1 мес.' : `${uploadedMonthsCount} мес.`} соответствует целевым показателям. ${productsComment} Поддерживайте текущий темп и активизируйте отстающие регионы.`;
     } else if (periodGrowth >= 5) {
       emoji = '⚠️';
-      recommendation = `Рост ${periodGrowth.toFixed(1)}% за ${uploadedMonthsCount === 1 ? 'январь' : `${uploadedMonthsCount} мес.`} ниже целевых 18%. ${productsComment} Необходим анализ причин отставания и коррекция стратегии продаж в Q1.`;
+      recommendation = `Рост ${periodGrowth.toFixed(1)}% за ${uploadedMonthsCount === 1 ? '1 мес.' : `${uploadedMonthsCount} мес.`} ниже целевых 18%. ${productsComment} Необходим анализ причин отставания и коррекция стратегии продаж в Q1.`;
     } else if (periodGrowth >= 0) {
       emoji = '⚠️';
       recommendation = `Минимальный рост ${periodGrowth.toFixed(1)}% за период. ${productsComment} Срочно: аудит работы РМ, пересмотр ценовой политики по падающим препаратам.`;

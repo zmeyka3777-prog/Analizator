@@ -135,6 +135,17 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
         accMonthly[m].money += val.money;
       }
     }
+    // Сливаем попродуктовую помесячную разбивку.
+    const accMonthlyProduct = acc.monthlyProductFact || {};
+    if (rep.monthlyProductFact) {
+      for (const [monthStr, prods] of Object.entries(rep.monthlyProductFact)) {
+        const m = Number(monthStr);
+        if (!accMonthlyProduct[m]) accMonthlyProduct[m] = {};
+        for (const [pk, units] of Object.entries(prods)) {
+          accMonthlyProduct[m][pk] = (accMonthlyProduct[m][pk] || 0) + units;
+        }
+      }
+    }
     return {
       ...acc,
       kokarnitPlan: acc.kokarnitPlan + rep.kokarnitPlan,
@@ -166,6 +177,7 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
       totalMoneyPlan: acc.totalMoneyPlan + rep.totalMoneyPlan,
       totalMoneyFact: acc.totalMoneyFact + rep.totalMoneyFact,
       monthlyFact: accMonthly,
+      monthlyProductFact: accMonthlyProduct,
     };
   }, {
     id: 'merged',
@@ -180,6 +192,7 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
     doramitcinPlan: 0, doramitcinFact: 0, alfectoPlan: 0, alfectoFact: 0,
     totalPackagesPlan: 0, totalPackagesFact: 0, totalMoneyPlan: 0, totalMoneyFact: 0,
     monthlyFact: {},
+    monthlyProductFact: {},
   });
   return merged;
 }
@@ -189,6 +202,14 @@ export function mergeMedRepData(reps: MedRepData[]): MedRepData {
  * возвращает rep без изменений. Иначе пересчитывает totalPackagesFact и
  * totalMoneyFact как сумму monthlyFact по выбранным месяцам.
  */
+// productKey ('kokarnit'…) → имя поля факта в MedRepData ('kokarnitFact'…).
+const PRODUCT_KEY_TO_FACT_FIELD: Record<string, keyof MedRepData> = {
+  kokarnit: 'kokarnitFact', artoxan: 'artoxanFact', artoxanTabl: 'artoxanTablFact',
+  artoxanGel: 'artoxanGelFact', seknidox: 'seknidoxFact', klodifen: 'klodifenFact',
+  drastop: 'drastopFact', ortsepol: 'ortsepolFact', limenda: 'limendaFact',
+  ronocit: 'ronocitFact', doramitcin: 'doramitcinFact', alfecto: 'alfectoFact',
+};
+
 export function applyMonthsFilter(rep: MedRepData, selectedMonths: number[]): MedRepData {
   if (!selectedMonths || selectedMonths.length === 0) return rep;
   const mf = rep.monthlyFact || {};
@@ -200,8 +221,24 @@ export function applyMonthsFilter(rep: MedRepData, selectedMonths: number[]): Me
       money += mf[m].money;
     }
   }
+
+  // Пересчитываем ПОПРОДУКТОВЫЕ факты по выбранным месяцам — иначе pie/radar/
+  // таблицы «План vs Факт» показывали годовые цифры, конфликтуя с KPI.
+  const productFacts: Record<string, number> = {};
+  for (const field of Object.values(PRODUCT_KEY_TO_FACT_FIELD)) productFacts[field as string] = 0;
+  const mpf = rep.monthlyProductFact || {};
+  for (const m of selectedMonths) {
+    const prods = mpf[m];
+    if (!prods) continue;
+    for (const [pk, units] of Object.entries(prods)) {
+      const field = PRODUCT_KEY_TO_FACT_FIELD[pk] as string | undefined;
+      if (field) productFacts[field] = (productFacts[field] || 0) + units;
+    }
+  }
+
   return {
     ...rep,
+    ...(productFacts as Partial<MedRepData>),
     totalPackagesFact: packages,
     totalMoneyFact: money,
   };
