@@ -1,22 +1,22 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-07-19 10:08
+**Дата:** 2026-07-29 12:07
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
 
 ```
-нет изменений
+docs/FIX_PLAN.md
 ```
 
 ## Последние 5 коммитов
 
 ```
+cea70bb Auto-save at end of session
 4191b18 Auto-save at end of session
 4a42f79 Каталог препаратов/территорий из БД: seed при старте, syncCatalogsFromDb на клиенте, пересчёт аналитики после правок админки
 3db2f15 Auto-save at end of session
 c2223fc MDLP месяцы+метрика Рубли/Упаковки, попродуктовый фильтр месяцев МП/ТМ, динамические годы дашборда+AI-прогноз, 401-interceptor
-e1c5f85 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
