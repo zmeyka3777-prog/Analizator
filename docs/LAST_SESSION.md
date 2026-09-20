@@ -1,6 +1,6 @@
 # Последняя сессия Claude Code
 
-**Дата:** 2026-07-29 12:08
+**Дата:** 2026-09-20 18:25
 **Сообщение:** Auto-save at end of session
 
 ## Изменённые файлы в этой сессии
@@ -12,11 +12,11 @@
 ## Последние 5 коммитов
 
 ```
+b3a3b01 Auto-save at end of session
 5c24aac Auto-save at end of session
 cea70bb Auto-save at end of session
 4191b18 Auto-save at end of session
 4a42f79 Каталог препаратов/территорий из БД: seed при старте, syncCatalogsFromDb на клиенте, пересчёт аналитики после правок админки
-3db2f15 Auto-save at end of session
 ```
 
 ## Для нового Claude (инструкции)
